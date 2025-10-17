@@ -6,6 +6,7 @@ import { User } from '../models/user.js';
 import { ApiResponse } from '../utils/api-response.js';
 import { ObjectId } from "mongodb";
 import { sendEmail } from '../lib/resend.js';
+import { getEmailTemplate } from '../templates/email.js'
 import { deleteAllCache, deleteCacheUsingPattern } from "../lib/redis.js";
 class UserController {
     forgetPassword = asyncHandler(async (req, res) => {
@@ -22,9 +23,9 @@ class UserController {
         }
         const resetToken = await user.generatePasswordResetToken();
         const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
-        const text = `Click the link to reset your password: ${resetLink}`;
+	const html = getEmailTemplate(user.fullname,resetLink)
         const subject = "Password Reset";
-        const { error } = await sendEmail(email, subject, text);
+        const { error } = await sendEmail(email, subject,html);
         if (error) {
             throw new ApiError(500, error.message)
         }

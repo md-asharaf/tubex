@@ -4,7 +4,6 @@ import { webSocketServer } from "./lib/web-socket.js";
 import { initConsumers } from "./lib/kafka/consumer.js";
 import { initProducer } from "./lib/kafka/producer.js"
 import { deleteAllCache } from "./lib/redis.js";
-
 const BACKEND_PORT = process.env.BACKEND_PORT;
 const WEB_SOCKET_PORT = process.env.WEB_SOCKET_PORT;
 const startServers = async () => {

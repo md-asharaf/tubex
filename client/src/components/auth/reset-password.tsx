@@ -18,6 +18,7 @@ export const ResetPassword = () => {
         setLoading(true);
         try {
             await userService.resetPassword(resetToken, password);
+	    toast.success("password reset successfully.")
             navigate("/login");
         } catch (error) {
             toast.error(error.message);
