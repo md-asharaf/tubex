@@ -11,7 +11,7 @@ import { CreatePlaylist } from "./modals/create-playlist";
 export const RootLayOut = () => {
     useSocketNotifications();
     return (
-        <div className="w-full bg-white dark:bg-[#0F0F0F] min-h-screen flex flex-col">
+        <div className="w-full bg-white dark:bg-[#0F0F0F] h-[100dvh] flex flex-col">
             <nav className="z-30 fixed top-0 left-0 h-12 sm:h-16 w-full">
                 <NavBar />
             </nav>

@@ -67,7 +67,7 @@ export const SignIn = () => {
         }
     };
     return (
-        <div className="h-screen flex items-center justify-center mx-2 text-black">
+        <div className="flex w-full items-center justify-center mx-2 text-black">
             <div className="bg-white p-6 md:p-8 rounded-lg shadow-lg z-10">
                 <div className="text-center mb-6">
                     <div className="flex justify-center space-x-1 items-center">

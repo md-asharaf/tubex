@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/carousel";
 import { categories } from "@/constants";
 import { cn } from "@/lib/utils";
-import { set } from "date-fns";
 import { useEffect, useState } from "react";
 
 export const FilterCarousel = ({ value, setValue }) => {

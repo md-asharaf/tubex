@@ -32,11 +32,11 @@ export const NavBar = () => {
                         }}
                     />
                     <button
-                        className="flex items-center hover:bg-transparent text-lg space-x-1"
+                        className="flex items-center hover:bg-transparent text-lg space-x-1 sm:space-x-2"
                         onClick={() => (location.href = "/")}
                     >
-                        <ImYoutube color="red" className="text-xl" />
-                        <h1 className="font-bold hidden sm:block">ShotTube</h1>
+                        <ImYoutube color="red" className="text-2xl sm:text-3xl" />
+                        <h1 className="font-bold text-lg sm:text-xl tracking-tight">TubeX</h1>
                     </button>
                 </div>
                 
@@ -56,8 +56,8 @@ export const NavBar = () => {
                     </button>
                 </div>
                 
-                <div className="flex gap-1 sm:gap-4 lg:gap-8 items-center">
-                    <div>
+                <div className="flex gap-2 sm:gap-4 lg:gap-8 items-center">
+                    <div className="hidden sm:block">
                         <DarkModeSwitch
                             checked={theme === "dark"}
                             onChange={() => dispatch(toggleTheme())}

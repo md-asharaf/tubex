@@ -11,7 +11,7 @@ export const StudioLayout = () => {
     if(!userData) return <Navigate to="/login"/>
     return (
         <SidebarProvider>
-            <div className="w-full overflow-y-auto h-screen">
+            <div className="w-full overflow-y-auto h-[100dvh]">
                 <StudioNavbar />
                 <Outlet />
                 <CreatePlaylist/>

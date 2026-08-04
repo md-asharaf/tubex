@@ -37,10 +37,10 @@ export const CreateDropdown = ({ isPlaylist = false }: CreateDropdownProps) => {
       <DropdownMenuTrigger className="focus:outline-none" asChild>
         <Button
           variant="secondary"
-          className="flex rounded-full px-4 py-2 [&_svg]:size-5"
+          className="flex items-center justify-center rounded-full h-8 w-8 px-0 sm:px-4 sm:h-10 sm:w-auto hover:bg-gray-200 dark:hover:bg-[#272727] transition-colors"
         >
-          <PlusIcon />
-          Create
+          <PlusIcon className="size-4 sm:size-5" />
+          <span className="hidden sm:inline-block ml-1 font-medium">Create</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="p-0 py-2 m-0">
