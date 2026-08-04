@@ -11,7 +11,7 @@ const producer = kafka.producer({
   acks: -1,
 });
 
-export const initProducer = async () => {
+const initProducer = async () => {
   try {
     await producer.connect();
     logger.info('Kafka producer connected');
