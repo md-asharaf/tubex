@@ -361,6 +361,10 @@ class ShortController {
 
     getRecommendedShorts = asyncHandler(async (req, res) => {
         const { shortId, userId, page = 1, limit = 12 } = req.query;
+        // Validate pagination inputs
+        const validPage = Math.max(1, parseInt(page) || 1);
+        const validLimit = Math.max(1, Math.min(50, parseInt(limit) || 12));
+        
         let short;
         let user;
         if (shortId) {
@@ -385,7 +389,7 @@ class ShortController {
                         sourceStatus: "READY",
                         userId: short.userId,
                         _id: { $nin: notToBeRecommended }
-                    }).populate("userId", "username fullname avatar")
+                    }).populate("userId", "username fullname avatar").limit(10)
                     if (shortsBySameCreator.length) {
                         recommendations.push(...shortsBySameCreator);
                         notToBeRecommended.push(...shortsBySameCreator.map(s => s._id.toString()));
@@ -398,7 +402,7 @@ class ShortController {
                         sourceStatus: "READY",
                         categories: { $in: short.categories },
                         _id: { $nin: notToBeRecommended }
-                    }).populate("userId", "username fullname avatar")
+                    }).populate("userId", "username fullname avatar").limit(10)
 
                     if (shortsBySameCategories.length) {
                         recommendations.push(...shortsBySameCategories);
@@ -406,10 +410,11 @@ class ShortController {
                     }
                 }
 
+                // Limit to 10 users to avoid N+1 query problem
                 const usersWithSimilarHistory = await User.find({
                     _id: { $ne: userId },
                     "watchHistory.shortIds": { $in: user.watchHistory.shortIds || [] }
-                })
+                }).limit(10)
 
                 for (let similarUser of usersWithSimilarHistory) {
                     let shorts = await Short.aggregate([
@@ -418,13 +423,14 @@ class ShortController {
                                 visibility: "public",
                                 sourceStatus: "READY",
                                 _id: {
-                                    $nin: notToBeRecommended
+                                    $nin: notToBeRecommended.map(id => new ObjectId(id))
                                 },
                                 _id: {
-                                    $in: similarUser.watchHistory?.shortIds || []
+                                    $in: similarUser.watchHistory?.shortIds?.map(id => new ObjectId(id)) || []
                                 }
                             }
-                        }
+                        },
+                        { $limit: 5 }
                     ]).populate("userId", "username fullname avatar")
                     if (shorts.length) {
                         recommendations.push(...shorts);
@@ -493,19 +499,21 @@ class ShortController {
         allShorts = await getShortScores(allShorts);
         allShorts.sort((a, b) => b.score - a.score);
 
-        const startIndex = (page - 1) * limit;
-        const paginatedShorts = allShorts.slice(startIndex, startIndex + limit);
+        const startIndex = (validPage - 1) * validLimit;
+        const paginatedShorts = allShorts.slice(startIndex, startIndex + validLimit);
 
         return res.status(200).json(new ApiResponse(200, { recommendations: paginatedShorts }, 'Recommended Shorts fetched successfully'));
     }
-    );
 
     increaseViews = asyncHandler(async (req, res) => {
         const { shortId } = req.params;
         if (!shortId) throw new ApiError(400, "Please provide ShortId")
         const short = await Short.findById(shortId);
+        if (!short) {
+            throw new ApiError(404, "Short not found");
+        }
         short.views++;
-        await Short.save({ validateBeforeSave: false })
+        await short.save({ validateBeforeSave: false })
         return res.status(200).json(new ApiResponse(200, null, "successfully Short's views increased"))
     })
 }

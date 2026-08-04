@@ -207,17 +207,17 @@ export const Short = () => {
             playerRef.current.volume = volume / 100;
         }
     }, [volume]);
-    if (isLoading) {
+    if (isLoading || !short) {
         return (
-            <div className="flex items-center justify-center h-full w-full">
+            <div className="flex items-center justify-center h-screen w-full">
                 <Loader2 className="h-10 w-10 animate-spin" />
             </div>
         );
     }
     return (
-        <div className="flex items-start justify-around">
-            <div className="flex relative rounded-lg shadow-lg group">
-                <div className="relative md:w-[512px]">
+        <div className="flex items-start justify-around w-full px-2 sm:px-4 py-4 overflow-x-hidden">
+            <div className="flex relative rounded-lg shadow-lg group max-w-full">
+                <div className="relative w-full sm:w-[512px]">
                     <PlyrPlayer
                         thumbnail={short.thumbnail}
                         key={shortId}
