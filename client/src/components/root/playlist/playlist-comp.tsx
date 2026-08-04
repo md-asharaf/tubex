@@ -113,7 +113,7 @@ export const PlaylistComp: React.FC<Props> = ({ playlist }) => {
         },
     });
     return (
-        <div className="flex flex-col gap-4 lg:flex-row h-full  w-full dark:text-white">
+        <div className="flex flex-col gap-4 lg:flex-row w-full dark:text-white">
             <div
                 className="flex flex-col space-y-4 sm:space-x-4 sm:flex-row lg:flex-col dark:bg-zinc-700 bg-gray-200 p-5  rounded-xl lg:h-full lg:w-1/3 xl:w-1/4"
                 style={{
@@ -152,7 +152,7 @@ export const PlaylistComp: React.FC<Props> = ({ playlist }) => {
                 </div>
             </div>
 
-            <div className="flex flex-col w-full lg:w-2/3 xl:w-3/4">
+            <div className="flex flex-col w-full lg:w-2/3 xl:w-3/4 pb-20 sm:pb-4">
                 {playlist.videos?.map((video, index) => (
                     <Link to={`/video/${video._id}`} key={video._id}>
                         <div className="flex items-start p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg transition duration-200 ease-in-out">

@@ -13,152 +13,149 @@ import { QuizPost } from "../models/quiz-post.js";
 import { ImagePollPost } from "../models/image-poll-post.js";
 import { TextPollPost } from "../models/text-poll-post.js";
 const postModels = {
-    image: ImagePost,
-    video: VideoPost,
-    short: ShortPost,
-    text: TextPost,
-    quiz: QuizPost,
-    "image-poll": ImagePollPost,
-    "text-poll": TextPollPost,
+  image: ImagePost,
+  video: VideoPost,
+  short: ShortPost,
+  text: TextPost,
+  quiz: QuizPost,
+  "image-poll": ImagePollPost,
+  "text-poll": TextPollPost,
 };
 class PostController {
-    createPost = asyncHandler(async (req, res) => {
-        console.log({
-            body: req.body
-        });
-        const { type, ...data } = req.body;
-        const user = req.user;
-        let post;
-        switch (type) {
-            case "text":
-                post = await TextPost.create({ userId: user._id, ...data });
-                break;
-            case "quiz":
-                post = await QuizPost.create({ userId: user._id, ...data });
-                break;
-            case "text-poll":
-                post = await TextPollPost.create({ userId: user._id, ...data });
-                break;
-            case "image-poll":
-                post = await ImagePollPost.create({ userId: user._id, ...data });
-                break;
-            case "video":
-                post = await VideoPost.create({ userId: user._id, ...data });
-                break;
-            case "short":
-                post = await ShortPost.create({ userId: user._id, ...data });
-                break;
-            case "image":
-                post = await ImagePost.create({ userId: user._id, ...data });
-                break;
-            default:
-                throw new ApiError(400, "Invalid post type")
+  createPost = asyncHandler(async (req, res) => {
+    const { type, ...data } = req.body;
+    const user = req.user;
+    let post;
+    switch (type) {
+      case "text":
+        post = await TextPost.create({ userId: user._id, ...data });
+        break;
+      case "quiz":
+        post = await QuizPost.create({ userId: user._id, ...data });
+        break;
+      case "text-poll":
+        post = await TextPollPost.create({ userId: user._id, ...data });
+        break;
+      case "image-poll":
+        post = await ImagePollPost.create({ userId: user._id, ...data });
+        break;
+      case "video":
+        post = await VideoPost.create({ userId: user._id, ...data });
+        break;
+      case "short":
+        post = await ShortPost.create({ userId: user._id, ...data });
+        break;
+      case "image":
+        post = await ImagePost.create({ userId: user._id, ...data });
+        break;
+      default:
+        throw new ApiError(400, "Invalid post type")
+    }
+
+    const subscribers = await Subscription.aggregate([
+      {
+        $match: {
+          channelId: user._id
         }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "subscriberId",
+          foreignField: "_id",
+          as: "subscriber"
+        }
+      },
+      {
+        $addFields: {
+          subscriberId: {
+            $first: "$subscriber._id"
+          }
+        }
+      },
+      {
+        $project: {
+          subscriberId: 1,
+        }
+      }
+    ]);
+    const message = `@${user.username} posted: "${post.content}"`;
+    const image = post.type === "image" ? post.images[0] : post.type === "image-poll" ? post.images[0] : null;
 
-        const subscribers = await Subscription.aggregate([
-            {
-                $match: {
-                    channelId: user._id
-                }
-            },
-            {
-                $lookup: {
-                    from: "users",
-                    localField: "subscriberId",
-                    foreignField: "_id",
-                    as: "subscriber"
-                }
-            },
-            {
-                $addFields: {
-                    subscriberId: {
-                        $first: "$subscriber._id"
-                    }
-                }
-            },
-            {
-                $project: {
-                    subscriberId: 1,
-                }
-            }
-        ]);
-        const message = `@${user.username} posted: "${post.content}"`;
-        const image = post.type === "image" ? post.images[0] : post.type === "image-poll" ? post.images[0] : null;
-
-        subscribers.forEach((s) => {
-            publishNotification({
-                userId: s.subscriberId,
-                message,
-                post: {
-                    _id: post._id,
-                    image
-                },
-                creator: {
-                    _id: user._id,
-                    avatar: user.avatar,
-                    fullname: user.fullname
-                },
-                read: false,
-                createdAt: new Date(Date.now()),
-            });
-        })
-        //end
-        return res.status(201).json(new ApiResponse(201, post, "Post created successfully"))
-
+    subscribers.forEach((s) => {
+      publishNotification({
+        userId: s.subscriberId,
+        message,
+        post: {
+          _id: post._id,
+          image
+        },
+        creator: {
+          _id: user._id,
+          avatar: user.avatar,
+          fullname: user.fullname
+        },
+        read: false,
+        createdAt: new Date(Date.now()),
+      });
     })
-    updatePost = asyncHandler(async (req, res) => {
-        const { postId, type } = req.params;
-        const updateData = req.body;
+    //end
+    return res.status(201).json(new ApiResponse(201, post, "Post created successfully"))
 
-        if (!postModels[type]) {
-            throw new ApiError(400, "Invalid post type")
-        }
+  })
+  updatePost = asyncHandler(async (req, res) => {
+    const { postId, type } = req.params;
+    const updateData = req.body;
 
-        const updatedPost = await postModels[type].findByIdAndUpdate(
-            postId,
-            updateData,
-            { new: true, runValidators: true }
-        );
+    if (!postModels[type]) {
+      throw new ApiError(400, "Invalid post type")
+    }
 
-        if (!updatedPost) {
-            throw new ApiError(404, "Post not found")
-        }
+    const updatedPost = await postModels[type].findByIdAndUpdate(
+      postId,
+      updateData,
+      { new: true, runValidators: true }
+    );
 
-        return res.status(200).json(new ApiResponse(200, updatedPost, "Post updated successfully"))
-    })
-    deletePost = asyncHandler(async (req, res) => {
-        const { postId, type } = req.params;
-        if (!postId || !type) {
-            throw new ApiError(400, "Post id and type are required")
-        }
-        if (!postModels[type]) {
-            throw new ApiError(400, "Invalid post type")
-        }
-        const deletedPost = await postModels[type].findByIdAndDelete(postId);
+    if (!updatedPost) {
+      throw new ApiError(404, "Post not found")
+    }
 
-        if (!deletedPost) {
-            throw new ApiError(404, "Post not found")
+    return res.status(200).json(new ApiResponse(200, updatedPost, "Post updated successfully"))
+  })
+  deletePost = asyncHandler(async (req, res) => {
+    const { postId, type } = req.params;
+    if (!postId || !type) {
+      throw new ApiError(400, "Post id and type are required")
+    }
+    if (!postModels[type]) {
+      throw new ApiError(400, "Invalid post type")
+    }
+    const deletedPost = await postModels[type].findByIdAndDelete(postId);
+
+    if (!deletedPost) {
+      throw new ApiError(404, "Post not found")
+    }
+    return res.status(200).json(new ApiResponse(200, {}, "Post deleted successfully"))
+  })
+  getUserPosts = asyncHandler(async (req, res) => {
+    const { username } = req.params;
+    if (!username) {
+      throw new ApiError(400, "Username is required")
+    }
+    const user = await User.findOne({ username });
+    if (!user) {
+      throw new ApiError(404, "User not found")
+    }
+    const posts = await Post.aggregate([
+      {
+        $match: {
+          userId: user._id
         }
-        return res.status(200).json(new ApiResponse(200, {}, "Post deleted successfully"))
-    })
-    getUserPosts = asyncHandler(async (req, res) => {
-        const { username } = req.params;
-        if (!username) {
-            throw new ApiError(400, "Username is required")
-        }
-        const user = await User.findOne({ username });
-        if (!user) {
-            throw new ApiError(404, "User not found")
-        }
-        const posts = await Post.aggregate([
-            {
-                $match: {
-                    userId: user._id
-                }
-            }
-        ])
-        return res.status(200).json(new ApiResponse(200, { posts }, "Posts fetched successfully"))
-    })
+      }
+    ])
+    return res.status(200).json(new ApiResponse(200, { posts }, "Posts fetched successfully"))
+  })
 }
 
 export const postController = new PostController();

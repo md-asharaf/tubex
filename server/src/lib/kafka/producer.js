@@ -1,4 +1,5 @@
 import { kafka } from './client.js';
+import { logger } from '../../utils/logger.js';
 
 const producer = kafka.producer({
   allowAutoTopicCreation: true,
@@ -10,12 +11,12 @@ const producer = kafka.producer({
   acks: -1,
 });
 
-const initProducer = async () => {
+export const initProducer = async () => {
   try {
     await producer.connect();
-    console.log('Kafka producer connected');
+    logger.info('Kafka producer connected');
   } catch (error) {
-    console.error('Error connecting Kafka producer:', error);
+    logger.error(`Error connecting Kafka producer: ${error.message}`, error);
     process.exit(1);
   }
 };
@@ -28,9 +29,9 @@ const publishNotification = async (notification) => {
         { value: JSON.stringify(notification) },
       ],
     });
-    console.log('Notification sent to Kafka');
+    logger.info('Notification sent to Kafka');
   } catch (error) {
-    console.error('Error producing notification to Kafka:', error);
+    logger.error(`Error producing notification to Kafka: ${error.message}`, error);
   }
 };
 

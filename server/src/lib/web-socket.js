@@ -3,6 +3,8 @@ import { Server } from 'socket.io';
 import { validateAccessToken } from '../middlewares/auth.js';
 import { validateIdToken } from '../lib/firebase-admin.js';
 import cookie from "cookie"
+import { logger } from '../utils/logger.js';
+
 export const webSocketServer = http.createServer();
 const io = new Server(webSocketServer, {
   cors: {
@@ -31,7 +33,7 @@ io.use(async (socket, next) => {
 })
 
 io.on('connection', (socket) => {
-  console.log('User connected', socket.id);
+  logger.info(`User connected ${socket.id}`);
   const userId = socket.user?._id;
   if (!userSocketMap[userId]) {
     userSocketMap[userId] = [];
@@ -39,7 +41,7 @@ io.on('connection', (socket) => {
   userSocketMap[userId].push(socket.id);
 
   socket.on('disconnect', () => {
-    console.log('User disconnected', socket.id);
+    logger.info(`User disconnected ${socket.id}`);
 
     userSocketMap[userId] = userSocketMap[userId].filter(id => id !== socket.id);
 
@@ -55,8 +57,8 @@ export const sendNotificationToUser = (userId, notification) => {
     socketIds.forEach(socketId => {
       io.to(socketId).emit('notification', notification);
     });
-    console.log(`Notification sent to user ${userId}`);
+    logger.info(`Notification sent to user ${userId}`);
   } else {
-    console.log(`User ${userId} is not connected`);
+    logger.info(`User ${userId} is not connected`);
   }
 };

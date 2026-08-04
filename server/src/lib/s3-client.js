@@ -5,6 +5,7 @@ import {
   AbortMultipartUploadCommand,
   UploadPartCommand,
   PutObjectCommand,
+  GetObjectCommand
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
@@ -101,6 +102,20 @@ export const putObjectUrl = async (fileKey, contentType, type = "", id = "") => 
     });
     const url = await getSignedUrl(s3Client, command, { expiresIn: 60 * 10 });
     return url;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const getObjectAsString = async (Key) => {
+  try {
+    const command = new GetObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key,
+    });
+    const response = await s3Client.send(command);
+    const bodyString = await response.Body.transformToString();
+    return bodyString;
   } catch (error) {
     throw error;
   }

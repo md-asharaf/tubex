@@ -215,9 +215,9 @@ export const Short = () => {
         );
     }
     return (
-        <div className="flex items-start justify-around w-full px-2 sm:px-4 py-4 overflow-x-hidden">
-            <div className="flex relative rounded-lg shadow-lg group max-w-full">
-                <div className="relative w-full sm:w-[512px]">
+        <div className="flex items-start justify-center w-full sm:px-4 py-4 overflow-x-hidden h-[calc(100dvh-120px)] sm:h-[calc(100dvh-80px)]">
+            <div className="flex relative rounded-lg shadow-lg group w-full sm:w-[450px] h-full justify-center">
+                <div className="relative w-full h-full bg-black sm:rounded-lg overflow-hidden">
                     <PlyrPlayer
                         thumbnail={short.thumbnail}
                         key={shortId}
@@ -226,7 +226,7 @@ export const Short = () => {
                         playerRef={playerRef}
                         onViewTracked={() => { }}
                         controls={["play", "progress", "fullscreen"]}
-                        className="aspect-[9/16]"
+                        className="w-full h-full object-cover"
                         subtitle={short.subtitle}
                     />
                     <div className="absolute top-4 justify-between h-11 w-full  px-2 group-hover:flex hidden">
@@ -432,14 +432,26 @@ export const Short = () => {
                 )}
             </div>
             {openedCard === "description" && (
-                <DescriptionCard short={short} likes={likesCount} />
+                <div className="hidden sm:block ml-4">
+                    <DescriptionCard short={short} likes={likesCount} />
+                </div>
             )}
             {openedCard === "comments" && (
-                <ShortComments
-                    shortId={short._id}
-                    playerRef={playerRef}
-                    creatorId={short.creator._id}
-                />
+                <>
+                    {isMobile && (
+                        <div 
+                            className="fixed inset-0 bg-black/60 z-40 transition-opacity"
+                            onClick={() => dispatch(setOpenCard(""))}
+                        />
+                    )}
+                    <div className="fixed bottom-0 left-0 w-full z-50 sm:static sm:w-auto sm:ml-4 sm:h-full transition-transform duration-300 ease-in-out">
+                        <ShortComments
+                            shortId={short._id}
+                            playerRef={playerRef}
+                            creatorId={short.creator._id}
+                        />
+                    </div>
+                </>
             )}
         </div>
     );

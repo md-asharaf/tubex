@@ -1,39 +1,40 @@
 import { kafka } from "./client.js";
+import { logger } from "../../utils/logger.js";
 
 async function init() {
     const admin = kafka.admin();
 
     try {
-        console.log('Connecting Admin...');
+        logger.info('Connecting Admin...');
         await admin.connect();
-        console.log('Admin connected.');
+        logger.info('Admin connected.');
 
         const existingTopics = await admin.listTopics();
         if (existingTopics.includes('notifications')) {
-            console.log('Topic [ notifications ] already exists.');
+            logger.info('Topic [ notifications ] already exists.');
             return;
         }
 
-        console.log('Creating Topic...');
+        logger.info('Creating Topic...');
         await admin.createTopics({
             topics: [
                 {
                     topic: 'notifications',
-                    numPartitions: 1,
+                    numPartitions: 2,
                 },
             ],
         });
-        console.log('Topic created [ notifications ]');
+        logger.info('Topic created [ notifications ]');
 
     } catch (error) {
-        console.error('Error creating topic:', error);
+        logger.error('Error creating topic:', error);
     } finally {
         try {
-            console.log('Disconnecting Admin...');
+            logger.info('Disconnecting Admin...');
             await admin.disconnect();
-            console.log('Admin disconnected.');
+            logger.info('Admin disconnected.');
         } catch (error) {
-            console.error('Error disconnecting Admin:', error);
+            logger.error('Error disconnecting Admin:', error);
         }
     }
 }

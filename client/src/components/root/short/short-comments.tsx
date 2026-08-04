@@ -50,7 +50,7 @@ export const ShortComments = ({
         },
     });
     return (
-        <Card className="flex flex-col w-[512px] h-[910px]">
+        <Card className="flex flex-col w-full h-[65vh] sm:h-full sm:w-[400px] rounded-t-3xl sm:rounded-lg rounded-b-none sm:rounded-b-lg border-0 sm:border shadow-2xl">
             <CardTitle className="flex items-center justify-between p-2 text-xl">
                 <div className="flex gap-2 p-2">
                     {isLoading ? (

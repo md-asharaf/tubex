@@ -8,6 +8,8 @@ class StudioService {
         await axios.get(`/studio/playlists/${username}?page=${page}`);
     getUserShorts = async (username: string, page: number) =>
         await axios.get(`/studio/shorts/${username}?page=${page}`);
+    generateAiMetadata = async (id: string) =>
+        await axios.post(`/studio/generate-ai-metadata/${id}`);
 }
 
 export const studioService = new StudioService();

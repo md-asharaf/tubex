@@ -1,6 +1,7 @@
 import { kafka } from './client.js';
 import { insertNotifications } from '../../db/index.js';
 import { sendNotificationToUser } from '../../lib/web-socket.js';
+import { logger } from '../../utils/logger.js';
 
 const backendConsumer = kafka.consumer({
   groupId: 'backend-group', sessionTimeout: 30000,
@@ -15,20 +16,20 @@ export const initConsumers = async () => {
   try {
     await backendConsumer.connect();
     await webSocketConsumer.connect();
-    console.log('Consumers connected to Kafka');
+    logger.info('Consumers connected to Kafka');
 
     await backendConsumer.subscribe({ topic: 'notifications', fromBeginning: false });
     await webSocketConsumer.subscribe({ topic: 'notifications', fromBeginning: false });
-    console.log('Consumers subscribed to notifications topic');
+    logger.info('Consumers subscribed to notifications topic');
 
     await backendConsumer.run({
       eachBatch: async ({ batch }) => {
         try {
           const notifications = batch.messages.map((message) => JSON.parse(message.value.toString()));
           await insertNotifications(notifications);
-          console.log('Notifications stored in database');
+          logger.info('Notifications stored in database');
         } catch (error) {
-          console.error('Error processing notifications for backend:', error);
+          logger.error('Error processing notifications for backend:', error);
         }
       },
     });
@@ -40,13 +41,13 @@ export const initConsumers = async () => {
           const { userId, ...rest } = notification;
           sendNotificationToUser(userId, rest);
         } catch (error) {
-          console.error('Error sending notification to user via WebSocket:', error);
+          logger.error('Error sending notification to user via WebSocket:', error);
         }
       },
     });
 
   } catch (error) {
-    console.error('Error during consumer initialization:', error);
+    logger.error('Error during consumer initialization:', error);
     process.exit(1);
   }
 };

@@ -20,7 +20,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { videoUpdateFormValidation } from "@/validations";
 import { Link, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { shortService } from "@/services/short";
 import { IShortData, Playlist } from "@/interfaces";
 import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
@@ -38,8 +38,12 @@ import {
   ImageIcon,
   LockIcon,
   MoreVerticalIcon,
+  PlusIcon,
   Trash2Icon,
   Undo2Icon,
+  XIcon,
+  Loader2,
+  Sparkles,
 } from "lucide-react";
 import { PlyrPlayer } from "@/components/root/video-player";
 import { useDispatch, useSelector } from "react-redux";
@@ -64,24 +68,25 @@ export const ShortDetails = () => {
   const BUCKET = process.env.INPUT_BUCKET;
   const playerRef = useRef(null);
   const [isCopied, setIsCopied] = useState(false);
+  const [isGeneratingMetadata, setIsGeneratingMetadata] = useState(false);
   const { username } = useSelector((state: RootState) => state.auth.userData);
-  const { id } = useParams();
+  const { id: shortId } = useParams();
   const {
     data: short,
     isLoading: isShortLoading,
     refetch: refetchShort,
   } = useQuery({
-    queryKey: ["short", id],
+    queryKey: ["short", shortId],
     queryFn: async (): Promise<IShortData> => {
-      const data = await shortService.singleShort(id);
+      const data = await shortService.singleShort(shortId);
       return data.short;
     },
-    enabled: !!id,
+    enabled: !!shortId,
   });
   const origin =
-      typeof window !== "undefined"
-          ? window.location.origin
-          : "https://tubex.asharaf.tech";
+    typeof window !== "undefined"
+      ? window.location.origin
+      : "https://tubex.asharaf.tech";
   const shortLink = `${origin}/short/${short?._id}`;
   const {
     data: playlists,
@@ -155,6 +160,67 @@ export const ShortDetails = () => {
       toast.error(error.message);
     }
   };
+
+  const handleGenerateMetadata = async () => {
+    if (!shortId) return;
+    try {
+      setIsGeneratingMetadata(true);
+
+      const response = await fetch(`${process.env.BACKEND_BASE_URL}/studio/generate-ai-metadata/${shortId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include"
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to generate AI metadata");
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      if (!reader) throw new Error("No response body");
+
+      let accumulatedText = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        const chunkStr = decoder.decode(value, { stream: true });
+        const lines = chunkStr.split("\n\n");
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              accumulatedText += data.chunk;
+
+              let currentTitle = form.getValues("title") || "";
+              let currentDesc = form.getValues("description") || "";
+
+              if (accumulatedText.includes("TITLE:")) {
+                const titleMatch = accumulatedText.match(/TITLE:\s*(.*?)(?=\nDESCRIPTION:|$)/s);
+                if (titleMatch) currentTitle = titleMatch[1].trim();
+              }
+              if (accumulatedText.includes("DESCRIPTION:")) {
+                const descMatch = accumulatedText.match(/DESCRIPTION:\s*(.*)/s);
+                if (descMatch) currentDesc = descMatch[1].trim();
+              }
+
+              form.setValue("title", currentTitle, { shouldDirty: true });
+              form.setValue("description", currentDesc, { shouldDirty: true });
+            } catch (e) { }
+          }
+        }
+      }
+      toast.success("AI generated metadata successfully!");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to generate AI metadata");
+    } finally {
+      setIsGeneratingMetadata(false);
+    }
+  };
+
   if (isShortLoading || isPlaylistsLoading || !short || !playlists) return null;
   return (
     <Form {...form}>
@@ -199,10 +265,22 @@ export const ShortDetails = () => {
                 render={({ field }) => (
                   <Card className="px-2">
                     <FormItem className="space-y-0">
-                      <FormLabel className="text-sm text-[#6B6B6B]">
-                        Title (required)
-                        {/*TODO: AI integration to genrate title */}
-                      </FormLabel>
+                      <div className="flex justify-between items-center mb-2">
+                        <FormLabel className="text-sm text-[#6B6B6B]">
+                          Title (required)
+                        </FormLabel>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleGenerateMetadata}
+                          disabled={isGeneratingMetadata || short.subtitleStatus !== "READY"}
+                          className="h-7 text-xs flex items-center gap-1"
+                        >
+                          {isGeneratingMetadata ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} className="text-blue-500" />}
+                          Generate with AI
+                        </Button>
+                      </div>
                       <FormControl className="p-0 m-0">
                         <Textarea
                           {...field}
@@ -221,9 +299,8 @@ export const ShortDetails = () => {
                 render={({ field }) => (
                   <Card className="px-2">
                     <FormItem className="space-y-0">
-                      <FormLabel className="text-sm text-[#6B6B6B]">
+                      <FormLabel className="text-sm text-[#6B6B6B] mb-2 block">
                         Description
-                        {/*TODO: AI integration to genrate title */}
                       </FormLabel>
                       <FormControl className="p-0 m-0">
                         <Textarea
@@ -244,7 +321,6 @@ export const ShortDetails = () => {
                   <FormItem>
                     <FormLabel>
                       Thumbnail
-                      {/*TODO: AI integration to genrate title */}
                       <p className="text-xs text-muted-foreground">
                         Set a thumbnail that stands out and draws viewers'
                         attention.
@@ -253,9 +329,8 @@ export const ShortDetails = () => {
 
                     <div className="flex items-center gap-4">
                       <div
-                        className={`relative flex flex-col items-center justify-center border-2 rounded border-dotted ${
-                          isUploading && "animate-pulse"
-                        } h-20 aspect-video`}
+                        className={`relative flex flex-col items-center justify-center border-2 rounded border-dotted ${isUploading && "animate-pulse"
+                          } h-20 aspect-video`}
                       >
                         <Input
                           accept="image/*"
@@ -327,11 +402,10 @@ export const ShortDetails = () => {
                       <FormControl>
                         <SelectTrigger className="max-w-sm">
                           <SelectValue
-                            placeholder={`${
-                              field.value.length > 0
-                                ? `${field.value.length} categories`
-                                : "Select"
-                            }`}
+                            placeholder={`${field.value.length > 0
+                              ? `${field.value.length} categories`
+                              : "Select"
+                              }`}
                           />
                         </SelectTrigger>
                       </FormControl>
@@ -373,11 +447,10 @@ export const ShortDetails = () => {
                       <FormControl>
                         <SelectTrigger className="max-w-sm">
                           <SelectValue
-                            placeholder={`${
-                              field.value.length > 0
-                                ? `${field.value.length} playlists`
-                                : "Select"
-                            }`}
+                            placeholder={`${field.value.length > 0
+                              ? `${field.value.length} playlists`
+                              : "Select"
+                              }`}
                           />
                         </SelectTrigger>
                       </FormControl>
@@ -393,8 +466,8 @@ export const ShortDetails = () => {
                               onClick={() => {
                                 const newSelection = isSelected
                                   ? field.value.filter(
-                                      (id) => id !== playlist._id
-                                    )
+                                    (id) => id !== playlist._id
+                                  )
                                   : [...(field.value || []), playlist._id];
                                 field.onChange(newSelection);
                               }}
@@ -409,8 +482,8 @@ export const ShortDetails = () => {
                         })}
                         <Separator />
                         <div className="flex items-center justify-between p-2">
-                          <Button onClick={()=>dispatch(setCreatePlaylistDialog(true))}>New playlist</Button>
-                          <Button variant="outline" onClick={()=>setOpen(false)}>Done</Button>
+                          <Button onClick={() => dispatch(setCreatePlaylistDialog(true))}>New playlist</Button>
+                          <Button variant="outline" onClick={() => setOpen(false)}>Done</Button>
                         </div>
                       </SelectContent>
                     </Select>
