@@ -127,21 +127,21 @@ export const Notifications = () => {
                 </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-                collisionPadding={100}
-                className="w-[480px] dark:bg-[#282828] p-0 rounded-xl"
+                collisionPadding={16}
+                className="w-[calc(100vw-24px)] sm:w-[480px] dark:bg-[#282828] p-0 rounded-xl shadow-2xl"
             >
-                <div className="sticky top-0 z-10">
-                    <DropdownMenuLabel className="text-lg m-2">
+                <div className="sticky top-0 z-10 bg-white dark:bg-[#282828] rounded-t-xl">
+                    <DropdownMenuLabel className="text-lg font-bold mx-4 my-2">
                         Notifications
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="bg-muted-foreground opacity-40" />
                 </div>
                 {isLoading ? (
-                    <div className="flex items-center justify-center h-full w-full">
-                        <Loader2 className="h-10 w-10 animate-spin" />
+                    <div className="flex items-center justify-center h-[200px] w-full">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                     </div>
                 ) : (
-                    <div className="h-[550px] overflow-y-auto">
+                    <div className="max-h-[75vh] sm:max-h-[550px] overflow-y-auto pb-4">
                         {notifications
                             .slice()
                             .reverse()
@@ -167,13 +167,13 @@ export const Notifications = () => {
                                                 ? ref
                                                 : null
                                         }
-                                        className="flex items-start hover:dark:bg-[#3E3E3E] space-x-2 rounded-none py-3"
+                                        className="flex items-start hover:bg-gray-100 dark:hover:bg-[#3E3E3E] space-x-2 sm:space-x-4 rounded-none py-4 px-3 sm:px-4 cursor-pointer transition-colors"
                                     >
-                                        <div className="flex space-x-2 w-3/4 items-start overflow-hidden">
-                                            <div className="flex items-center">
-                                                <div className="h-1.5 w-1.5 mr-2">
+                                        <div className="flex space-x-2 sm:space-x-3 w-[75%] items-start overflow-hidden">
+                                            <div className="flex items-center mt-1">
+                                                <div className="w-2 mr-1 sm:mr-2 flex justify-center">
                                                     {!notification.read && (
-                                                        <div className="h-full w-full bg-blue-500 rounded-full" />
+                                                        <div className="h-2 w-2 bg-blue-500 rounded-full" />
                                                     )}
                                                 </div>
                                                 <AvatarImg
@@ -219,20 +219,20 @@ export const Notifications = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="flex space-x-1 w-1/4">
-                                            <div className="min-w-[80px]">
-                                                <img
-                                                    src={
-                                                        notification.video
-                                                            ?.thumbnail ||
-                                                        notification.short.thumbnail ||
-                                                        notification.post
-                                                            ?.image
-                                                    }
-                                                    alt="notification thumbnail"
-                                                    className="h-full w-full aspect-video object-cover rounded-sm"
-                                                />
-                                            </div>
+                                        <div className="flex space-x-2 w-[25%] justify-end items-start pt-1">
+                                            {(notification.video?.thumbnail || notification.short?.thumbnail || notification.post?.image) && (
+                                                <div className="w-[60px] sm:w-[86px] shrink-0">
+                                                    <img
+                                                        src={
+                                                            notification.video?.thumbnail ||
+                                                            notification.short?.thumbnail ||
+                                                            notification.post?.image
+                                                        }
+                                                        alt="thumbnail"
+                                                        className="h-auto w-full aspect-video object-cover rounded-md shadow-sm"
+                                                    />
+                                                </div>
+                                            )}
                                             <DropdownMenu
                                                 open={open?.[index]}
                                                 onOpenChange={(open) =>
