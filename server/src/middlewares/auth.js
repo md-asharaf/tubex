@@ -16,7 +16,13 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
     if (!idToken && !accessToken) {
         throw new ApiError(401, "You are not authorized to perform this action. Please log in and try again.");
     }
-    const user = (idToken && await validateIdToken(idToken)) || (accessToken && await validateAccessToken(accessToken)) || null;
+    let user = null;
+    if (idToken) {
+        user = await validateIdToken(idToken);
+    }
+    if (!user && accessToken) {
+        user = await validateAccessToken(accessToken);
+    }
     if (!user) {
         throw new ApiError(401, "Your session has expired. Please log in again to continue.");
     }

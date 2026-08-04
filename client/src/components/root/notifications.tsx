@@ -148,7 +148,7 @@ export const Notifications = () => {
                             .map((notification, index) => {
                                 const isExpanded =
                                     expandedMessages[
-                                        notification.createdAt.toString()
+                                    notification.createdAt.toString()
                                     ] || false;
                                 const message = notification.message;
                                 const shortMessage =
@@ -225,7 +225,8 @@ export const Notifications = () => {
                                                     src={
                                                         notification.video
                                                             ?.thumbnail ||
-                                                        notification.tweet
+                                                        notification.short.thumbnail ||
+                                                        notification.post
                                                             ?.image
                                                     }
                                                     alt="notification thumbnail"

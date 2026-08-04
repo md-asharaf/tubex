@@ -141,7 +141,7 @@ export interface INotification {
         fullname: string;
         avatar: string;
     };
-    tweet?: {
+    post?: {
         _id: string;
         image: string;
     };

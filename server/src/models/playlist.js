@@ -8,7 +8,7 @@ const playlistSchema = new Schema({
     description: {
         type: String,
     },
-    type:{
+    type: {
         type: String,
         default: "playlist"
     },
@@ -18,12 +18,12 @@ const playlistSchema = new Schema({
             ref: "Video",
         }
     ],
-    visibility:{
+    visibility: {
         type: String,
-        enum: ["public","private"],
+        enum: ["public", "private"],
         default: "private"
     },
-    shorts:[
+    shorts: [
         {
             type: Schema.Types.ObjectId,
             ref: "Short",

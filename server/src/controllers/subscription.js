@@ -4,25 +4,40 @@ import { ApiError } from "../utils/api-error.js";
 import { Subscription } from "../models/subscription.js";
 import { User } from "../models/user.js";
 import { ObjectId } from "mongodb"
+import { publishNotification } from "../lib/kafka/producer.js";
 class SubscriptionController {
 
     toggleSubscription = asyncHandler(async (req, res) => {
         const { channelId } = req.params;
-        const subscriberId = req.user?._id;
+        const subscriber = req.user;
         if (!channelId) {
             throw new ApiError(400, "Channel Id is required")
         }
-        if (channelId === subscriberId.toString()) {
+        if (channelId === subscriber._id.toString()) {
             throw new ApiError(403, "You cannot subscribe to your own channel")
         }
-        let subscription = await Subscription.findOne({ channelId: new ObjectId(channelId), subscriberId });
+        let subscription = await Subscription.findOne({ channelId: new ObjectId(channelId), subscriberId: subscriber._id });
+        const message = `@${subscriber.username} ${subscription ? "unsubscribed" : "subscribed"} to your channel`
         if (subscription) {
             await Subscription.findByIdAndDelete(subscription._id, { new: true });
             subscription = null;
         }
         else {
             subscription = await Subscription.create({ channelId, subscriberId });
+
         }
+        //send notification here
+        publishNotification({
+            userId: channelId,
+            message,
+            creator: {
+                _id: subscriber._id,
+                avatar: subscriber.avatar,
+                fullname: subscriber.fullname
+            },
+            read: false,
+            createdAt: new Date(Date.now()),
+        })
         return res.status(201).json(new ApiResponse(201, null, `${!subscription ? "Unsubscribed" : "Subscribed"} successfully`));
     })
 

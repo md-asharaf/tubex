@@ -24,24 +24,26 @@ class LikeController {
             })
             // publishing notification
             const comment = await Comment.findById(new ObjectId(commentId));
-            if (like && !comment.userId.equals(user._id)) {
+            if (like && comment && !comment.userId.equals(user._id)) {
                 const video = await Video.findById(comment.videoId) || await Short.findById(comment.shortId);
-                const message = `@${user.username} liked your comment: "${comment.content}"`;
-                publishNotification({
-                    userId: comment.userId,
-                    message,
-                    video: {
-                        _id: video._id,
-                        thumbnail: video.thumbnail,
-                    },
-                    creator: {
-                        _id: user._id,
-                        avatar: user.avatar,
-                        fullname: user.fullname
-                    },
-                    read: false,
-                    createdAt: new Date(Date.now()),
-                });
+                if (video) {
+                    const message = `@${user.username} liked your comment: "${comment.content}"`;
+                    publishNotification({
+                        userId: comment.userId,
+                        message,
+                        video: {
+                            _id: video._id,
+                            thumbnail: video.thumbnail,
+                        },
+                        creator: {
+                            _id: user._id,
+                            avatar: user.avatar,
+                            fullname: user.fullname
+                        },
+                        read: false,
+                        createdAt: new Date(Date.now()),
+                    });
+                }
             }
             //end
         }
@@ -63,7 +65,7 @@ class LikeController {
             })
             // publishing notification
             const video = await Video.findById(videoId)
-            if (like && !video.userId.equals(user._id)) {
+            if (like && video && !video.userId.equals(user._id)) {
                 const message = `@${user.username} liked your video: "${video.title}"`;
                 publishNotification({
                     userId: video.userId,
@@ -100,7 +102,7 @@ class LikeController {
             })
             // publishing notification
             const short = await Short.findById(shortId)
-            if (like && !short.userId.equals(user._id)) {
+            if (like && short && !short.userId.equals(user._id)) {
                 const message = `@${user.username} liked your short: "${short.title}"`;
                 publishNotification({
                     userId: short.userId,
@@ -137,7 +139,7 @@ class LikeController {
             })
             // publishing notification
             const post = await Post.findById(postId)
-            if (like && !post.userId.equals(user._id)) {
+            if (like && post && !post.userId.equals(user._id)) {
                 const message = `@${user.username} liked your post: "${post.content}"`;
                 publishNotification({
                     userId: post.userId,
@@ -173,25 +175,29 @@ class LikeController {
             })
             // publishing notification
             const reply = await Reply.findById(replyId)
-            if (like && !reply.userId.equals(user._id)) {
+            if (like && reply) {
                 const comment = await Comment.findById(reply.commentId)
-                const video = await Video.findById(comment.videoId)
-                const message = `@${user.username} liked your reply: "${reply.content}"`;
-                publishNotification({
-                    userId: reply.userId,
-                    message,
-                    video: {
-                        _id: video._id,
-                        thumbnail: video.tumbnail,
-                    },
-                    creator: {
-                        _id: user._id,
-                        avatar: user.avatar,
-                        fullname: user.fullname
-                    },
-                    read: false,
-                    createdAt: new Date(Date.now()),
-                });
+                if (comment) {
+                    const video = await Video.findById(comment.videoId)
+                    if (video && !reply.userId.equals(user._id)) {
+                        const message = `@${user.username} liked your reply: "${reply.content}"`;
+                        publishNotification({
+                            userId: reply.userId,
+                            message,
+                            video: {
+                                _id: video._id,
+                                thumbnail: video.thumbnail,
+                            },
+                            creator: {
+                                _id: user._id,
+                                avatar: user.avatar,
+                                fullname: user.fullname
+                            },
+                            read: false,
+                            createdAt: new Date(Date.now()),
+                        });
+                    }
+                }
             }
             //end
         } else {

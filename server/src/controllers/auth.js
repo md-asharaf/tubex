@@ -103,23 +103,33 @@ class AuthController {
     refreshTokens = asyncHandler(async (req, res) => {
         const { refreshToken } = req.cookies;
         if(!refreshToken){
-            throw new ApiError(400, "Refresh token is required");
+            throw new ApiError(401, "Refresh token is required");
         }
-        const { _id } = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        let decoded;
+        try {
+            decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        } catch (error) {
+            throw new ApiError(401, "Invalid or expired refresh token");
+        }
+        const { _id } = decoded;
+        if (!_id) {
+            throw new ApiError(401, "Invalid refresh token");
+        }
         const user = await User.findById(_id);
         if (!user || user.refreshToken !== refreshToken) {
-            throw new ApiError(400, "Invalid refresh token");
+            throw new ApiError(401, "Invalid refresh token");
         }
         const newAccessToken = await user.generateAccessToken();
         const newRefreshToken = await user.generateRefreshToken();
         user.refreshToken = newRefreshToken;
         await user.save({ validateBeforeSave: false });
 
+        const loggedInUser = await User.findById(_id).select("-password -refreshToken");
         const options = { httpOnly: true, secure: true, sameSite: "none" };
         res.cookie("accessToken", newAccessToken, options);
         res.cookie("refreshToken", newRefreshToken, options);
 
-        return res.status(200).json(new ApiResponse(200, { user }, "Tokens refreshed successfully"));
+        return res.status(200).json(new ApiResponse(200, { user: loggedInUser }, "Tokens refreshed successfully"));
     })
 }
 export const authController = new AuthController();
