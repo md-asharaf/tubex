@@ -1,4 +1,5 @@
 import { kafka } from './client.js';
+import { Partitioners } from 'kafkajs';
 import { logger } from '../../utils/logger.js';
 
 const producer = kafka.producer({
@@ -9,6 +10,7 @@ const producer = kafka.producer({
     maxRetryTime: 30000,
   },
   acks: -1,
+  createPartitioner: Partitioners.LegacyPartitioner
 });
 
 const initProducer = async () => {
