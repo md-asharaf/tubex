@@ -70,18 +70,13 @@ const resolutions = [
 ];
 // Download video
 const downloadVideo = async (inputBucket, inputKey,inputPath) => {
-  try {
     console.log(`Downloading from S3: ${inputBucket}/${inputKey}`);
     const file = await s3.getObject({ Bucket: inputBucket, Key: inputKey }).promise();
     fs.writeFileSync(inputPath, file.Body);
-  } catch (error) {
-    throw error;
-  }
 }
 
 // Start ECS tasks
 const startEcsTasks = async (isShort, height, width, file_key, input_bucket, id) => {
-  try {
     console.log('Starting ECS tasks...');
     if (isShort) {
       console.log(`Video is a Short, starting transcoding task with the uploaded resolution...`);
@@ -143,14 +138,10 @@ const startEcsTasks = async (isShort, height, width, file_key, input_bucket, id)
       await Promise.all(transcodingPromises);
     }
     console.log('ECS tasks triggered successfully.');
-  } catch (error) {
-    throw error;
-  }
 }
 
 // Get video metadata
 const getVideoMetadata = async (Bucket, Key) => {
-  try {
     const params = {
       Bucket,
       Key,
@@ -158,9 +149,6 @@ const getVideoMetadata = async (Bucket, Key) => {
     const data = await s3.headObject(params).promise();
     console.log("Metadata:", data.Metadata);
     return data.Metadata;
-  } catch (error) {
-    throw error;
-  }
 }
 
 // Get transcoding params
@@ -194,7 +182,6 @@ const getTranscodingParams = (height, bandwidth, width, fileKey, inputBucket, id
 
 // Generate Thumbnails & VTT
 const generateThumbnailsAndVTT = async (inputPath, tempDir, baseName, outputBucket) => {
-  try {
     console.log("Generating thumbnails and VTT...");
 
     const VTT_FILE = path.join(tempDir, 'thumbnails.vtt');
@@ -231,14 +218,10 @@ const generateThumbnailsAndVTT = async (inputPath, tempDir, baseName, outputBuck
     }).promise();
 
     console.log(`Uploaded thumbnails and VTT to s3://${outputBucket}/${baseName}/thumbnails/`);
-  } catch (error) {
-    throw error;
-  }
 };
 
 // Extract Audio
 const extractAudio = async (inputPath, outputPath, baseName, outputBucket, id) => {
-  try {
     console.log("Extracting audio...");
 
     await execPromise(`ffmpeg -i ${inputPath} -vn -acodec libmp3lame ${outputPath}`);
@@ -254,14 +237,10 @@ const extractAudio = async (inputPath, outputPath, baseName, outputBucket, id) =
     }).promise();
 
     console.log("Audio uploaded to S3.");
-  } catch (error) {
-    throw error;
-  }
 };
 
 // Generate HLS Master Playlist
 const generateHLSMasterPlaylist = async (baseName, tempDir, outputBucket, width, height) => {
-  try {
     console.log("Generating HLS master playlist...");
 
     const masterPlaylistPath = path.join(tempDir, 'master.m3u8');
@@ -290,9 +269,6 @@ const generateHLSMasterPlaylist = async (baseName, tempDir, outputBucket, width,
     }).promise();
 
     console.log(`Uploaded master.m3u8 to s3://${outputBucket}/${baseName}/master.m3u8`);
-  } catch (error) {
-    throw error;
-  }
 };
 
 // Format timestamps for VTT (e.g., "00:00:01.000")

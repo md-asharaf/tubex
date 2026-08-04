@@ -487,7 +487,6 @@ class ShortController {
                 const commonCategories = short.categories.filter(tag => watchedCategories.includes(tag));
                 score += commonCategories.length * 2; // Boost score for shorts with common categories
             }
-
             return score;
         };
 
@@ -503,7 +502,7 @@ class ShortController {
         const paginatedShorts = allShorts.slice(startIndex, startIndex + validLimit);
 
         return res.status(200).json(new ApiResponse(200, { recommendations: paginatedShorts }, 'Recommended Shorts fetched successfully'));
-    }
+    })
 
     increaseViews = asyncHandler(async (req, res) => {
         const { shortId } = req.params;

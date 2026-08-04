@@ -12,9 +12,10 @@ import { Separator } from "@/components/ui/separator";
 export const ChannelPosts = () => {
   const dispatch = useDispatch();
   const { username } = useParams();
-  const { username: uname } = useSelector(
+  const currentUser = useSelector(
     (state: RootState) => state.auth.userData
   );
+  const uname = currentUser?.username;
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ["posts", username],
     queryFn: async (): Promise<IPostData[]> => {

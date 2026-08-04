@@ -6,7 +6,7 @@ interface INotificationsData {
 }
 const notificationCount = localStorage.getItem("new_notification_count");
 const initialState: INotificationsData = {
-    newNotificationCount: Number(notificationCount) ?? 0,
+    newNotificationCount: Number(notificationCount) || 0,
     notifications: [],
 };
 

@@ -1,5 +1,6 @@
-import { IUser } from "@/interfaces";
-import { createSlice } from "@reduxjs/toolkit";
+import {IUser} from "@/interfaces";
+import {createSlice} from "@reduxjs/toolkit";
+
 interface IAuthData{
     userData: IUser | null;
 }
@@ -20,8 +21,7 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         login: (state, action) => {
-            const userData = action.payload;
-            state.userData = userData;
+            state.userData = action.payload;
         },
         logout: (state) => {
             state.userData = null;

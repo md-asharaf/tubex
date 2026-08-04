@@ -1,7 +1,5 @@
 // import { IUiData } from "@/interfaces";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { set } from "date-fns";
-import { act } from "react";
 export interface IUiData {
     shareModalData: {
         open: boolean;
