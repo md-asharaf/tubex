@@ -50,7 +50,7 @@ export const SignUp = () => {
                     <div className="flex justify-center space-x-1 items-center">
                         <IoLogoYoutube className="text-3xl" />
                         <div className="text-red-500 font-bold text-pretty">
-                            ShotTube
+                            TubeX
                         </div>
                     </div>
                     <h2 className="text-xl font-semibold text-gray-800">

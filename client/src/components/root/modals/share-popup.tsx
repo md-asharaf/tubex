@@ -11,8 +11,13 @@ export const SharePopup = () => {
   const { id, open, type } = useSelector(
     (state: RootState) => state.ui.shareModalData
   );
-  const videoLink = `https://shot-tube.live/${type}/${id}`;
-  const ref = useRef(null);
+  const origin =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : "https://tubex.asharaf.tech";
+  const sharePath = [type, id].filter(Boolean).join("/");
+  const videoLink = sharePath ? `${origin}/${sharePath}` : origin;
+  const ref = useRef<HTMLInputElement | null>(null);
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(videoLink);
     toast.success("Link copied to clipboard!");

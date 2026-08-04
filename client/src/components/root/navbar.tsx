@@ -22,7 +22,7 @@ export const NavBar = () => {
     return (
         <div className="flex flex-col bg-white dark:bg-[#0F0F0F] w-full text-foreground">
             {/* Main navbar */}
-            <div className="flex items-center justify-between p-2 sm:p-8 h-12 sm:h-16 gap-2 w-full">
+            <div className="flex h-12 items-center justify-between gap-2 px-2 py-1 sm:h-16 sm:px-4 sm:py-2 lg:px-8 w-full">
                 <div className="flex items-center gap-x-2 md:gap-x-4">
                     <Menu
                         strokeWidth={1.5}
@@ -72,13 +72,12 @@ export const NavBar = () => {
                     ) : (
                         <Link to={"/login"}>
                             <Button
-                                className="rounded-full bg-blue-500 hover:bg-blue-600 text-white"
+                                className="h-8 rounded-full bg-blue-500 px-3 py-0 text-white hover:bg-blue-600 sm:h-10 sm:px-4"
                             >
-                                <span className="text-sm sm:text-base">Log in</span>
+                                <span className="text-xs sm:text-sm">Log in</span>
                                 <User
                                     className="hidden sm:block"
-                                    height={25}
-                                    width={25}
+                                    size={18}
                                 />
                             </Button>
                         </Link>

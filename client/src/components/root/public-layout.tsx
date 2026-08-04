@@ -15,19 +15,18 @@ export const RootLayOut = () => {
             <nav className="z-30 fixed top-0 left-0 h-12 sm:h-16 w-full">
                 <NavBar />
             </nav>
-            <div className="flex flex-1 overflow-hidden mt-12 sm:mt-16 sm:space-x-4 w-full">
+            <div className="mt-12 flex flex-1 w-full overflow-hidden sm:mt-16 sm:space-x-4">
                 <Drawer />
                 <div
-                    className="flex-1 overflow-y-auto overflow-x-hidden w-full"
+                    className="w-full flex-1 overflow-y-auto overflow-x-hidden pb-24 sm:pb-4"
                     style={{
-                        paddingBottom: "50px",
                         WebkitOverflowScrolling: "touch",
                     }}
                 >
                     <Outlet />
                 </div>
             </div>
-            <div className="sm:hidden fixed bottom-0 z-10 left-0 w-full">
+            <div className="fixed bottom-0 left-0 z-10 w-full sm:hidden">
                 <BottomBar />
             </div>
             <LoginPopover />

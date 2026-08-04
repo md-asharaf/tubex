@@ -31,7 +31,7 @@ export const BottomBar = () => {
                     </div>
                 )}
             </NavLink>
-            <NavLink to={`/short?s=${shortId}`}>
+            <NavLink to={`/short/${shortId}`}>
                 <div className="flex flex-col items-center">
                     <SiYoutubeshorts className="text-xl" />
                     <span className="text-[12px]">Shorts</span>

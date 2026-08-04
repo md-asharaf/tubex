@@ -184,7 +184,7 @@ export const BigDrawer = () => {
                             onClick={() => (location.href = "/")}
                         >
                             <ImYoutube color="red" className="text-xl" />
-                            <h1 className="font-bold">ShotTube</h1>
+                            <h1 className="font-bold">TubeX</h1>
                         </button>
                     </div>
                 )}

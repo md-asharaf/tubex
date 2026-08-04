@@ -78,7 +78,11 @@ export const ShortDetails = () => {
     },
     enabled: !!id,
   });
-  const shortLink = `https://shot-tube.live/short/${short?._id}`;
+  const origin =
+      typeof window !== "undefined"
+          ? window.location.origin
+          : "https://tubex.asharaf.tech";
+  const shortLink = `${origin}/short/${short?._id}`;
   const {
     data: playlists,
     isLoading: isPlaylistsLoading,

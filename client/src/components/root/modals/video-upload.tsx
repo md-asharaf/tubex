@@ -153,8 +153,8 @@ export default function UploadVideo() {
         )}
       </div>
       <p className="text-xs text-muted-foreground text-center max-w-md mt-4">
-        By submitting your videos to ShotTube, you acknowledge that you agree to
-        ShotTube's <span className="text-blue-400">Terms of Service</span> and
+        By submitting your videos to TubeX, you acknowledge that you agree to
+        TubeX's <span className="text-blue-400">Terms of Service</span> and
         <span className="text-blue-400"> Community Guidelines</span>. Please
         ensure you do not violate others' copyright or privacy rights.
       </p>

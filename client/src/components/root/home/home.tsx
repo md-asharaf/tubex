@@ -95,9 +95,6 @@ export const Home = () => {
                                 <SiYoutubeshorts className="text-2xl" />
                                 <div className="font-bold text-2xl">Shorts</div>
                             </div>
-                            <Link to="/shorts" className="text-sm font-medium text-blue-500 hover:underline">
-                                View all
-                            </Link>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-y-2 w-full">
                             {shorts?.map((short) => (

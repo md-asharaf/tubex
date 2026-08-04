@@ -1,8 +1,8 @@
-# Shot Tube
+# TubeX
 
 ## Description
 
-Shot Tube MERN is a full-stack web application built using the MERN (MongoDB, Express, React, Node.js) stack. It allows users to upload and share video content, similar to a mini YouTube application.
+TubeX is a full-stack web application built using the MERN (MongoDB, Express, React, Node.js) stack. It allows users to upload and share video content, similar to a mini YouTube application.
 
 ## Features
 
@@ -29,8 +29,8 @@ To run this project locally, follow these steps:
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/md-asharaf/shot_tube-MERN.git
-cd shot_tube-MERN
+git clone https://github.com/md-asharaf/tubeX.git
+cd tubeX
 ```
 
 ### Using Docker Compose
