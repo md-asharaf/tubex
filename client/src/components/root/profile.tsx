@@ -39,8 +39,8 @@ export const Profile = () => {
     };
     return (
         <DropdownMenu open={open} onOpenChange={setOpen}>
-            <DropdownMenuTrigger className="flex h-10 w-10 items-center justify-center rounded-full focus:outline-none">
-                <AvatarImg fullname={fullname} avatar={avatar} />
+            <DropdownMenuTrigger className="flex items-center justify-center rounded-full focus:outline-none">
+                <AvatarImg fullname={fullname} avatar={avatar} className="h-8 w-8 sm:h-9 sm:w-9" />
             </DropdownMenuTrigger>
             <DropdownMenuContent
                 className="m-0 min-w-[280px] p-0 sm:min-w-[300px]"

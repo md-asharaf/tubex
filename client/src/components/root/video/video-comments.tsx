@@ -45,29 +45,32 @@ export const VideoComments = ({ videoId, playerRef, creatorId }) => {
         );
     }
     return (
-        <div className="px-2 space-y-2">
-            <div className="flex sm:space-x-16 items-center justify-between sm:justify-normal">
-                <div className="font-bold text-2xl text-zinc-600 dark:text-zinc-300 mb-2">
-                    {`${totalComments} Comments`}
+        <div className="space-y-2 flex flex-col h-full relative">
+            <div className="flex sm:space-x-16 items-center justify-between sm:justify-normal px-1 sm:px-0 mb-3 sm:mb-0">
+                <div className="font-bold text-[18px] sm:text-2xl text-foreground sm:text-zinc-600 sm:dark:text-zinc-300 sm:mb-2">
+                    <span className="sm:hidden">Comments</span>
+                    <span className="hidden sm:inline">{`${totalComments} Comments`}</span>
                 </div>
                 <Filter onFilterChange={setFilter} />
             </div>
-            <div className="flex flex-col">
-                {userData && isPending ? (
-                    <div className="flex items-center justify-center">
-                        <Loader2 className="h-6 w-6 animate-spin" />
-                    </div>
-                ) : (
-                    <TextArea
-                        fullname={userData?.fullname}
-                        userAvatar={userData?.avatar}
-                        placeholder="Add a public comment..."
-                        onSubmit={(content) =>
-                            addComment({ id: videoId, content })
-                        }
-                        submitLabel="Comment"
-                    />
-                )}
+            <div className="flex flex-col pb-16 sm:pb-0">
+                <div className="hidden sm:block mb-4">
+                    {userData && isPending ? (
+                        <div className="flex items-center justify-center">
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                        </div>
+                    ) : (
+                        <TextArea
+                            fullname={userData?.fullname}
+                            userAvatar={userData?.avatar}
+                            placeholder="Add a public comment..."
+                            onSubmit={(content) =>
+                                addComment({ id: videoId, content })
+                            }
+                            submitLabel="Comment"
+                        />
+                    )}
+                </div>
 
                 <Comments
                     id={videoId}
@@ -76,6 +79,23 @@ export const VideoComments = ({ videoId, playerRef, creatorId }) => {
                     filter={filter}
                     type="video"
                 />
+            </div>
+            <div className="sm:hidden fixed sm:static bottom-0 left-0 right-0 bg-white dark:bg-[#212121] p-3 border-t border-gray-200 dark:border-white/10 z-20">
+                {userData && isPending ? (
+                    <div className="flex items-center justify-center">
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                    </div>
+                ) : (
+                    <TextArea
+                        fullname={userData?.fullname}
+                        userAvatar={userData?.avatar}
+                        placeholder="Add a comment..."
+                        onSubmit={(content) =>
+                            addComment({ id: videoId, content })
+                        }
+                        submitLabel="Comment"
+                    />
+                )}
             </div>
         </div>
     );

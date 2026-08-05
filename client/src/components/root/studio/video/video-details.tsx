@@ -208,7 +208,6 @@ export const VideoDetails = () => {
           }
         }
       }
-      toast.success("AI generated metadata successfully!");
     } catch (error: any) {
       toast.error(error.message || "Failed to generate AI metadata");
     } finally {

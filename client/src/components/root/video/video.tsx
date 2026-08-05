@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { IVideoData } from "@/interfaces";
 import { formatDistanceToNowStrict } from "date-fns";
 import { videoService } from "@/services/video";
+import { playlistService } from "@/services/playlist";
 import { subService } from "@/services/subscription";
 import { likeService } from "@/services/like";
 import { useQuery, useMutation, useInfiniteQuery } from "@tanstack/react-query";
@@ -12,6 +13,7 @@ import { PlyrPlayer } from "@/components/root/video-player";
 import { Bookmark, Share2, ThumbsUp, MessageSquare } from "lucide-react";
 import { userService } from "@/services/user";
 import { ThreeDots } from "@/components/root/three-dots";
+import { Loader2 } from "lucide-react";
 import { ResponsiveModal } from "@/components/root/modals/responsive-modal";
 import { formatViews } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -34,6 +36,10 @@ export const Video = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const userId = useSelector((state: RootState) => state.auth.userData?._id);
   const isMobile = useIsMobile();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const listId = searchParams.get("list");
+  const shuffle = searchParams.get("shuffle") === "true";
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
@@ -50,6 +56,15 @@ export const Video = () => {
       return data.video;
     },
     enabled: !!videoId,
+  });
+
+  const { data: playlist } = useQuery({
+    queryKey: ["playlist", listId],
+    queryFn: async () => {
+      const data = await playlistService.getPlaylistById(listId);
+      return data.playlist;
+    },
+    enabled: !!listId,
   });
 
   const { data: isLiked } = useQuery({
@@ -199,6 +214,22 @@ export const Video = () => {
     if (!userId) return;
     addToWatchHistory({ videoId });
   };
+
+  const handleVideoEnd = () => {
+    if (playlist && listId) {
+      if (shuffle) {
+        const randomIndex = Math.floor(Math.random() * playlist.videos.length);
+        navigate(`/video/${playlist.videos[randomIndex]._id}?list=${listId}&shuffle=true`);
+      } else {
+        const currentIndex = playlist.videos.findIndex((v) => v._id === videoId);
+        if (currentIndex !== -1 && currentIndex < playlist.videos.length - 1) {
+          const nextVideoId = playlist.videos[currentIndex + 1]._id;
+          navigate(`/video/${nextVideoId}?list=${listId}`);
+        }
+      }
+    }
+  };
+
   useEffect(() => {
     dispatch(toggleMenu(false));
   }, []);
@@ -208,11 +239,15 @@ export const Video = () => {
     }
   }, [playerRef]);
   if (isError) return <div>Error: {error?.message}</div>;
-  if (isLoading) return null;
+  if (isLoading) return (
+    <div className="flex justify-center items-center w-full min-h-[50vh]">
+      <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
+    </div>
+  );
   return (
     <div className="flex flex-col space-y-4 xl:flex-row w-full">
       <div className="space-y-4 w-full xl:w-2/3 2xl:w-[70%]">
-        <div className="flex flex-col space-y-2 px-2">
+        <div className="flex flex-col space-y-2 sm:px-2">
           <PlyrPlayer
             thumbnail={video.thumbnail}
             thumbnailPreviews={video.thumbnailPreviews}
@@ -229,6 +264,7 @@ export const Video = () => {
             ]}
             playerRef={playerRef}
             onViewTracked={onViewTracked}
+            onEnded={handleVideoEnd}
             minWatchTime={
               parseInt(video.duration) < 15
                 ? parseInt(video.duration)
@@ -236,198 +272,197 @@ export const Video = () => {
             }
             className="aspect-video"
           />
-          <h1 className="font-bold text-xl">{video.title}</h1>
-          <div className="flex justify-between flex-col sm:flex-row gap-y-2 sm:gap-0">
-            <div className="flex gap-x-4 items-center justify-between sm:justify-normal">
-              <Link
-                to={`/channel/${video.creator.username}`}
-                className="flex gap-x-4 items-center"
-              >
-                <AvatarImg
-                  className="h-12 w-12"
-                  fullname={video.creator.fullname}
-                  avatar={video.creator.avatar}
-                />
-                <div className="flex flex-col gap-y-1 items-start">
-                  <div className="font-bold">
-                    {video.creator.fullname}
-                  </div>
-                  <div className="text-gray-500 text-sm">
-                    {`${subscribersCount} subscribers`}
-                  </div>
-                </div>
-              </Link>
-
-              <Button
-                variant={isSubscribed ? "secondary" : "default"}
-                className="rounded-full"
-                onClick={() => toggleSubscription()}
-              >
-                {isSubscribed ? "Subscribed" : "Subscribe"}
-              </Button>
-            </div>
-            {!isMobile && (
-              <div className="flex sm:items-center justify-end gap-4 sm:gap-2">
-                <Button
-                  variant="secondary"
-                  onClick={() => toggleVideoLike()}
-                  className="rounded-full"
+          <div className="px-3 sm:px-0 flex flex-col space-y-2">
+            <h1 className="font-bold text-xl">{video.title}</h1>
+            <div className="flex justify-between flex-col sm:flex-row gap-y-2 sm:gap-0">
+              <div className="flex gap-x-4 items-center justify-between sm:justify-normal">
+                <Link
+                  to={`/channel/${video.creator.username}`}
+                  className="flex gap-x-4 items-center"
                 >
-                  <ThumbsUp
-                    fill={
-                      isLiked
-                        ? theme == "dark"
-                          ? "white"
-                          : "black"
-                        : theme == "dark"
-                          ? "black"
-                          : "white"
-                    }
+                  <AvatarImg
+                    className="h-12 w-12"
+                    fullname={video.creator.fullname}
+                    avatar={video.creator.avatar}
                   />
-                  {likesCount}
-                </Button>
+                  <div className="flex flex-col gap-y-1 items-start">
+                    <div className="font-bold">
+                      {video.creator.fullname}
+                    </div>
+                    <div className="text-gray-500 text-sm">
+                      {`${subscribersCount} subscribers`}
+                    </div>
+                  </div>
+                </Link>
+
                 <Button
+                  variant={isSubscribed ? "secondary" : "default"}
                   className="rounded-full"
-                  variant="secondary"
-                  onClick={() =>
-                    dispatch(
-                      setShareModalData({
-                        open: true,
-                        id: videoId,
-                        type: "video",
-                      })
-                    )
-                  }
+                  onClick={() => toggleSubscription()}
                 >
-                  <Share2 />
+                  {isSubscribed ? "Subscribed" : "Subscribe"}
                 </Button>
-                <div
-                  onClick={() =>
-                    dispatch(
-                      setSaveToPlaylistDialog({
-                        id: videoId,
-                        open: true,
-                      })
-                    )
-                  }
-                >
+              </div>
+              {!isMobile && (
+                <div className="flex sm:items-center justify-end gap-4 sm:gap-2">
                   <Button
                     variant="secondary"
+                    onClick={() => toggleVideoLike()}
                     className="rounded-full"
                   >
-                    <Bookmark /> Save
+                    <ThumbsUp
+                      fill={
+                        isLiked
+                          ? theme == "dark"
+                            ? "white"
+                            : "black"
+                          : theme == "dark"
+                            ? "black"
+                            : "white"
+                      }
+                    />
+                    {likesCount}
+                  </Button>
+                  <Button
+                    className="rounded-full"
+                    variant="secondary"
+                    onClick={() =>
+                      dispatch(
+                        setShareModalData({
+                          open: true,
+                          id: videoId,
+                          type: "video",
+                        })
+                      )
+                    }
+                  >
+                    <Share2 />
+                  </Button>
+                  <div
+                    onClick={() =>
+                      dispatch(
+                        setSaveToPlaylistDialog({
+                          id: videoId,
+                          open: true,
+                        })
+                      )
+                    }
+                  >
+                    <Button
+                      variant="secondary"
+                      className="rounded-full"
+                    >
+                      <Bookmark /> Save
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {isMobile && (
+                <div className="w-full mt-2">
+                  <div className="flex flex-col gap-y-3">
+                    {/* Action Buttons Row */}
+                    <div className="flex items-center justify-between overflow-x-auto no-scrollbar pb-1">
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="secondary"
+                          onClick={() => toggleVideoLike()}
+                          className="rounded-full h-9 px-4 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium"
+                        >
+                          <ThumbsUp
+                            size={18}
+                            className="mr-2"
+                            fill={isLiked ? (theme == "dark" ? "white" : "black") : "transparent"}
+                          />
+                          {likesCount}
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          className="rounded-full h-9 px-4 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium"
+                          onClick={() => dispatch(setShareModalData({ open: true, id: videoId, type: "video" }))}
+                        >
+                          <Share2 size={18} className="mr-2" /> Share
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          className="rounded-full h-9 px-4 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium"
+                          onClick={() => dispatch(setSaveToPlaylistDialog({ id: videoId, open: true }))}
+                        >
+                          <Bookmark size={18} className="mr-2" /> Save
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Description Box */}
+                    <div
+                      className="w-full p-3 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 cursor-pointer transition-colors"
+                      onClick={!isExpanded ? toggleExpanded : undefined}
+                    >
+                      <div className="flex items-center flex-wrap gap-x-2 text-sm font-bold text-foreground">
+                        <span>{formatViews(video.views)}</span>
+                        <span>{formatDistanceToNowStrict(new Date(video.createdAt), { addSuffix: true })}</span>
+                        {!isExpanded && (
+                          <span className="font-semibold text-foreground mt-0.5">...more</span>
+                        )}
+                      </div>
+                      {isExpanded && (
+                        <div className="mt-2 text-sm">
+                          <p className="whitespace-pre-wrap">{video.description}</p>
+                          <Button
+                            variant="ghost"
+                            className="h-auto p-0 mt-2 font-bold hover:bg-transparent"
+                            onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
+                          >
+                            Show less
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            {!isMobile && (
+              <div className="px-4 py-2 shadow-md rounded-xl bg-[#F2F2F2] dark:bg-[#272727]">
+                <div className="flex space-x-2 font-bold">
+                  <div>{formatViews(video.views)}</div>
+                  <div>
+                    {formatDistanceToNowStrict(
+                      new Date(video.createdAt),
+                      { addSuffix: true }
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <p
+                    className={`whitespace-pre-wrap ${!isExpanded ? "line-clamp-2" : ""
+                      }`}
+                  >
+                    {video.description}
+                  </p>
+                  <Button
+                    variant="ghost"
+                    onClick={toggleExpanded}
+                    className="h-auto p-0 font-semibold hover:bg-transparent"
+                  >
+                    {isExpanded ? "Show less" : "Show more"}
                   </Button>
                 </div>
               </div>
             )}
             {isMobile && (
-              <div className="w-full mt-2">
-                <div className="flex flex-col gap-y-3">
-                  {/* Action Buttons Row */}
-                  <div className="flex items-center justify-between overflow-x-auto no-scrollbar pb-1">
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="secondary"
-                        onClick={() => toggleVideoLike()}
-                        className="rounded-full h-9 px-4 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium"
-                      >
-                        <ThumbsUp
-                          size={18}
-                          className="mr-2"
-                          fill={isLiked ? (theme == "dark" ? "white" : "black") : "transparent"}
-                        />
-                        {likesCount}
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        className="rounded-full h-9 px-4 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium"
-                        onClick={() => dispatch(setShareModalData({ open: true, id: videoId, type: "video" }))}
-                      >
-                        <Share2 size={18} className="mr-2" /> Share
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        className="rounded-full h-9 px-4 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium"
-                        onClick={() => dispatch(setSaveToPlaylistDialog({ id: videoId, open: true }))}
-                      >
-                        <Bookmark size={18} className="mr-2" /> Save
-                      </Button>
-                    </div>
+              <div
+                className="mt-2 w-full p-3 shadow-md rounded-xl bg-[#F2F2F2] dark:bg-[#28292A] cursor-pointer"
+                onClick={() => setIsMobileCommentsOpen(true)}
+              >
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center space-x-2 font-bold">
+                    <span>Comments</span>
                   </div>
-
-                  {/* Description Box */}
-                  <div
-                    className="w-full p-3 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 cursor-pointer transition-colors"
-                    onClick={!isExpanded ? toggleExpanded : undefined}
-                  >
-                    <div className="flex items-center flex-wrap gap-x-2 text-sm font-bold text-foreground">
-                      <span>{formatViews(video.views)}</span>
-                      <span>{formatDistanceToNowStrict(new Date(video.createdAt), { addSuffix: true })}</span>
-                      {!isExpanded && (
-                        <span className="font-semibold text-foreground mt-0.5">...more</span>
-                      )}
-                    </div>
-                    {isExpanded && (
-                      <div className="mt-2 text-sm">
-                        <p className="whitespace-pre-wrap">{video.description}</p>
-                        <Button
-                          variant="ghost"
-                          className="h-auto p-0 mt-2 font-bold hover:bg-transparent"
-                          onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
-                        >
-                          Show less
-                        </Button>
-                      </div>
-                    )}
-                  </div>
+                  <MessageSquare size={18} className="text-muted-foreground" />
                 </div>
               </div>
             )}
           </div>
-          {!isMobile && (
-            <div className="px-4 py-2 shadow-md rounded-xl bg-[#F2F2F2] dark:bg-[#272727]">
-              <div className="flex space-x-2 font-bold">
-                <div>{formatViews(video.views)}</div>
-                <div>
-                  {formatDistanceToNowStrict(
-                    new Date(video.createdAt),
-                    { addSuffix: true }
-                  )}
-                </div>
-              </div>
-              <div>
-                <p
-                  className={`whitespace-pre-wrap ${!isExpanded ? "line-clamp-2" : ""
-                    }`}
-                >
-                  {video.description}
-                </p>
-                <Button
-                  variant="ghost"
-                  onClick={toggleExpanded}
-                  className="h-auto p-0 font-semibold hover:bg-transparent"
-                >
-                  {isExpanded ? "Show less" : "Show more"}
-                </Button>
-              </div>
-            </div>
-          )}
-          {isMobile && (
-            <div
-              className="mt-2 w-full p-3 shadow-md rounded-xl bg-[#F2F2F2] dark:bg-[#28292A] cursor-pointer"
-              onClick={() => setIsMobileCommentsOpen(true)}
-            >
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-2 font-bold">
-                  <span>Comments</span>
-                </div>
-                <MessageSquare size={18} className="text-muted-foreground" />
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">
-                Tap to view comments
-              </div>
-            </div>
-          )}
         </div>
         <div className="hidden xl:block">
           <VideoComments
@@ -437,43 +472,53 @@ export const Video = () => {
           />
         </div>
       </div>
-      <div className="w-full xl:w-1/3 2xl:w-[30%]">
+      <div className="w-full xl:w-1/3 2xl:w-[30%] flex flex-col gap-y-4 sm:block">
         {recommendedVideos?.map((video) => (
           <Link
             to={`/video/${video._id}`}
             key={video._id}
-            className="flex justify-between mr-4"
+            className="flex flex-col sm:flex-row justify-between mb-2 sm:mb-4 sm:mr-4"
           >
-            <div className="flex gap-4 px-4 pb-4 lg:min-w-[300px] lg:max-w-[500px]">
+            <div className="flex flex-col sm:flex-row gap-4 px-0 sm:px-4 lg:min-w-[300px] lg:max-w-[500px] w-full">
               <img
                 src={video.thumbnail}
-                className="h-24 min-w-44 object-cover rounded-lg aspect-video"
+                className="w-full sm:w-44 sm:h-24 object-cover sm:rounded-lg aspect-video"
                 loading="lazy"
               />
-              <div className="flex flex-col overflow-hidden">
-                <p className="font-bold line-clamp-2 overflow-hidden text-ellipsis">
-                  {video.title}
-                </p>
-                <div className="text-muted-foreground text-sm">
-                  {video.creator?.fullname}
+              <div className="flex gap-x-3 px-3 sm:px-0 pb-4 sm:pb-0">
+                <div className="sm:hidden mt-0.5 shrink-0">
+                  <AvatarImg
+                    className="w-9 h-9"
+                    avatar={video.creator?.avatar}
+                    fullname={video.creator?.fullname}
+                  />
                 </div>
-                <div className="text-muted-foreground text-sm">
-                  {`${formatViews(
-                    video.views
-                  )} • ${formatDistanceToNowStrict(
-                    video.createdAt,
-                    { addSuffix: true }
-                  )}`}
+                <div className="flex flex-col overflow-hidden">
+                  <p className="font-bold line-clamp-2 overflow-hidden text-ellipsis sm:text-sm">
+                    {video.title}
+                  </p>
+                  <div className="text-muted-foreground text-sm sm:text-xs mt-1">
+                    {video.creator?.fullname} {isMobile ? "•" : ""} {isMobile && formatViews(video.views)} {isMobile ? "•" : ""} {isMobile && formatDistanceToNowStrict(new Date(video.createdAt), { addSuffix: true })}
+                  </div>
+                  {!isMobile && (
+                    <div className="text-muted-foreground text-xs mt-1">
+                      {`${formatViews(video.views)} • ${formatDistanceToNowStrict(
+                        new Date(video.createdAt),
+                        { addSuffix: true }
+                      )}`}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-            <ThreeDots videoId={video._id} />
+            <div className="hidden sm:block">
+              <ThreeDots videoId={video._id} />
+            </div>
           </Link>
         ))}
       </div>
       <div className="xl:hidden">
         <ResponsiveModal
-          title="Comments"
           open={isMobileCommentsOpen}
           onOpenChange={setIsMobileCommentsOpen}
           className="h-[80vh]"

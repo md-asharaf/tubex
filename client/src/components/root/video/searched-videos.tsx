@@ -19,19 +19,19 @@ export const SearchedVideos = () => {
     });
     if (isLoading) {
         return (
-            <div className="flex w-[90%] justify-center">
-                <Loader2 className="h-10 w-10 animate-spin" />
+            <div className="flex justify-center items-center w-full min-h-[50vh]">
+                <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
             </div>
         );
     }
     if (!videos || videos.length === 0)
         return (
-            <div className="flex items-center text-2xl justify-center mt-40 w-[80%] dark:text-white">
+            <div className="flex items-center text-lg sm:text-2xl justify-center mt-20 sm:mt-40 w-full text-center px-4 dark:text-white">
                 {videos ? `No results for "${query}"` : "Go to home page"}
             </div>
         );
     return (
-        <div className="flex flex-col gap-y-4 px-4 md:px-8 xl:px-40 min-h-screen">
+        <div className="flex flex-col gap-y-4 px-4 md:px-8 xl:px-40 min-h-screen pt-4 sm:pt-8">
             {videos?.map((video) => (
                 <Link to={`/video/${video._id}`} key={video._id}>
                     <div className="flex gap-x-4 rounded-lg">

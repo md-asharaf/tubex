@@ -17,7 +17,12 @@ export const store = configureStore({
         short: shortReducer,
     },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().concat(
+        getDefaultMiddleware({
+            serializableCheck: {
+                ignoredPaths: ['ui.alertDialogData.onConfirm'],
+                ignoredActions: ['ui/setAlertDialogData'],
+            },
+        }).concat(
             uiMiddleware,
             authMiddleware,
             themeMiddleware,

@@ -1,4 +1,4 @@
-import { Outlet, useParams } from "react-router-dom";
+import { Outlet, useParams, Navigate } from "react-router-dom";
 import { IUser } from "@/interfaces";
 import { userService } from "@/services/user";
 import { useSelector } from "react-redux";
@@ -18,6 +18,11 @@ export const Channel = () => {
     const userData = useSelector((state: RootState) => state.auth.userData);
     const userId = userData?._id;
     const { username } = useParams();
+    
+    if (!username || username === "undefined" || username === "null") {
+        return <Navigate to="/" replace />;
+    }
+
     const { data: userDetails } = useQuery({
         queryKey: ["user-details", username],
         queryFn: async (): Promise<{
@@ -105,8 +110,8 @@ export const Channel = () => {
     ];
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center h-screen">
-                <Loader2 className="h-10 w-10 animate-spin" />
+            <div className="flex justify-center items-center w-full min-h-[50vh]">
+                <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
             </div>
         );
     }

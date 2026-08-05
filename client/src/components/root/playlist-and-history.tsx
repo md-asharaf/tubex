@@ -3,7 +3,7 @@ import { IShortData, IVideoData, Playlist } from "@/interfaces";
 import { useQuery } from "@tanstack/react-query";
 import { playlistService } from "@/services/playlist";
 import { subService } from "@/services/subscription";
-import { Loader2, MoreVertical, ChevronRight, ThumbsUp, ListVideo, Search, Settings } from "lucide-react";
+import { Loader2, ChevronRight, ThumbsUp, ListVideo, Search, Settings } from "lucide-react";
 import { ImYoutube } from "react-icons/im";
 import { useNavigate } from "react-router-dom";
 import { Notifications } from "@/components/root/notifications";
@@ -11,6 +11,7 @@ import { userService } from "@/services/user";
 import { videoService } from "@/services/video";
 import { RootState } from "@/store/store";
 import { Library } from "@/components/root/library";
+import { ThreeDots } from "@/components/root/three-dots";
 import { AvatarImg } from "@/components/root/avatar-image";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
@@ -78,8 +79,8 @@ export const PlaylistNhistory = () => {
     loadingLikedVideos
   ) {
     return (
-      <div className="flex justify-center">
-        <Loader2 className="h-10 w-10 animate-spin" />
+      <div className="flex justify-center items-center w-full min-h-[50vh]">
+        <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -89,11 +90,11 @@ export const PlaylistNhistory = () => {
       {/* Mobile Top Header */}
       <div className="sm:hidden flex items-center justify-between px-4 py-2 sticky top-0 bg-white dark:bg-[#0F0F0F] z-10">
         <button
-            className="flex items-center hover:bg-transparent text-lg space-x-1"
-            onClick={() => (window.location.href = "/")}
+          className="flex items-center hover:bg-transparent text-lg space-x-1"
+          onClick={() => (window.location.href = "/")}
         >
-            <ImYoutube color="red" className="text-2xl" />
-            <h1 className="font-bold text-lg tracking-tight">TubeX</h1>
+          <ImYoutube color="red" className="text-2xl" />
+          <h1 className="font-bold text-lg tracking-tight">TubeX</h1>
         </button>
         <div className="flex items-center space-x-2">
           <Notifications />
@@ -140,11 +141,9 @@ export const PlaylistNhistory = () => {
         />
         <div className="space-y-2">
           <div className="font-bold text-3xl">{userData?.fullname}</div>
-          <div className="text-base text-muted-foreground">{`@${
-            userData?.username
-          } • ${subscriberCount} subscribers • ${
-            (watchHistory?.videos?.length || 0) + (watchHistory?.shorts?.length || 0)
-          } videos`}</div>
+          <div className="text-base text-muted-foreground">{`@${userData?.username
+            } • ${subscriberCount} subscribers • ${(watchHistory?.videos?.length || 0) + (watchHistory?.shorts?.length || 0)
+            } videos`}</div>
           <Link to={`/channel/${userData.username}`} className="inline-block mt-2">
             <Button variant="outline" className="rounded-full h-10 px-4 text-sm">
               View channel
@@ -186,7 +185,9 @@ export const PlaylistNhistory = () => {
                     <img src={video.thumbnail} className="w-full aspect-video object-cover rounded-lg" />
                     <div className="flex justify-between items-start">
                       <div className="text-[13px] font-medium line-clamp-2 pr-2 leading-tight">{video.title}</div>
-                      <MoreVertical size={16} className="shrink-0 text-muted-foreground mt-0.5" />
+                      <div className="shrink-0 mt-0.5" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                        <ThreeDots videoId={video._id} />
+                      </div>
                     </div>
                     <div className="text-xs text-muted-foreground">{video.creator?.fullname || "TubeX"}</div>
                   </Link>
@@ -198,7 +199,7 @@ export const PlaylistNhistory = () => {
           {/* Library List View */}
           <div className="space-y-4 px-4">
             <h2 className="text-xl font-bold">Library</h2>
-            
+
             {/* Filter Chips */}
             <div className="flex space-x-2 overflow-x-auto no-scrollbar scrollbar-hide">
               <Button variant="secondary" className="rounded-md h-8 px-3 text-xs bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-foreground font-medium">Recents ˅</Button>
@@ -206,41 +207,35 @@ export const PlaylistNhistory = () => {
               <Button variant="secondary" className="rounded-md h-8 px-3 text-xs bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-foreground font-medium">Music</Button>
               <Button variant="secondary" className="rounded-md h-8 px-3 text-xs bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-foreground font-medium">Courses</Button>
             </div>
-            
+
             {/* List Items */}
             <div className="flex flex-col space-y-4 pt-2">
               {playlists?.map(playlist => (
-                <Link to={`/playlist/${playlist._id}`} key={playlist._id} className="flex items-center gap-3">
+                <Link to={`/playlist/${playlist._id}`} key={playlist._id} className="flex items-start gap-3">
                   <div className="w-[140px] aspect-video relative rounded-lg overflow-hidden shrink-0 bg-muted">
                     <img src={playlist.thumbnail} className="w-full h-full object-cover" />
                     <div className="absolute bottom-1 right-1 bg-black/80 rounded px-1.5 py-0.5 flex items-center justify-center">
-                       <ListVideo size={12} className="text-white" />
+                      <ListVideo size={12} className="text-white" />
                     </div>
                   </div>
-                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                  <div className="flex-1 min-w-0 flex flex-col justify-start mt-0.5">
                     <div className="font-semibold text-[15px] truncate text-foreground">{playlist.name}</div>
                     <div className="text-xs text-muted-foreground truncate mt-0.5">{playlist.creator.fullname} • Playlist</div>
                   </div>
-                  <div className="p-2 shrink-0">
-                    <MoreVertical size={20} className="text-foreground" />
-                  </div>
                 </Link>
               ))}
-              
+
               {likedVideos?.length > 0 && (
-                <Link to="/liked-videos" className="flex items-center gap-3">
+                <Link to="/liked-videos" className="flex items-start gap-3">
                   <div className="w-[140px] aspect-video relative rounded-lg overflow-hidden shrink-0 bg-muted">
                     <img src={likedVideos[0].thumbnail} className="w-full h-full object-cover" />
                     <div className="absolute bottom-1 right-1 bg-black/80 rounded px-1.5 py-0.5 flex items-center justify-center">
-                       <ThumbsUp size={12} className="text-white" />
+                      <ThumbsUp size={12} className="text-white" />
                     </div>
                   </div>
-                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                  <div className="flex-1 min-w-0 flex flex-col justify-start mt-0.5">
                     <div className="font-semibold text-[15px] truncate text-foreground">Liked videos</div>
                     <div className="text-xs text-muted-foreground truncate mt-0.5">Private</div>
-                  </div>
-                  <div className="p-2 shrink-0">
-                    <MoreVertical size={20} className="text-foreground" />
                   </div>
                 </Link>
               )}

@@ -22,8 +22,8 @@ export const Playlist = () => {
     });
     if (isLoading) {
         return (
-            <div className="flex w-[90%] justify-center">
-                <Loader2 className="h-10 w-10 animate-spin" />
+            <div className="flex justify-center items-center w-full min-h-[50vh]">
+                <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
             </div>
         );
     }

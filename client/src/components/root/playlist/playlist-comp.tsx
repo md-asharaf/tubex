@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { IShortData, IVideoData } from "@/interfaces";
 import { formatDistanceToNowStrict } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import { playlistService } from "@/services/playlist";
 import { likeService } from "@/services/like";
 import { toast } from "sonner";
 import ColorThief from "colorthief";
+import { Play, Shuffle } from "lucide-react";
+
 interface Props {
     playlist: {
         _id?: string;
@@ -23,8 +25,10 @@ interface Props {
     };
     refetch?: () => void;
 }
+
 export const PlaylistComp: React.FC<Props> = ({ playlist }) => {
-    const [background, setBackground] = useState<string>("");
+    const [background, setBackground] = useState<string>("rgb(200, 200, 200)");
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (playlist.videos.length === 0) return;
@@ -39,47 +43,26 @@ export const PlaylistComp: React.FC<Props> = ({ playlist }) => {
                 if (dominantColor) {
                     const rgbColor = `rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`;
                     setBackground(rgbColor);
-                } else {
-                    setBackground("rgb(200, 200, 200)");
                 }
             } catch (error) {
                 console.error("Error extracting colors:", error);
-                setBackground("rgb(200, 200, 200)");
             }
         };
-
-        image.onerror = () => {
-            console.error("Failed to load image.");
-            setBackground("rgb(200, 200, 200)");
-        };
-    }, []);
+    }, [playlist.videos]);
 
     const { mutate: remove } = useMutation({
-        mutationFn: async ({
-            playlistId,
-            videoId,
-        }: {
-            playlistId: string;
-            videoId: string;
-        }) => {
-            await playlistService.removeFromPlaylist(
-                playlistId,
-                videoId,
-                "video"
-            );
+        mutationFn: async ({ playlistId, videoId }: { playlistId: string; videoId: string }) => {
+            await playlistService.removeFromPlaylist(playlistId, videoId, "video");
         },
         onMutate: ({ videoId }) => {
             toast.success(`Removed from ${playlist.name}`);
             let video;
             let index;
             playlist.videos = playlist.videos.filter((v, i) => {
-                if (v._id !== videoId) {
-                    return true;
-                } else {
-                    video = v;
-                    index = i;
-                    return false;
-                }
+                if (v._id !== videoId) return true;
+                video = v;
+                index = i;
+                return false;
             });
             return { video, index };
         },
@@ -88,6 +71,7 @@ export const PlaylistComp: React.FC<Props> = ({ playlist }) => {
             playlist.videos.splice(index, 0, video);
         },
     });
+
     const { mutate: toggleLike } = useMutation({
         mutationFn: async (videoId: string) => {
             await likeService.toggleLike(videoId, "video");
@@ -97,13 +81,10 @@ export const PlaylistComp: React.FC<Props> = ({ playlist }) => {
             let video;
             let index;
             playlist.videos = playlist.videos.filter((v, i) => {
-                if (v._id !== videoId) {
-                    return true;
-                } else {
-                    video = v;
-                    index = i;
-                    return false;
-                }
+                if (v._id !== videoId) return true;
+                video = v;
+                index = i;
+                return false;
             });
             return { video, index };
         },
@@ -112,98 +93,152 @@ export const PlaylistComp: React.FC<Props> = ({ playlist }) => {
             playlist.videos.splice(index, 0, video);
         },
     });
-    return (
-        <div className="flex flex-col gap-4 lg:flex-row w-full dark:text-white">
-            <div
-                className="flex flex-col space-y-4 sm:space-x-4 sm:flex-row lg:flex-col dark:bg-zinc-700 bg-gray-200 p-5  rounded-xl lg:h-full lg:w-1/3 xl:w-1/4"
-                style={{
-                    background,
-                }}
-            >
-                <img
-                    src={playlist.videos[0].thumbnail}
-                    className="object-cover aspect-video sm:w-1/2 lg:w-full rounded-lg hover:opacity-50"
-                    loading="lazy"
-                />
 
-                <div className="space-y-3 text-white">
-                    <h1 className="text-2xl font-bold truncate">
+    const handlePlayAll = () => {
+        if (playlist.videos.length > 0) {
+            navigate(`/video/${playlist.videos[0]._id}?list=${playlist._id}`);
+        }
+    };
+
+    const handleShuffle = () => {
+        if (playlist.videos.length > 0) {
+            const randomIndex = Math.floor(Math.random() * playlist.videos.length);
+            navigate(`/video/${playlist.videos[randomIndex]._id}?list=${playlist._id}&shuffle=true`);
+        }
+    };
+
+    return (
+        <div className="flex flex-col lg:flex-row w-full min-h-[calc(100vh-64px)] relative dark:text-white">
+            {/* Desktop Sticky Panel / Mobile Header */}
+            <div className="relative w-full lg:w-[360px] xl:w-[400px] shrink-0 lg:sticky lg:top-16 lg:h-[calc(100vh-64px)] overflow-hidden lg:rounded-xl">
+                <div 
+                    className="absolute inset-0 z-0"
+                    style={{
+                        background: `linear-gradient(to bottom, ${background} 0%, transparent 100%)`,
+                        opacity: 0.8
+                    }}
+                />
+                
+                <div className="relative z-10 flex flex-col p-6 h-full overflow-y-auto no-scrollbar">
+                    <div className="w-full aspect-video rounded-xl overflow-hidden shadow-lg mb-6 shrink-0">
+                        {playlist.videos.length > 0 ? (
+                            <img
+                                src={playlist.videos[0].thumbnail}
+                                className="w-full h-full object-cover"
+                                alt="Playlist thumbnail"
+                            />
+                        ) : (
+                            <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                                <span className="text-zinc-500">No videos</span>
+                            </div>
+                        )}
+                    </div>
+
+                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 break-words">
                         {playlist.name}
                     </h1>
-                    <p className="text-sm truncate">{playlist.creator}</p>
-                    <p className="text-xs ">
-                        {`${playlist.videos?.length} videos • ${formatViews(
-                            playlist.totalViews
-                        )} • Last updated on ${new Date(
-                            playlist.updatedAt
-                        ).toDateString()}`}
-                    </p>
 
-                    <div className="flex justify-between gap-2 w-full">
-                        <Button className="bg-white text-black hover:bg-black hover:text-white transition-colors py-2 px-4 rounded-full w-1/2">
-                            Play all
+                    <div className="flex flex-col gap-1 mb-6">
+                        <p className="font-semibold text-foreground text-[15px]">{playlist.creator}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                            {playlist.name === "Watch Later" ? "Private" : "Public"} • {playlist.videos.length} videos • {formatViews(playlist.totalViews)}
+                        </p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                            Last updated on {new Date(playlist.updatedAt).toDateString()}
+                        </p>
+                    </div>
+
+                    <div className="flex gap-2 w-full mb-6">
+                        <Button 
+                            onClick={handlePlayAll}
+                            disabled={playlist.videos.length === 0}
+                            className="flex-1 bg-foreground text-background hover:bg-foreground/90 rounded-full font-semibold"
+                        >
+                            <Play className="w-4 h-4 mr-2 fill-current" /> Play all
                         </Button>
-                        <Button className="bg-white text-black hover:bg-black hover:text-white transition-colors py-2 px-4 rounded-full w-1/2">
-                            Shuffle
+                        <Button 
+                            onClick={handleShuffle}
+                            disabled={playlist.videos.length === 0}
+                            variant="secondary"
+                            className="flex-1 rounded-full font-semibold bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20"
+                        >
+                            <Shuffle className="w-4 h-4 mr-2" /> Shuffle
                         </Button>
                     </div>
 
-                    <p className="text-sm">{playlist.description}</p>
+                    {playlist.description && (
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-3 hover:line-clamp-none transition-all">
+                            {playlist.description}
+                        </p>
+                    )}
                 </div>
             </div>
 
-            <div className="flex flex-col w-full lg:w-2/3 xl:w-3/4 pb-20 sm:pb-4">
-                {playlist.videos?.map((video, index) => (
-                    <Link to={`/video/${video._id}`} key={video._id}>
-                        <div className="flex items-start p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg transition duration-200 ease-in-out">
-                            <div className="text-gray-500 text-xl mr-2 font-semibold">
-                                {index + 1}
-                            </div>
+            {/* Videos List */}
+            <div className="flex-1 relative z-10 px-4 sm:px-6 py-6 lg:pl-10">
+                <div className="flex flex-col gap-2 max-w-4xl mx-auto">
+                    {playlist.videos?.map((video, index) => (
+                        <Link 
+                            to={`/video/${video._id}?list=${playlist._id}`} 
+                            key={video._id}
+                            className="block"
+                        >
+                            <div className="group flex items-start gap-3 sm:gap-4 p-2 sm:p-3 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition duration-200">
+                                <div className="hidden sm:flex w-6 h-full items-center justify-center shrink-0 mt-[34px]">
+                                    <span className="text-sm font-medium text-muted-foreground group-hover:hidden">
+                                        {index + 1}
+                                    </span>
+                                    <Play className="w-4 h-4 text-foreground hidden group-hover:block" />
+                                </div>
 
-                            <div className="relative w-36 h-24 sm:w-44 sm:h-28 flex-shrink-0">
-                                <img
-                                    src={video.thumbnail}
-                                    className="h-full w-full object-cover aspect-video rounded-lg"
-                                    loading="lazy"
-                                />
-                                <span className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white px-2 text-xs rounded">
-                                    {formatDuration(video.duration)}
-                                </span>
-                            </div>
+                                <div className="relative w-36 sm:w-40 aspect-video shrink-0 rounded-lg overflow-hidden bg-muted">
+                                    <img
+                                        src={video.thumbnail}
+                                        className="w-full h-full object-cover"
+                                        loading="lazy"
+                                        alt={video.title}
+                                    />
+                                    <span className="absolute bottom-1.5 right-1.5 bg-black/80 text-white px-1.5 py-0.5 text-xs font-medium rounded">
+                                        {formatDuration(video.duration)}
+                                    </span>
+                                </div>
 
-                            <div className="flex-1 ml-4 overflow-hidden">
-                                <h3 className="text-lg text-black dark:text-white truncate">
-                                    {video.title}
-                                </h3>
-                                <p className="text-gray-400 text-sm">
-                                    {`${video.creator.fullname} • ${formatViews(
-                                        video.views
-                                    )} • ${formatDistanceToNowStrict(
-                                        new Date(video.createdAt)
-                                    ).replace("about", "")} ago`}
-                                </p>
+                                <div className="flex-1 min-w-0 flex flex-col justify-start">
+                                    <h3 className="text-sm sm:text-base font-semibold text-foreground line-clamp-2 leading-tight mb-1">
+                                        {video.title}
+                                    </h3>
+                                    <div className="flex flex-col sm:flex-row sm:items-center text-xs sm:text-sm text-muted-foreground line-clamp-2">
+                                        <span>{video.creator.fullname}</span>
+                                        <span className="hidden sm:inline mx-1.5">•</span>
+                                        <span>
+                                            {formatViews(video.views)} • {formatDistanceToNowStrict(new Date(video.createdAt)).replace("about", "")} ago
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                    <ThreeDots
+                                        videoId={video._id}
+                                        task={
+                                            playlist.name === "Watch Later"
+                                                ? null
+                                                : {
+                                                      title: `Remove from ${playlist.name}`,
+                                                      handler: () =>
+                                                          playlist._id
+                                                              ? remove({
+                                                                    playlistId: playlist._id,
+                                                                    videoId: video._id,
+                                                                })
+                                                              : toggleLike(video._id),
+                                                  }
+                                        }
+                                    />
+                                </div>
                             </div>
-                            <ThreeDots
-                                videoId={video._id}
-                                task={
-                                    playlist.name === "Watch Later"
-                                        ? null
-                                        : {
-                                              title: `Remove from ${playlist.name}`,
-                                              handler: () =>
-                                                  playlist._id
-                                                      ? remove({
-                                                            playlistId:
-                                                                playlist._id,
-                                                            videoId: video._id,
-                                                        })
-                                                      : toggleLike(video._id),
-                                          }
-                                }
-                            />
-                        </div>
-                    </Link>
-                ))}
+                        </Link>
+                    ))}
+                </div>
             </div>
         </div>
     );

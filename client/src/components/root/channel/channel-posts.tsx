@@ -34,8 +34,8 @@ export const ChannelPosts = () => {
       )}
       <div className="grid grid-cols-1 gap-4">
         {isLoading ? (
-          <div className="flex justify-center w-full">
-            <Loader2 className="h-10 w-10 animate-spin" strokeWidth={1.5} />
+          <div className="flex justify-center items-center w-full min-h-[50vh] col-span-full">
+            <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" strokeWidth={1.5} />
           </div>
         ) : (
           posts?.length > 0 ? posts.map((post, index) => (

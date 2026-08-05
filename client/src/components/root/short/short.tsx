@@ -225,8 +225,8 @@ export const Short = () => {
   }, [volume]);
   if (isLoading || !short) {
     return (
-      <div className="flex items-center justify-center h-screen w-full">
-        <Loader2 className="h-10 w-10 animate-spin" />
+      <div className="flex items-center justify-center w-full min-h-[50vh]">
+        <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -383,7 +383,7 @@ export const Short = () => {
             source={short.source}
             playerRef={playerRef}
             onViewTracked={() => { }}
-            controls={["play", "progress", "fullscreen"]}
+            controls={[]}
             className="w-full h-full object-cover"
             subtitle={short.subtitle}
           />

@@ -12,7 +12,8 @@ export const PlyrPlayer = ({
     onViewTracked = () => {},
     minWatchTime = 15,
     controls,
-    thumbnail
+    thumbnail,
+    onEnded = () => {},
 }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const hlsRef = useRef<Hls | null>(null);
@@ -135,7 +136,7 @@ export const PlyrPlayer = ({
     }, [watchTime, hasWatched, lastUpdateTime]);
 
     return (
-        <div className="rounded-md object-cover overflow-hidden">
+        <div className="sm:rounded-xl object-cover overflow-hidden">
             <video
                 ref={videoRef}
                 className={`plyr-react plyr ${className}`}
@@ -143,6 +144,7 @@ export const PlyrPlayer = ({
                 preload="none"
                 autoPlay
                 poster={thumbnail}
+                onEnded={onEnded}
             >
                 {subtitle && (
                     <track

@@ -11,26 +11,33 @@ import { FiMinus } from "react-icons/fi";
 import { GoDot } from "react-icons/go";
 import { replyService } from "@/services/reply";
 import {
-    ChevronDown,
-    ChevronUp,
-    Edit,
-    EllipsisVertical,
-    Loader2,
-    ThumbsUp,
-    Trash,
+  ChevronDown,
+  ChevronUp,
+  ChevronRight,
+  ArrowLeft,
+  X,
+  Edit,
+  EllipsisVertical,
+  Loader2,
+  ThumbsUp,
+  Trash,
+  MessageSquare,
 } from "lucide-react";
 import { RootState } from "@/store/store";
 import { toast } from "sonner";
+import { ResponsiveModal } from "./modals/responsive-modal";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
-    DropdownMenu,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
 import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import Replies from "./replies";
+import { ThreadTrunk, ThreadBranch } from "./thread-line";
 import { queryClient } from "@/main";
 import { useIntersection } from "@mantine/hooks";
 import { processText } from "@/lib";
@@ -41,462 +48,618 @@ import { Button } from "../ui/button";
 import { DropdownMenuContent, DropdownMenuItem } from "../ui/dropdown-menu";
 
 interface CommentProps {
-    id: string;
-    playerRef: any;
-    creatorId: string;
-    type: string;
-    filter: string;
+  id: string;
+  playerRef: any;
+  creatorId: string;
+  type: string;
+  filter: string;
 }
 
 export const Comments: React.FC<CommentProps> = ({
-    id,
-    playerRef,
-    creatorId,
-    type,
-    filter,
+  id,
+  playerRef,
+  creatorId,
+  type,
+  filter,
 }) => {
-    const dispatch = useDispatch();
-    const theme = useSelector((state: RootState) => state.theme.mode);
-    const navigate = useNavigate();
-    const userData = useSelector((state: RootState) => state.auth.userData);
-    const lastCommentRef = useRef(null);
-    const [isRepliesOpen, setIsRepliesOpen] = useState([]);
-    const [editingCommentId, setEditingCommentId] = useState<string | null>(
-        null
-    );
-    const [replyingToCommentId, setReplyingToCommentId] = useState<
-        string | null
-    >(null);
-    const {
-        data: commentsPages,
-        isLoading: commentsLoading,
-        isFetchingNextPage,
-        fetchNextPage,
-        hasNextPage,
-    } = useInfiniteQuery({
-        queryKey: [`comments`, id, filter],
-        queryFn: async ({
-            pageParam,
-        }): Promise<{
-            docs: IComment[];
-            hasNextPage: boolean;
-            totalDocs: number;
-        }> => {
-            const data = await commentService.getComments(
-                id,
-                pageParam,
-                type,
-                filter
-            );
-            return data.comments;
-        },
-        initialPageParam: 1,
-        getNextPageParam: (lastPage, allPages) =>
-            lastPage.hasNextPage ? allPages.length + 1 : undefined,
-        enabled: !!id,
+  const dispatch = useDispatch();
+  const theme = useSelector((state: RootState) => state.theme.mode);
+  const navigate = useNavigate();
+  const userData = useSelector((state: RootState) => state.auth.userData);
+  const lastCommentRef = useRef(null);
+  const [isRepliesOpen, setIsRepliesOpen] = useState([]);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(
+    null
+  );
+  const [replyingToCommentId, setReplyingToCommentId] = useState<
+    string | null
+  >(null);
+  const [repliesDrawerComment, setRepliesDrawerComment] = useState<IComment | null>(null);
+  const isMobile = useIsMobile();
+  const {
+    data: commentsPages,
+    isLoading: commentsLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
+    queryKey: [`comments`, id, filter],
+    queryFn: async ({
+      pageParam,
+    }): Promise<{
+      docs: IComment[];
+      hasNextPage: boolean;
+      totalDocs: number;
+    }> => {
+      const data = await commentService.getComments(
+        id,
+        pageParam,
+        type,
+        filter
+      );
+      return data.comments;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.hasNextPage ? allPages.length + 1 : undefined,
+    enabled: !!id,
+  });
+  const comments = commentsPages?.pages.flatMap((page) => page.docs);
+  const { data: likeStatusOfComments, isLoading: likesCountLoading } =
+    useQuery({
+      queryKey: ["comments-like-status", id],
+      queryFn: async (): Promise<boolean[]> => {
+        const data = await likeService.getCommentsLikeStatus(id, type);
+        return data.likedStatus;
+      },
+      enabled: !!comments && !!userData,
     });
-    const comments = commentsPages?.pages.flatMap((page) => page.docs);
-    const { data: likeStatusOfComments, isLoading: likesCountLoading } =
-        useQuery({
-            queryKey: ["comments-like-status", id],
-            queryFn: async (): Promise<boolean[]> => {
-                const data = await likeService.getCommentsLikeStatus(id, type);
-                return data.likedStatus;
-            },
-            enabled: !!comments && !!userData,
-        });
-    const { data: likesCountofComments, isLoading: likeStatusLoading } =
-        useQuery({
-            queryKey: ["comments-likes-count", id],
-            queryFn: async (): Promise<number[]> => {
-                const data = await likeService.getCommentsLikesCount(id, type);
-                return data.likesCount;
-            },
-            enabled: !!comments,
-        });
-
-    const { mutate: toggleCommentLike } = useMutation({
-        mutationFn: async ({
-            commentId,
-            index,
-        }: {
-            commentId: string;
-            index: number;
-        }) => {
-            await likeService.toggleLike(commentId, "comment");
-        },
-        onMutate: ({ index }) => {
-            queryClient.cancelQueries({
-                queryKey: ["comments-like-status", id],
-            });
-            queryClient.cancelQueries({
-                queryKey: ["comments-likes-count", id],
-            });
-            queryClient.setQueryData(
-                ["comments-like-status", id],
-                (prev: boolean[]) => {
-                    const updatedLikes = [...prev];
-                    updatedLikes[index] = !updatedLikes[index];
-                    return updatedLikes;
-                }
-            );
-            queryClient.setQueryData(
-                ["comments-likes-count", id],
-                (prev: number[]) => {
-                    const updatedLikes = [...prev];
-                    updatedLikes[index] += updatedLikes[index] ? -1 : 1;
-                    return updatedLikes;
-                }
-            );
-        },
-        onError: (_, { index }) => {
-            queryClient.cancelQueries({
-                queryKey: ["comments-like-status", id],
-            });
-            queryClient.cancelQueries({
-                queryKey: ["comments-likes-count", id],
-            });
-            queryClient.setQueryData(
-                ["comments-like-status", id],
-                (prev: boolean[]) => {
-                    const updatedLikes = [...prev];
-                    updatedLikes[index] = !updatedLikes[index];
-                    return updatedLikes;
-                }
-            );
-            queryClient.setQueryData(
-                ["comments-likes-count", id],
-                (prev: number[]) => {
-                    const updatedLikes = [...prev];
-                    updatedLikes[index] += updatedLikes[index] ? -1 : 1;
-                    return updatedLikes;
-                }
-            );
-        },
+  const { data: likesCountofComments, isLoading: likeStatusLoading } =
+    useQuery({
+      queryKey: ["comments-likes-count", id],
+      queryFn: async (): Promise<number[]> => {
+        const data = await likeService.getCommentsLikesCount(id, type);
+        return data.likesCount;
+      },
+      enabled: !!comments,
     });
 
-    const { mutate: deleteComment } = useMutation({
-        mutationFn: async (commentId: string) => {
-            const data = await commentService.deleteComment(commentId);
-            return data.commentId;
-        },
-        onSuccess: (commentId) => {
-            toast.success("Comment deleted");
-            commentsPages.pages[0].totalDocs--;
-            commentsPages.pages.forEach((page) => {
-                page.docs = page.docs.filter(
-                    (comment) => comment._id !== commentId
-                );
-            });
-        },
-    });
-    const { mutate: updateComment } = useMutation({
-        mutationFn: async (content: string) => {
-            await commentService.updateComment(editingCommentId, content);
-        },
-        onSuccess: (_, content) => {
-            commentsPages.pages.forEach((page) => {
-                page.docs.forEach((comment) => {
-                    if (comment._id === editingCommentId)
-                        comment.content = content;
-                });
-            });
-            toast.success("Comment updated");
-        },
-        onSettled: () => {
-            setEditingCommentId(null);
-        },
-    });
-    const { mutate: addReply } = useMutation({
-        mutationFn: async (content: string) => {
-            const data = await replyService.addReply(
-                replyingToCommentId,
-                content
-            );
-            return data.reply;
-        },
-        onSuccess: () => {
-            toast.success("Reply added");
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries({
-                queryKey: ["replies", replyingToCommentId],
-                exact: true,
-            });
-            setReplyingToCommentId(null);
-        },
-    });
-    const processComment = (content: string) => processText(content, playerRef);
-    const { ref, entry } = useIntersection({
-        root: lastCommentRef.current,
-        threshold: 1,
-    });
-    useEffect(() => {
-        if (entry?.isIntersecting && hasNextPage) {
-            fetchNextPage();
+  const { mutate: toggleCommentLike } = useMutation({
+    mutationFn: async ({
+      commentId,
+      index,
+    }: {
+      commentId: string;
+      index: number;
+    }) => {
+      await likeService.toggleLike(commentId, "comment");
+    },
+    onMutate: ({ index }) => {
+      queryClient.cancelQueries({
+        queryKey: ["comments-like-status", id],
+      });
+      queryClient.cancelQueries({
+        queryKey: ["comments-likes-count", id],
+      });
+      queryClient.setQueryData(
+        ["comments-like-status", id],
+        (prev: boolean[]) => {
+          const updatedLikes = [...prev];
+          updatedLikes[index] = !updatedLikes[index];
+          return updatedLikes;
         }
-    }, [entry]);
-    if (commentsLoading || likeStatusLoading || likesCountLoading)
-        return (
-            <div className="w-full flex justify-center items-center">
-                <Loader2 className="h-7 w-7 animate-spin" strokeWidth={1} />
-            </div>
+      );
+      queryClient.setQueryData(
+        ["comments-likes-count", id],
+        (prev: number[]) => {
+          const updatedLikes = [...prev];
+          updatedLikes[index] += updatedLikes[index] ? -1 : 1;
+          return updatedLikes;
+        }
+      );
+    },
+    onError: (_, { index }) => {
+      queryClient.cancelQueries({
+        queryKey: ["comments-like-status", id],
+      });
+      queryClient.cancelQueries({
+        queryKey: ["comments-likes-count", id],
+      });
+      queryClient.setQueryData(
+        ["comments-like-status", id],
+        (prev: boolean[]) => {
+          const updatedLikes = [...prev];
+          updatedLikes[index] = !updatedLikes[index];
+          return updatedLikes;
+        }
+      );
+      queryClient.setQueryData(
+        ["comments-likes-count", id],
+        (prev: number[]) => {
+          const updatedLikes = [...prev];
+          updatedLikes[index] += updatedLikes[index] ? -1 : 1;
+          return updatedLikes;
+        }
+      );
+    },
+  });
+
+  const { mutate: deleteComment } = useMutation({
+    mutationFn: async (commentId: string) => {
+      const data = await commentService.deleteComment(commentId);
+      return data.commentId;
+    },
+    onSuccess: (commentId) => {
+      toast.success("Comment deleted");
+      commentsPages.pages[0].totalDocs--;
+      commentsPages.pages.forEach((page) => {
+        page.docs = page.docs.filter(
+          (comment) => comment._id !== commentId
         );
+      });
+    },
+  });
+  const { mutate: updateComment } = useMutation({
+    mutationFn: async (content: string) => {
+      await commentService.updateComment(editingCommentId, content);
+    },
+    onSuccess: (_, content) => {
+      commentsPages.pages.forEach((page) => {
+        page.docs.forEach((comment) => {
+          if (comment._id === editingCommentId)
+            comment.content = content;
+        });
+      });
+      toast.success("Comment updated");
+    },
+    onSettled: () => {
+      setEditingCommentId(null);
+    },
+  });
+  const { mutate: addReply } = useMutation({
+    mutationFn: async (content: string) => {
+      const data = await replyService.addReply(
+        replyingToCommentId,
+        content
+      );
+      return data.reply;
+    },
+    onSuccess: () => {
+      toast.success("Reply added");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["replies", replyingToCommentId],
+        exact: true,
+      });
+      setReplyingToCommentId(null);
+    },
+  });
+  const processComment = (content: string) => processText(content, playerRef);
+  const { ref, entry } = useIntersection({
+    root: lastCommentRef.current,
+    threshold: 1,
+  });
+  useEffect(() => {
+    if (entry?.isIntersecting && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [entry]);
+  if (commentsLoading || likeStatusLoading || likesCountLoading)
     return (
-        <div className="flex flex-col mt-4 space-y-2">
-            {comments?.map((comment, index) => {
-                const sentiment = comment.sentiment?.toLowerCase();
-                return (
-                    <div
-                        key={index}
-                        ref={index === comments.length - 1 ? ref : null}
-                    >
-                        {editingCommentId === comment._id ? (
-                            <TextArea
-                                fullname={userData?.fullname}
-                                userAvatar={userData?.avatar}
-                                initialValue={comment.content}
-                                onSubmit={(content) => updateComment(content)}
-                                onCancel={() => setEditingCommentId(null)}
-                                submitLabel="Save"
-                            />
-                        ) : (
-                            <div className="max-w-full">
-                                <div className="flex justify-between">
-                                    <div className="flex space-x-2 items-start">
-                                        <AvatarImg
-                                            className="rounded-full h-10 min-w-10 cursor-pointer"
-                                            onClick={() =>
-                                                navigate(
-                                                    `/channel/${comment.creator?.username}`
-                                                )
-                                            }
-                                            fullname={comment.creator.fullname}
-                                            avatar={comment.creator.avatar}
-                                        />
-                                        <div>
-                                            <div className="flex items-center gap-x-2 flex-wrap">
-                                                <div
-                                                    onClick={() =>
-                                                        navigate(
-                                                            `/channel/${comment.creator.username}`
-                                                        )
-                                                    }
-                                                    className="text-sm font-medium cursor-pointer truncate max-w-[140px] sm:max-w-xs"
-                                                >
-                                                    {`@${comment.creator.username} `}
-                                                </div>
-                                                <div className="text-gray-500 dark:text-zinc-400 text-[12px]">
-                                                    {formatDistanceToNowStrict(
-                                                        new Date(
-                                                            comment.createdAt
-                                                        ),
-                                                        {
-                                                            addSuffix: true,
-                                                        }
-                                                    )}
-                                                </div>
-                                                {userData?._id ===
-                                                    creatorId && (
-                                                    <div
-                                                        className={`flex ${
-                                                            sentiment ===
-                                                                "positive" &&
-                                                            "bg-green-500"
-                                                        } ${
-                                                            sentiment ===
-                                                                "negative" &&
-                                                            "bg-red-500"
-                                                        } ${
-                                                            sentiment ===
-                                                                "neutral" &&
-                                                            "bg-yellow-500"
-                                                        } rounded-full items-center justify-center pl-1 pr-2 whitespace-nowrap shrink-0`}
-                                                    >
-                                                        {sentiment ===
-                                                        "positive" ? (
-                                                            <FaPlus className="text-white text-xs mr-1 dark:text-black" />
-                                                        ) : sentiment ===
-                                                          "negative" ? (
-                                                            <FiMinus className="text-white mr-1 dark:text-black" />
-                                                        ) : (
-                                                            <GoDot className="text-white dark:text-black text-xl" />
-                                                        )}
-                                                        <span className="text-white dark:text-black text-sm">
-                                                            {sentiment}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="break-all whitespace-pre-wrap">
-                                                {processComment(
-                                                    comment.content
-                                                )}
-                                            </div>
-
-                                            <div className="flex items-center">
-                                                <Button
-                                                    onClick={() =>
-                                                        toggleCommentLike({
-                                                            commentId:
-                                                                comment._id,
-                                                            index,
-                                                        })
-                                                    }
-                                                    variant="ghost"
-                                                    className="rounded-full p-2"
-                                                >
-                                                    <div className="flex items-center gap-2">
-                                                        <ThumbsUp
-                                                            fill={
-                                                                likeStatusOfComments &&
-                                                                likeStatusOfComments[
-                                                                    index
-                                                                ]
-                                                                    ? theme ==
-                                                                      "dark"
-                                                                        ? "white"
-                                                                        : "black"
-                                                                    : theme ==
-                                                                      "dark"
-                                                                    ? "black"
-                                                                    : "white"
-                                                            }
-                                                        />
-                                                        {likesCountofComments[
-                                                            index
-                                                        ] === 0
-                                                            ? ""
-                                                            : likesCountofComments[
-                                                                  index
-                                                              ]}
-                                                    </div>
-                                                </Button>
-                                                <Button
-                                                    className="text-sm rounded-full"
-                                                    variant="ghost"
-                                                    onClick={() =>
-                                                        setReplyingToCommentId(
-                                                            comment._id
-                                                        )
-                                                    }
-                                                >
-                                                    reply
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {userData?._id === comment.creator._id && (
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild className="focus:outline-none">
-                                                <EllipsisVertical className="cursor-pointer h-5 mt-2" />
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent className="bg-white dark:bg-[#212121] p-0">
-                                                <DropdownMenuItem
-                                                    className="rounded-none dark:hover:bg-[#535353] hover:bg-[#E5E5E5] px-4 py-3"
-                                                    onClick={() =>
-                                                        setEditingCommentId(
-                                                            comment._id
-                                                        )
-                                                    }
-                                                >
-                                                    <Edit className="h-5 w-5 mr-2" />
-                                                    Edit
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    className="rounded-none dark:hover:bg-[#535353] hover:bg-[#E5E5E5] px-4 py-3"
-                                                    onClick={() => {
-                                                        dispatch(
-                                                            setAlertDialogData({
-                                                                open: true,
-                                                                message:
-                                                                    "this will delete your comment permanently",
-                                                                onConfirm: () =>
-                                                                    deleteComment(
-                                                                        comment._id
-                                                                    ),
-                                                            })
-                                                        );
-                                                    }}
-                                                >
-                                                    <div className="flex gap-2">
-                                                        <Trash className="h-5 w-5" />
-                                                        <span>Delete</span>
-                                                    </div>
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    )}
-                                </div>
-                                <div className="ml-12">
-                                    {replyingToCommentId === comment._id && (
-                                        <TextArea
-                                            fullname="userData?.fullname"
-                                            userAvatar={userData?.avatar}
-                                            placeholder="Add a reply..."
-                                            onSubmit={(content) => {
-                                                addReply(content);
-                                                comment.repliesCount += 1;
-                                            }}
-                                            onCancel={() =>
-                                                setReplyingToCommentId(null)
-                                            }
-                                            submitLabel="Reply"
-                                        />
-                                    )}
-                                    {comment.repliesCount > 0 && (
-                                        <Collapsible
-                                            onOpenChange={(open) => {
-                                                const updatedRepliesOpen = [
-                                                    ...isRepliesOpen,
-                                                ];
-                                                updatedRepliesOpen[index] =
-                                                    open;
-                                                setIsRepliesOpen(
-                                                    updatedRepliesOpen
-                                                );
-                                            }}
-                                        >
-                                            <CollapsibleTrigger asChild>
-                                                <Button
-                                                    className="rounded-full flex space-x-1 text-indigo-500 hover:bg-indigo-500/30"
-                                                    variant="ghost"
-                                                >
-                                                    {isRepliesOpen[index] ? (
-                                                        <ChevronUp />
-                                                    ) : (
-                                                        <ChevronDown />
-                                                    )}
-                                                    <span>{`${
-                                                        comment.repliesCount
-                                                    } ${
-                                                        comment.repliesCount ==
-                                                        1
-                                                            ? "reply"
-                                                            : "replies"
-                                                    }`}</span>
-                                                </Button>
-                                            </CollapsibleTrigger>
-                                            <CollapsibleContent>
-                                                <Replies
-                                                    playerRef={playerRef}
-                                                    commentId={comment._id}
-                                                />
-                                            </CollapsibleContent>
-                                        </Collapsible>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                );
-            })}
-
-            <div className="flex items-center justify-center">
-                {isFetchingNextPage && (
-                    <Loader2 className="h-10 w-10 animate-spin" />
-                )}
-            </div>
-        </div>
+      <div className="w-full flex justify-center items-center">
+        <Loader2 className="h-7 w-7 animate-spin" strokeWidth={1} />
+      </div>
     );
+  return (
+    <div className="flex flex-col mt-4 space-y-4 sm:space-y-5 w-full max-w-[736px]">
+      {comments?.map((comment, index) => {
+        const sentiment = comment.sentiment?.toLowerCase();
+        return (
+          <div
+            key={index}
+            ref={index === comments.length - 1 ? ref : null}
+          >
+            {editingCommentId === comment._id ? (
+              <TextArea
+                fullname={userData?.fullname}
+                userAvatar={userData?.avatar}
+                initialValue={comment.content}
+                onSubmit={(content) => updateComment(content)}
+                onCancel={() => setEditingCommentId(null)}
+                submitLabel="Save"
+              />
+            ) : (
+              <ThreadTrunk
+                className="max-w-full z-0"
+                topClassName="top-8 sm:top-10"
+                showLine={comment.repliesCount > 0}
+              >
+                <div className="flex justify-between group relative z-10">
+                  <div className="flex space-x-3 items-start w-full">
+                    <AvatarImg
+                      className="rounded-full h-8 w-8 sm:h-10 sm:w-10 shrink-0 cursor-pointer mt-0.5"
+                      onClick={() =>
+                        navigate(
+                          `/channel/${comment.creator?.username}`
+                        )
+                      }
+                      fullname={comment.creator.fullname}
+                      avatar={comment.creator.avatar}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-x-2 flex-wrap">
+                        <div
+                          onClick={() =>
+                            navigate(
+                              `/channel/${comment.creator.username}`
+                            )
+                          }
+                          className="text-[13px] sm:text-sm font-bold cursor-pointer truncate max-w-[140px] sm:max-w-xs"
+                        >
+                          {`@${comment.creator.username}`}
+                        </div>
+                        <div className="text-muted-foreground text-[12px]">
+                          {formatDistanceToNowStrict(
+                            new Date(
+                              comment.createdAt
+                            ),
+                            {
+                              addSuffix: true,
+                            }
+                          )}
+                        </div>
+                        {userData?._id ===
+                          creatorId && (
+                            <div
+                              className={`flex ${sentiment ===
+                                "positive" &&
+                                "bg-green-500"
+                                } ${sentiment ===
+                                "negative" &&
+                                "bg-red-500"
+                                } ${sentiment ===
+                                "neutral" &&
+                                "bg-yellow-500"
+                                } rounded-full items-center justify-center pl-1 pr-2 whitespace-nowrap shrink-0 ml-1`}
+                            >
+                              {sentiment ===
+                                "positive" ? (
+                                <FaPlus className="text-white text-[10px] mr-1 dark:text-black" />
+                              ) : sentiment ===
+                                "negative" ? (
+                                <FiMinus className="text-white text-[10px] mr-1 dark:text-black" />
+                              ) : (
+                                <GoDot className="text-white dark:text-black text-sm" />
+                              )}
+                              <span className="text-white dark:text-black text-[10px] font-bold uppercase tracking-wider">
+                                {sentiment}
+                              </span>
+                            </div>
+                          )}
+                      </div>
+                      <div className="break-words whitespace-pre-wrap text-[14px] sm:text-[15px] leading-snug mt-0.5 text-foreground">
+                        {processComment(
+                          comment.content
+                        )}
+                      </div>
+
+                      <div className="flex items-center mt-1 -ml-2">
+                        <Button
+                          onClick={() =>
+                            toggleCommentLike({
+                              commentId:
+                                comment._id,
+                              index,
+                            })
+                          }
+                          variant="ghost"
+                          className="rounded-full h-8 px-2 text-xs"
+                        >
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <ThumbsUp
+                              size={16}
+                              fill={
+                                likeStatusOfComments &&
+                                  likeStatusOfComments[
+                                  index
+                                  ]
+                                  ? theme ==
+                                    "dark"
+                                    ? "white"
+                                    : "black"
+                                  : "transparent"
+                              }
+                            />
+                            {likesCountofComments[
+                              index
+                            ] === 0
+                              ? ""
+                              : likesCountofComments[
+                              index
+                              ]}
+                          </div>
+                        </Button>
+                        <Button
+                          className="h-8 w-8 rounded-full p-0 flex items-center justify-center ml-2"
+                          variant="ghost"
+                          onClick={() => {
+                            if (isMobile) {
+                              setRepliesDrawerComment(comment);
+                            } else {
+                              setReplyingToCommentId(comment._id);
+                            }
+                          }}
+                        >
+                          <MessageSquare size={16} className="text-muted-foreground" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  {userData?._id === comment.creator._id && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild className="focus:outline-none">
+                        <EllipsisVertical className="cursor-pointer h-5 w-5 mt-1 shrink-0 text-muted-foreground opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="bg-white dark:bg-[#212121] p-0">
+                        <DropdownMenuItem
+                          className="rounded-none dark:hover:bg-[#535353] hover:bg-[#E5E5E5] px-4 py-3"
+                          onClick={() =>
+                            setEditingCommentId(
+                              comment._id
+                            )
+                          }
+                        >
+                          <Edit className="h-5 w-5 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="rounded-none dark:hover:bg-[#535353] hover:bg-[#E5E5E5] px-4 py-3"
+                          onClick={() => {
+                            dispatch(
+                              setAlertDialogData({
+                                open: true,
+                                message:
+                                  "this will delete your comment permanently",
+                                onConfirm: () =>
+                                  deleteComment(
+                                    comment._id
+                                  ),
+                              })
+                            );
+                          }}
+                        >
+                          <div className="flex gap-2">
+                            <Trash className="h-5 w-5" />
+                            <span>Delete</span>
+                          </div>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
+                <div className="relative z-10">
+                  {(!isMobile && replyingToCommentId === comment._id) && (
+                    <div className="pl-[52px]">
+                      <TextArea
+                        fullname={userData?.fullname}
+                        userAvatar={userData?.avatar}
+                        placeholder="Add a reply..."
+                        onSubmit={(content) => {
+                          addReply(content);
+                          comment.repliesCount += 1;
+                        }}
+                        onCancel={() =>
+                          setReplyingToCommentId(null)
+                        }
+                        submitLabel="Reply"
+                      />
+                    </div>
+                  )}
+                  {comment.repliesCount > 0 && (
+                    isMobile ? (
+                      <div
+                        className="relative pl-[52px] py-2 flex items-center cursor-pointer"
+                        onClick={() => setRepliesDrawerComment(comment)}
+                      >
+                        <ThreadBranch />
+                        <div className="flex items-center space-x-2 text-blue-600 dark:text-[#3EA6FF] font-bold text-[14px]">
+                          <span>{comment.repliesCount} {comment.repliesCount == 1 ? "reply" : "replies"}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <Collapsible
+                        onOpenChange={(open) => {
+                          const updatedRepliesOpen = [
+                            ...isRepliesOpen,
+                          ];
+                          updatedRepliesOpen[index] =
+                            open;
+                          setIsRepliesOpen(
+                            updatedRepliesOpen
+                          );
+                        }}
+                      >
+                        <CollapsibleTrigger asChild>
+                          <div className="relative pl-[52px] py-1 cursor-pointer w-fit">
+                            <ThreadBranch />
+                            <Button
+                              className="rounded-full flex space-x-1 text-indigo-500 hover:bg-indigo-500/30"
+                              variant="ghost"
+                            >
+                              {isRepliesOpen[index] ? (
+                                <ChevronUp />
+                              ) : (
+                                <ChevronDown />
+                              )}
+                              <span>{`${comment.repliesCount
+                                } ${comment.repliesCount ==
+                                  1
+                                  ? "reply"
+                                  : "replies"
+                                }`}</span>
+                            </Button>
+                          </div>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          {/* Replies renders its own rows flush at x=0, so each
+                              row's ThreadBranch lines up with this same trunk -
+                              see replies.tsx for the recursive sub-reply pattern. */}
+                          <Replies
+                            playerRef={playerRef}
+                            commentId={comment._id}
+                          />
+                        </CollapsibleContent>
+                      </Collapsible>
+                    )
+                  )}
+                </div>
+              </ThreadTrunk>
+            )}
+          </div>
+        );
+      })}
+
+      <div className="flex items-center justify-center">
+        {isFetchingNextPage && (
+          <Loader2 className="h-10 w-10 animate-spin" />
+        )}
+      </div>
+
+      {isMobile && repliesDrawerComment && (() => {
+        const drawerCommentIndex = comments?.findIndex(c => c._id === repliesDrawerComment._id);
+        return (
+          <ResponsiveModal
+            title={
+              <div className="flex items-center justify-between w-full pr-2">
+                <div className="flex items-center gap-3">
+                  <Button variant="ghost" size="icon" className="rounded-full h-8 w-8" onClick={() => setRepliesDrawerComment(null)}>
+                    <ArrowLeft className="w-5 h-5" />
+                  </Button>
+                  <span className="text-[18px] font-bold">Replies</span>
+                </div>
+                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 text-muted-foreground" onClick={() => setRepliesDrawerComment(null)}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+            }
+            open={!!repliesDrawerComment}
+            onOpenChange={(open) => {
+              if (!open) setRepliesDrawerComment(null);
+            }}
+            className="h-[90vh]"
+            nested={true}
+          >
+            <div className="flex flex-col h-[calc(90vh-3rem)]">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar pb-20">
+                <div className="px-2">
+                  <ThreadTrunk
+                    className="mb-2"
+                    topClassName="top-8 sm:top-10"
+                    showLine={repliesDrawerComment.repliesCount > 0}
+                  >
+                    <div className="flex justify-between group mb-3">
+                      <div className="flex space-x-3 items-start w-full">
+                        <AvatarImg
+                          className="rounded-full h-8 w-8 sm:h-10 sm:w-10 shrink-0 cursor-pointer mt-0.5"
+                          onClick={() => navigate(`/channel/${repliesDrawerComment.creator?.username}`)}
+                          fullname={repliesDrawerComment.creator.fullname}
+                          avatar={repliesDrawerComment.creator.avatar}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-x-2 flex-wrap">
+                            <div
+                              onClick={() => navigate(`/channel/${repliesDrawerComment.creator.username}`)}
+                              className="text-[13px] sm:text-sm font-bold cursor-pointer truncate max-w-[140px] sm:max-w-xs"
+                            >
+                              {`@${repliesDrawerComment.creator.username}`}
+                            </div>
+                            <div className="text-muted-foreground text-[12px]">
+                              {formatDistanceToNowStrict(new Date(repliesDrawerComment.createdAt), { addSuffix: true })}
+                            </div>
+                            {userData?._id === creatorId && (
+                              <div
+                                className={`flex ${repliesDrawerComment.sentiment?.toLowerCase() === "positive" && "bg-green-500"} ${repliesDrawerComment.sentiment?.toLowerCase() === "negative" && "bg-red-500"} ${repliesDrawerComment.sentiment?.toLowerCase() === "neutral" && "bg-yellow-500"} rounded-full items-center justify-center pl-1 pr-2 whitespace-nowrap shrink-0 ml-1`}
+                              >
+                                {repliesDrawerComment.sentiment?.toLowerCase() === "positive" ? (
+                                  <FaPlus className="text-white text-[10px] mr-1 dark:text-black" />
+                                ) : repliesDrawerComment.sentiment?.toLowerCase() === "negative" ? (
+                                  <FiMinus className="text-white text-[10px] mr-1 dark:text-black" />
+                                ) : (
+                                  <GoDot className="text-white dark:text-black text-sm" />
+                                )}
+                                <span className="text-white dark:text-black text-[10px] font-bold uppercase tracking-wider">
+                                  {repliesDrawerComment.sentiment?.toLowerCase()}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="break-words whitespace-pre-wrap text-[14px] sm:text-[15px] leading-snug mt-0.5 text-foreground">
+                            {processComment(repliesDrawerComment.content)}
+                          </div>
+                          <div className="flex items-center mt-1 -ml-2">
+                            <Button
+                              onClick={() => {
+                                if (drawerCommentIndex !== undefined && drawerCommentIndex !== -1) {
+                                  toggleCommentLike({ commentId: repliesDrawerComment._id, index: drawerCommentIndex });
+                                }
+                              }}
+                              variant="ghost"
+                              className="rounded-full h-8 px-2 text-xs"
+                            >
+                              <div className="flex items-center gap-1.5 text-muted-foreground">
+                                <ThumbsUp
+                                  size={16}
+                                  fill={
+                                    drawerCommentIndex !== undefined && drawerCommentIndex !== -1 && likeStatusOfComments && likeStatusOfComments[drawerCommentIndex]
+                                      ? theme == "dark" ? "white" : "black"
+                                      : "transparent"
+                                  }
+                                />
+                                {drawerCommentIndex !== undefined && drawerCommentIndex !== -1 && likesCountofComments && likesCountofComments[drawerCommentIndex] > 0
+                                  ? likesCountofComments[drawerCommentIndex]
+                                  : ""}
+                              </div>
+                            </Button>
+                            <Button
+                              className="h-8 w-8 rounded-full p-0 flex items-center justify-center ml-2 text-muted-foreground"
+                              variant="ghost"
+                              onClick={() => {
+                                window.dispatchEvent(new CustomEvent("setReplyUsername", { detail: repliesDrawerComment.creator.username }));
+                              }}
+                            >
+                              <MessageSquare size={16} />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <Replies
+                      playerRef={playerRef}
+                      commentId={repliesDrawerComment._id}
+                    />
+                  </ThreadTrunk>
+                </div>
+                <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#212121] p-3 border-t border-gray-200 dark:border-white/10 z-[60]">
+                  <TextArea
+                    hideAvatar={true}
+                    fullname={userData?.fullname}
+                    userAvatar={userData?.avatar}
+                    placeholder={`Reply to @${repliesDrawerComment.creator.username}...`}
+                    onSubmit={(content) => {
+                      replyService.addReply(repliesDrawerComment._id, content).then(() => {
+                        toast.success("Reply added");
+                        queryClient.invalidateQueries({ queryKey: ["replies", repliesDrawerComment._id] });
+                      });
+                    }}
+                    submitLabel="Reply"
+                  />
+                </div>
+              </div>
+            </div>
+          </ResponsiveModal>
+        )
+      })()}
+    </div>
+  );
 };

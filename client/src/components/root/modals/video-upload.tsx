@@ -63,6 +63,7 @@ export default function UploadVideo() {
 
       const videoData = {
         _id: id,
+        title: video.name.split('.').slice(0, -1).join('.') || "Untitled",
         source: `https://${BUCKET}.s3.ap-south-1.amazonaws.com/${file_name}/${isShort ? height + "p.m3u8" : "master.m3u8"
           }`,
         duration,

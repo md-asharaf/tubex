@@ -19,8 +19,8 @@ export const ChannelPlaylists = () => {
     return (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {isLoading ? (
-                <div className="flex justify-center w-full">
-                    <Loader2 className="h-10 w-10 animate-spin" />
+                <div className="flex justify-center items-center w-full min-h-[50vh] col-span-full">
+                    <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
                 </div>
             ) : (
                 playlists?.length >0 ? playlists?.map((playlist) => (

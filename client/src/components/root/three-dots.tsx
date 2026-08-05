@@ -18,6 +18,8 @@ export const ThreeDots = ({ videoId, task = null }: IThreeDots) => {
                 e.stopPropagation();
                 e.preventDefault();
             }}
+            onPointerDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
         >
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
