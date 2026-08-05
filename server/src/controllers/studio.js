@@ -11,282 +11,282 @@ import { getObjectAsString } from "../lib/s3-client.js";
 import { getCache, setCache } from "../lib/redis.js";
 import { logger } from "../utils/logger.js";
 class StudioController {
-    getUserPosts = asyncHandler(async (req, res) => {
-        const { page = 1, limit = 5 } = req.query;
-        const { username } = req.params;
-        const user = await User.findOne({ username });
-        if (!user) {
-            throw new ApiError(404, "User not found");
+  getUserPosts = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 5 } = req.query;
+    const { username } = req.params;
+    const user = await User.findOne({ username });
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+    const aggregate = Post.aggregate([
+      {
+        $match: {
+          userId: user._id,
+        },
+      },
+      {
+        $lookup: {
+          from: "likes",
+          localField: "_id",
+          foreignField: "postId",
+          as: "likes"
         }
-        const aggregate = Post.aggregate([
-            {
-                $match: {
-                    userId: user._id,
-                },
-            },
-            {
-                $lookup: {
-                    from: "likes",
-                    localField: "_id",
-                    foreignField: "postId",
-                    as: "likes"
-                }
-            },
-            {
-                $lookup: {
-                    from: "comments",
-                    localField: "_id",
-                    foreignField: "postId",
-                    as: "comments"
-                }
-            },
-            {
-                $addFields: {
-                    likes: { $size: "$likes" },
-                    comments: { $size: "$comments" }
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    content: 1,
-                    type: 1,
-                    visibility: 1,
-                    createdAt: 1,
-                    likes: 1,
-                    comments: 1
-                }
-            }
-        ]);
-        const posts = await Post.aggregatePaginate(aggregate, { page, limit })
-
-        return res.status(200).json(new ApiResponse(200, { posts }, "Posts fetched successfully for studio"));
-    });
-    getUserVideos = asyncHandler(async (req, res) => {
-        const { page = 1, limit = 5 } = req.query;
-        const { username } = req.params;
-        const user = await User.findOne({ username });
-        if (!user) {
-            throw new ApiError(404, "User not found");
+      },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "postId",
+          as: "comments"
         }
-        const aggregate = Video.aggregate([
-            {
-                $match: {
-                    userId: user._id,
-                },
-            },
-            {
-                $lookup: {
-                    from: "likes",
-                    localField: "_id",
-                    foreignField: "videoId",
-                    as: "likes"
-                }
-            },
-            {
-                $lookup: {
-                    from: "comments",
-                    localField: "_id",
-                    foreignField: "videoId",
-                    as: "comments"
-                }
-            },
-            {
-                $addFields: {
-                    likes: { $size: "$likes" },
-                    comments: { $size: "$comments" }
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    title: 1,
-                    description: 1,
-                    thumbnail: 1,
-                    source: 1,
-                    visibility: 1,
-                    createdAt: 1,
-                    likes: 1,
-                    comments: 1,
-                    views: 1,
-                    duration: 1,
-                    categories: 1,
-                }
-            }
-        ]);
-        const videos = await Video.aggregatePaginate(aggregate, { page, limit })
-
-        return res.status(200).json(new ApiResponse(200, { videos }, "Videos fetched successfully for studio"));
-    });
-    getUserPlaylists = asyncHandler(async (req, res) => {
-        const { page = 1, limit = 5 } = req.query;
-        const { username } = req.params;
-        const user = await User.findOne({ username });
-        if (!user) {
-            throw new ApiError(404, "User not found");
+      },
+      {
+        $addFields: {
+          likes: { $size: "$likes" },
+          comments: { $size: "$comments" }
         }
-        const aggregate = Playlist.aggregate([
-            {
-                $match: {
-                    userId: user._id,
-                },
-            },
-            {
-                $lookup: {
-                    from: "videos",
-                    localField: "videos",
-                    foreignField: "_id",
-                    as: "videos"
-                }
-            },
-            {
-                $addFields: {
-                    videoCount: { $size: "$videos" },
-                    thumbnail: { $first: "$videos.thumbnail" }
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    name: 1,
-                    description: 1,
-                    type: 1,
-                    visibility: 1,
-                    updatedAt: 1,
-                    videos: 1,
-                    shorts: 1,
-                    videoCount: 1,
-                    thumbnail: 1,
-                }
-            }
-        ]);
-        const playlists = await Playlist.aggregatePaginate(aggregate, { page, limit })
-
-        return res.status(200).json(new ApiResponse(200, { playlists }, "Playlists fetched successfully for studio"));
-    });
-    getUserShorts = asyncHandler(async (req, res) => {
-        const { page = 1, limit = 5 } = req.query;
-        const { username } = req.params;
-        const user = await User.findOne({ username });
-        if (!user) {
-            throw new ApiError(404, "User not found");
+      },
+      {
+        $project: {
+          _id: 1,
+          content: 1,
+          type: 1,
+          visibility: 1,
+          createdAt: 1,
+          likes: 1,
+          comments: 1
         }
-        const aggregate = Short.aggregate([
-            {
-                $match: {
-                    userId: user._id,
-                },
-            },
-            {
-                $lookup: {
-                    from: "likes",
-                    localField: "_id",
-                    foreignField: "shortId",
-                    as: "likes"
-                }
-            },
-            {
-                $lookup: {
-                    from: "comments",
-                    localField: "_id",
-                    foreignField: "shortId",
-                    as: "comments"
-                }
-            },
-            {
-                $addFields: {
-                    likes: { $size: "$likes" },
-                    comments: { $size: "$comments" }
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    title: 1,
-                    description: 1,
-                    thumbnail: 1,
-                    source: 1,
-                    visibility: 1,
-                    createdAt: 1,
-                    likes: 1,
-                    comments: 1,
-                    views: 1,
-                    duration: 1,
-                    categories: 1,
-                }
-            }
-        ]);
-        const shorts = await Short.aggregatePaginate(aggregate, { page, limit })
+      }
+    ]);
+    const posts = await Post.aggregatePaginate(aggregate, { page, limit })
 
-        return res.status(200).json(new ApiResponse(200, { shorts }, "User shorts retrieved successfully"));
-    });
-
-    generateAiMetadata = asyncHandler(async (req, res) => {
-        const { id } = req.params;
-        const document = await Video.findById(id) || await Short.findById(id);
-
-        if (!document) {
-            throw new ApiError(404, "Document not found");
+    return res.status(200).json(new ApiResponse(200, { posts }, "Posts fetched successfully for studio"));
+  });
+  getUserVideos = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 5 } = req.query;
+    const { username } = req.params;
+    const user = await User.findOne({ username });
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+    const aggregate = Video.aggregate([
+      {
+        $match: {
+          userId: user._id,
+        },
+      },
+      {
+        $lookup: {
+          from: "likes",
+          localField: "_id",
+          foreignField: "videoId",
+          as: "likes"
         }
-
-        if (document.userId.toString() !== req.user._id.toString()) {
-            throw new ApiError(403, "You do not have permission to generate metadata for this video");
+      },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "videoId",
+          as: "comments"
         }
-
-        if (document.subtitleStatus !== "READY") {
-            throw new ApiError(400, "Subtitles are not ready yet. Please wait for transcription to complete.");
+      },
+      {
+        $addFields: {
+          likes: { $size: "$likes" },
+          comments: { $size: "$comments" }
         }
-
-        try {
-            const cacheKey = `ai_metadata:${id}`;
-            const cachedMetadata = await getCache(cacheKey);
-
-            if (cachedMetadata) {
-                res.setHeader('Content-Type', 'text/event-stream');
-                res.setHeader('Cache-Control', 'no-cache');
-                res.setHeader('Connection', 'keep-alive');
-                res.write(`data: ${JSON.stringify({ chunk: cachedMetadata })}\n\n`);
-                return res.end();
-            }
-
-            const splits = document.source.split('/');
-            splits.pop();
-            const subtitlePath = `${splits.join('/')}/subtitle.vtt`;
-            
-            const subtitleText = await getObjectAsString(subtitlePath);
-            if (!subtitleText) {
-                throw new ApiError(500, "Failed to fetch subtitle content");
-            }
-
-            const stream = await generateMetadataFromSubtitleStream(subtitleText);
-            if (!stream) {
-                throw new ApiError(500, "AI failed to generate metadata");
-            }
-
-            res.setHeader('Content-Type', 'text/event-stream');
-            res.setHeader('Cache-Control', 'no-cache');
-            res.setHeader('Connection', 'keep-alive');
-
-            let accumulatedText = "";
-            for await (const chunk of stream) {
-                const chunkText = chunk.text();
-                accumulatedText += chunkText;
-                res.write(`data: ${JSON.stringify({ chunk: chunkText })}\n\n`);
-            }
-            
-            // Cache the full response for 24 hours (86400 seconds)
-            await setCache(cacheKey, accumulatedText, 86400);
-
-            res.end();
-        } catch (error) {
-            logger.error(`Error in generateAiMetadata: ${error.message}`, error);
-            if (!res.headersSent) {
-                res.status(500).json(new ApiResponse(500, null, "Failed to generate AI metadata: " + error.message));
-            } else {
-                res.end();
-            }
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          description: 1,
+          thumbnail: 1,
+          source: 1,
+          visibility: 1,
+          createdAt: 1,
+          likes: 1,
+          comments: 1,
+          views: 1,
+          duration: 1,
+          categories: 1,
         }
-    });
+      }
+    ]);
+    const videos = await Video.aggregatePaginate(aggregate, { page, limit })
+
+    return res.status(200).json(new ApiResponse(200, { videos }, "Videos fetched successfully for studio"));
+  });
+  getUserPlaylists = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 5 } = req.query;
+    const { username } = req.params;
+    const user = await User.findOne({ username });
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+    const aggregate = Playlist.aggregate([
+      {
+        $match: {
+          userId: user._id,
+        },
+      },
+      {
+        $lookup: {
+          from: "videos",
+          localField: "videos",
+          foreignField: "_id",
+          as: "videos"
+        }
+      },
+      {
+        $addFields: {
+          videoCount: { $size: "$videos" },
+          thumbnail: { $first: "$videos.thumbnail" }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          description: 1,
+          type: 1,
+          visibility: 1,
+          updatedAt: 1,
+          videos: 1,
+          shorts: 1,
+          videoCount: 1,
+          thumbnail: 1,
+        }
+      }
+    ]);
+    const playlists = await Playlist.aggregatePaginate(aggregate, { page, limit })
+
+    return res.status(200).json(new ApiResponse(200, { playlists }, "Playlists fetched successfully for studio"));
+  });
+  getUserShorts = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 5 } = req.query;
+    const { username } = req.params;
+    const user = await User.findOne({ username });
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+    const aggregate = Short.aggregate([
+      {
+        $match: {
+          userId: user._id,
+        },
+      },
+      {
+        $lookup: {
+          from: "likes",
+          localField: "_id",
+          foreignField: "shortId",
+          as: "likes"
+        }
+      },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "shortId",
+          as: "comments"
+        }
+      },
+      {
+        $addFields: {
+          likes: { $size: "$likes" },
+          comments: { $size: "$comments" }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          description: 1,
+          thumbnail: 1,
+          source: 1,
+          visibility: 1,
+          createdAt: 1,
+          likes: 1,
+          comments: 1,
+          views: 1,
+          duration: 1,
+          categories: 1,
+        }
+      }
+    ]);
+    const shorts = await Short.aggregatePaginate(aggregate, { page, limit })
+
+    return res.status(200).json(new ApiResponse(200, { shorts }, "User shorts retrieved successfully"));
+  });
+
+  generateAiMetadata = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const document = await Video.findById(id) || await Short.findById(id);
+
+    if (!document) {
+      throw new ApiError(404, "Document not found");
+    }
+
+    if (document.userId.toString() !== req.user._id.toString()) {
+      throw new ApiError(403, "You do not have permission to generate metadata for this video");
+    }
+
+    if (document.subtitleStatus !== "READY") {
+      throw new ApiError(400, "Subtitles are not ready yet. Please wait for transcription to complete.");
+    }
+
+    try {
+      const cacheKey = `ai_metadata:${id}`;
+      const cachedMetadata = await getCache(cacheKey);
+
+      if (cachedMetadata) {
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        res.write(`data: ${JSON.stringify({ chunk: cachedMetadata })}\n\n`);
+        return res.end();
+      }
+
+      const splits = document.source.split('/');
+      splits.pop();
+      const subtitlePath = `${splits.join('/')}/subtitle.vtt`;
+
+      const subtitleText = await getObjectAsString(subtitlePath);
+      if (!subtitleText) {
+        throw new ApiError(500, "Failed to fetch subtitle content");
+      }
+
+      const stream = await generateMetadataFromSubtitleStream(subtitleText);
+      if (!stream) {
+        throw new ApiError(500, "AI failed to generate metadata");
+      }
+
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+
+      let accumulatedText = "";
+      for await (const chunk of stream) {
+        const chunkText = chunk.text();
+        accumulatedText += chunkText;
+        res.write(`data: ${JSON.stringify({ chunk: chunkText })}\n\n`);
+      }
+
+      // Cache the full response for 24 hours (86400 seconds)
+      await setCache(cacheKey, accumulatedText, 86400);
+
+      res.end();
+    } catch (error) {
+      logger.error(`Error in generateAiMetadata: ${error.message}`, error);
+      if (!res.headersSent) {
+        res.status(500).json(new ApiResponse(500, null, "Failed to generate AI metadata: " + error.message));
+      } else {
+        res.end();
+      }
+    }
+  });
 }
 
 export const studioController = new StudioController();

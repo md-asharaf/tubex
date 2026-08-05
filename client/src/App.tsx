@@ -22,6 +22,9 @@ import { PrivateLayout } from "./components/root/private-layout";
 import { RootLayOut } from "./components/root/public-layout";
 import { PlaylistNhistory } from "./components/root/playlist-and-history";
 import { YourVideos } from "./components/root/your-videos";
+import { MobileSearch } from "./components/root/mobile-search";
+import { MobileNotifications } from "./components/root/mobile-notifications";
+import { MobileSettings } from "./components/root/mobile-settings";
 import { StudioLayout } from "./components/root/studio/studio-layout";
 import { Channel } from "./components/root/channel/channel-layout";
 import { ContentVideos } from "./components/root/studio/channel/content/content-videos";
@@ -81,6 +84,9 @@ function App() {
           <Route path="short/:id" element={<Short />} />
           <Route path="post/:id" element={<Post />} />
           <Route path="results" element={<SearchedVideos />} />
+          <Route path="search" element={<MobileSearch />} />
+          <Route path="notifications" element={<MobileNotifications />} />
+          <Route path="settings" element={<MobileSettings />} />
           <Route path="channel/:username" element={<Channel />}>
             <Route path="" element={<ChannelHome />} />
             <Route path="videos" element={<ChannelVideos />} />

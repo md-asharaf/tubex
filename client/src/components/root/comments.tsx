@@ -275,14 +275,14 @@ export const Comments: React.FC<CommentProps> = ({
                                             avatar={comment.creator.avatar}
                                         />
                                         <div>
-                                            <div className="flex items-center space-x-2">
+                                            <div className="flex items-center gap-x-2 flex-wrap">
                                                 <div
                                                     onClick={() =>
                                                         navigate(
                                                             `/channel/${comment.creator.username}`
                                                         )
                                                     }
-                                                    className="text-sm font-medium cursor-pointer"
+                                                    className="text-sm font-medium cursor-pointer truncate max-w-[140px] sm:max-w-xs"
                                                 >
                                                     {`@${comment.creator.username} `}
                                                 </div>
@@ -311,7 +311,7 @@ export const Comments: React.FC<CommentProps> = ({
                                                             sentiment ===
                                                                 "neutral" &&
                                                             "bg-yellow-500"
-                                                        } rounded-full items-center justify-center pl-1 pr-2`}
+                                                        } rounded-full items-center justify-center pl-1 pr-2 whitespace-nowrap shrink-0`}
                                                     >
                                                         {sentiment ===
                                                         "positive" ? (

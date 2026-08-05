@@ -9,7 +9,7 @@ import { toggleVideoModal } from "@/store/reducers/ui";
 import { RootState } from "@/store/store";
 import {
   ListPlusIcon,
-  PlusIcon,
+  PlusCircle,
   SquarePenIcon,
   SquarePlayIcon,
 } from "lucide-react";
@@ -45,13 +45,10 @@ export const CreateDropdown = ({ isPlaylist = false }: CreateDropdownProps) => {
   }
 
   const triggerButton = (
-    <Button
-      variant="secondary"
-      className="flex items-center justify-center rounded-full h-8 w-8 px-0 sm:px-4 sm:h-10 sm:w-auto hover:bg-gray-200 dark:hover:bg-[#272727] transition-colors"
-    >
-      <PlusIcon className="size-4 sm:size-5" />
+    <div className="flex flex-col items-center justify-center h-10 w-10 sm:h-10 sm:w-auto sm:px-4 sm:bg-secondary sm:hover:bg-gray-200 sm:dark:hover:bg-[#272727] rounded-full transition-colors cursor-pointer">
+      <PlusCircle className="size-10 sm:size-5" strokeWidth={1} />
       <span className="hidden sm:inline-block ml-1 font-medium">Create</span>
-    </Button>
+    </div>
   );
 
   const MenuItems = () => (

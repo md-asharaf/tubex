@@ -321,93 +321,66 @@ export const Video = () => {
               </div>
             )}
             {isMobile && (
-              <div className="w-full p-2 shadow-md rounded-xl bg-[#F2F2F2] dark:bg-[#28292A]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2 font-bold">
-                    <div>{formatViews(video.views)}</div>
-                    <div>
-                      {formatDistanceToNowStrict(
-                        new Date(video.createdAt),
-                        { addSuffix: true }
+              <div className="w-full mt-2">
+                <div className="flex flex-col gap-y-3">
+                  {/* Action Buttons Row */}
+                  <div className="flex items-center justify-between overflow-x-auto no-scrollbar pb-1">
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="secondary"
+                        onClick={() => toggleVideoLike()}
+                        className="rounded-full h-9 px-4 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium"
+                      >
+                        <ThumbsUp
+                          size={18}
+                          className="mr-2"
+                          fill={isLiked ? (theme == "dark" ? "white" : "black") : "transparent"}
+                        />
+                        {likesCount}
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        className="rounded-full h-9 px-4 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium"
+                        onClick={() => dispatch(setShareModalData({ open: true, id: videoId, type: "video" }))}
+                      >
+                        <Share2 size={18} className="mr-2" /> Share
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        className="rounded-full h-9 px-4 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium"
+                        onClick={() => dispatch(setSaveToPlaylistDialog({ id: videoId, open: true }))}
+                      >
+                        <Bookmark size={18} className="mr-2" /> Save
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Description Box */}
+                  <div
+                    className="w-full p-3 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 cursor-pointer transition-colors"
+                    onClick={!isExpanded ? toggleExpanded : undefined}
+                  >
+                    <div className="flex items-center flex-wrap gap-x-2 text-sm font-bold text-foreground">
+                      <span>{formatViews(video.views)}</span>
+                      <span>{formatDistanceToNowStrict(new Date(video.createdAt), { addSuffix: true })}</span>
+                      {!isExpanded && (
+                        <span className="font-semibold text-foreground mt-0.5">...more</span>
                       )}
                     </div>
-                    {!isExpanded && (
-                      <Button
-                        variant="ghost"
-                        className="h-auto p-0 hover:bg-transparent font-semibold"
-                        onClick={toggleExpanded}
-                      >
-                        ...more
-                      </Button>
+                    {isExpanded && (
+                      <div className="mt-2 text-sm">
+                        <p className="whitespace-pre-wrap">{video.description}</p>
+                        <Button
+                          variant="ghost"
+                          className="h-auto p-0 mt-2 font-bold hover:bg-transparent"
+                          onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
+                        >
+                          Show less
+                        </Button>
+                      </div>
                     )}
                   </div>
-                  <div className="flex space-x-2 items-center">
-                    <Button
-                      variant="ghost"
-                      onClick={() => toggleVideoLike()}
-                      className="rounded-full p-0"
-                    >
-                      <ThumbsUp
-                        fill={
-                          isLiked
-                            ? theme == "dark"
-                              ? "white"
-                              : "black"
-                            : theme == "dark"
-                              ? "black"
-                              : "white"
-                        }
-                      />
-                      {likesCount}
-                    </Button>
-                    <Button
-                      className="rounded-full"
-                      variant="secondary"
-                      onClick={() =>
-                        dispatch(
-                          setShareModalData({
-                            open: true,
-                            id: videoId,
-                            type: "video",
-                          })
-                        )
-                      }
-                    >
-                      <Share2 />
-                    </Button>
-                    <div
-                      onClick={() =>
-                        dispatch(
-                          setSaveToPlaylistDialog({
-                            id: videoId,
-                            open: true,
-                          })
-                        )
-                      }
-                    >
-                      <Button
-                        variant="ghost"
-                        className="rounded-full p-0"
-                      >
-                        <Bookmark />
-                      </Button>
-                    </div>
-                  </div>
                 </div>
-                {isExpanded && (
-                  <div>
-                    <p className="whitespace-pre-wrap">
-                      {video.description}
-                    </p>
-                    <Button
-                      variant="ghost"
-                      onClick={toggleExpanded}
-                      className="h-auto p-0 hover:bg-transparent font-semibold"
-                    >
-                      Show less
-                    </Button>
-                  </div>
-                )}
               </div>
             )}
           </div>

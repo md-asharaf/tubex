@@ -21,9 +21,13 @@ import { CheckCheck, EllipsisVertical, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useIntersection } from "@mantine/hooks";
 import { AvatarImg } from "./avatar-image";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useNavigate } from "react-router-dom";
 
 export const Notifications = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const isMobile = useIsMobile();
     const { notifications, newNotificationCount } = useSelector(
         (state: RootState) => state.notification
     );
@@ -107,6 +111,23 @@ export const Notifications = () => {
             fetchNextPage();
         }
     }, [entry]);
+
+    if (isMobile) {
+        return (
+            <button 
+                className="p-1 rounded-full hover:bg-muted relative focus:outline-none" 
+                onClick={() => navigate('/notifications')}
+            >
+                <IoNotificationsOutline className="text-2xl" />
+                {newNotificationCount > 0 && (
+                    <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center p-0.5">
+                        {newNotificationCount > 9 ? "9+" : newNotificationCount}
+                    </span>
+                )}
+            </button>
+        );
+    }
+
     return (
         <DropdownMenu onOpenChange={onDropDownOpenChange}>
             <DropdownMenuTrigger className="focus:outline-none">
