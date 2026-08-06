@@ -435,19 +435,15 @@ class VideoController {
         for (let similarUser of usersWithSimilarHistory) {
           let videos = await Video.find(
             {
-              $match: {
-                ...categoryQuery,
-                _id: {
-                  $nin: notToBeRecommended
-                },
-                _id: {
-                  $in: similarUser.watchHistory?.videoIds || []
-                },
-                visibility: "public",
-                sourceStatus: "READY"
-              }
+              ...categoryQuery,
+              _id: {
+                $nin: notToBeRecommended,
+                $in: similarUser.watchHistory?.videoIds || []
+              },
+              visibility: "public",
+              sourceStatus: "READY"
             }
-          ).populate("userId", "username fullname avatar")
+          ).limit(5).populate("userId", "username fullname avatar")
           if (videos.length) {
             recommendations.push(...videos);
             notToBeRecommended.push(...videos.map(v => v._id.toString()));

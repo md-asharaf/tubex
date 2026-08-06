@@ -418,21 +418,14 @@ class ShortController {
         }).limit(10)
 
         for (let similarUser of usersWithSimilarHistory) {
-          let shorts = await Short.aggregate([
-            {
-              $match: {
-                visibility: "public",
-                sourceStatus: "READY",
-                _id: {
-                  $nin: notToBeRecommended.map(id => new ObjectId(id))
-                },
-                _id: {
-                  $in: similarUser.watchHistory?.shortIds?.map(id => new ObjectId(id)) || []
-                }
-              }
-            },
-            { $limit: 5 }
-          ]).populate("userId", "username fullname avatar")
+          let shorts = await Short.find({
+            visibility: "public",
+            sourceStatus: "READY",
+            _id: {
+              $nin: notToBeRecommended,
+              $in: similarUser.watchHistory?.shortIds || []
+            }
+          }).limit(5).populate("userId", "username fullname avatar")
           if (shorts.length) {
             recommendations.push(...shorts);
             notToBeRecommended.push(...shorts.map(s => s._id.toString()));
