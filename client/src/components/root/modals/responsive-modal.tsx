@@ -13,6 +13,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 interface ResponsiveModalProps {
   children: React.ReactNode;
@@ -34,24 +35,34 @@ export const ResponsiveModal: React.FC<ResponsiveModalProps> = ({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange} nested={nested}>
-        <DrawerContent className={`px-3 sm:px-4 max-h-[70dvh] flex flex-col dark:bg-[#282828] ${className}`}>
+        <DrawerContent className={`flex flex-col dark:bg-[#282828] max-h-[80dvh] ${className}`}>
           {title ? (
-            <DrawerHeader className="shrink-0 text-left px-0 pb-2 mx-3 sm:mx-4 mb-2">
-              {typeof title === "string" ? (
-                <DrawerTitle className="flex items-center justify-between w-full font-bold text-[18px] text-foreground">
-                  <span>{title}</span>
-                  <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 text-muted-foreground" onClick={() => onOpenChange(false)}>
-                    <X className="w-5 h-5" />
-                  </Button>
-                </DrawerTitle>
-              ) : (
-                <DrawerTitle>{title}</DrawerTitle>
-              )}
-            </DrawerHeader>
+            <>
+              <DrawerHeader className="px-3 sm:px-4 pt-1 pb-3 shrink-0 flex flex-row items-center justify-between w-full">
+                <div className="flex-1 text-left">
+                  {typeof title === "string" ? (
+                    <DrawerTitle className="font-bold text-[18px] text-foreground">
+                      {title}
+                    </DrawerTitle>
+                  ) : (
+                    <DrawerTitle asChild>
+                      <div>{title}</div>
+                    </DrawerTitle>
+                  )}
+                </div>
+                <X
+                  size={30}
+                  strokeWidth={0.7}
+                  onClick={() => onOpenChange(false)}
+                  className="cursor-pointer shrink-0 ml-4"
+                />
+              </DrawerHeader>
+              <Separator />
+            </>
           ) : (
             <DrawerTitle className="sr-only">Modal</DrawerTitle>
           )}
-          <div className="flex-1 overflow-y-auto no-scrollbar">{children}</div>
+          <div className="flex-1 overflow-y-auto no-scrollbar px-3 sm:px-4 pt-3 pb-4">{children}</div>
         </DrawerContent>
       </Drawer>
     );
@@ -59,16 +70,21 @@ export const ResponsiveModal: React.FC<ResponsiveModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={`p-4 flex-1 overflow-y-auto shadow-md dark:bg-[#282828] ${className}`}
+        className={`p-0 flex flex-col max-h-[85vh] shadow-md dark:bg-[#282828] ${className}`}
       >
         {title ? (
-          <DialogHeader>
-            <DialogTitle>{title}</DialogTitle>
-          </DialogHeader>
+          <>
+            <DialogHeader className="px-4 py-3 shrink-0 flex flex-row items-center justify-between w-full">
+              <DialogTitle>{title}</DialogTitle>
+            </DialogHeader>
+            <Separator />
+          </>
         ) : (
           <DialogTitle className="sr-only">Modal</DialogTitle>
         )}
-        {children}
+        <div className="flex-1 overflow-y-auto px-4 pt-3 pb-4">
+          {children}
+        </div>
       </DialogContent>
     </Dialog>
   );

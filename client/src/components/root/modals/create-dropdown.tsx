@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { ResponsiveModal } from "@/components/root/modals/responsive-modal";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 
@@ -77,12 +77,16 @@ export const CreateDropdown = ({ isPlaylist = false }: CreateDropdownProps) => {
 
   if (isMobile) {
     return (
-      <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerTrigger asChild>{triggerButton}</DrawerTrigger>
-        <DrawerContent className="pb-4">
-          <MenuItems />
-        </DrawerContent>
-      </Drawer>
+      <>
+        <div onClick={() => setOpen(true)}>
+          {triggerButton}
+        </div>
+        <ResponsiveModal open={open} onOpenChange={setOpen} title="Create" className="pb-2">
+          <div className="flex flex-col -mx-3 sm:-mx-4">
+            <MenuItems />
+          </div>
+        </ResponsiveModal>
+      </>
     );
   }
 

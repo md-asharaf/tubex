@@ -86,7 +86,7 @@ export const PlaylistNhistory = () => {
   }
 
   return (
-    <div className="w-full overflow-auto">
+    <div className="w-full">
       {/* Mobile Top Header */}
       <div className="sm:hidden flex items-center justify-between px-4 py-2 sticky top-0 bg-white dark:bg-[#0F0F0F] z-10">
         <button

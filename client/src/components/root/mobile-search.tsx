@@ -36,7 +36,7 @@ export const MobileSearch = () => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             placeholder="Search TubeX"
-            className="w-full bg-transparent border-none focus-visible:ring-0 shadow-none px-0 h-full text-sm"
+            className="w-full bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none px-0 h-full text-sm"
           />
           {input && (
             <button

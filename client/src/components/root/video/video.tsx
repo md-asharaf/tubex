@@ -518,17 +518,14 @@ export const Video = () => {
         ))}
       </div>
       <div className="xl:hidden">
-        <ResponsiveModal
+        <VideoComments
+          videoId={videoId}
+          playerRef={playerRef}
+          creatorId={video.creator._id}
+          isDrawer={true}
           open={isMobileCommentsOpen}
-          onOpenChange={setIsMobileCommentsOpen}
-          className="h-[80vh]"
-        >
-          <VideoComments
-            videoId={videoId}
-            playerRef={playerRef}
-            creatorId={video.creator._id}
-          />
-        </ResponsiveModal>
+          onOpenChange={(open: boolean) => setIsMobileCommentsOpen(open)}
+        />
       </div>
     </div>
   );

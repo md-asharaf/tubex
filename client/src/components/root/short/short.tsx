@@ -43,6 +43,7 @@ import { setOpenCard } from "@/store/reducers/short";
 import { queryClient } from "@/main";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
+import { ResponsiveModal } from "@/components/root/modals/responsive-modal";
 export const Short = () => {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
@@ -267,7 +268,7 @@ export const Short = () => {
             playerRef={playerRef}
             onViewTracked={onViewTracked}
             controls={[]}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
             subtitle={short.subtitle}
           />
         </div>
@@ -283,35 +284,22 @@ export const Short = () => {
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold">Shorts</h1>
             <div className="flex items-center space-x-5">
-              <button onClick={togglePlayPause}>
+              <button>
                 {isMuted ? <VolumeX size={26} onClick={() => setIsMuted(false)} /> : <Volume2 size={26} onClick={() => setIsMuted(true)} />}
               </button>
-              <Search size={26} />
-              <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger>
-                  <MoreVertical size={26} />
-                </PopoverTrigger>
-                <PopoverContent className="p-0 py-2 m-0 max-w-[200px]" align="end">
-                  <ShortPopoverContent shortId={short._id} playerRef={playerRef} />
-                </PopoverContent>
-              </Popover>
+              <Search size={26} onClick={() => navigate("/search")} className="cursor-pointer" />
+              <div onClick={() => setOpen(true)} className="cursor-pointer">
+                <MoreVertical size={26} />
+              </div>
+              <ResponsiveModal
+                title=""
+                open={open}
+                onOpenChange={setOpen}
+                className="w-full bg-background"
+              >
+                <ShortPopoverContent shortId={short._id} playerRef={playerRef} />
+              </ResponsiveModal>
             </div>
-          </div>
-
-          {/* Filters */}
-          <div className="flex space-x-2 overflow-x-auto no-scrollbar scrollbar-hide">
-            <button className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">
-              <Tv size={18} />
-              <span>Subscriptions</span>
-            </button>
-            <button className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">
-              <Radio size={18} />
-              <span>Live</span>
-            </button>
-            <button className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap">
-              <Focus size={18} />
-              <span>Lens</span>
-            </button>
           </div>
         </div>
 
@@ -329,11 +317,7 @@ export const Short = () => {
             <Share2 size={30} strokeWidth={1.5} />
             <span className="text-xs mt-1 font-medium">Share</span>
           </button>
-          <div className="relative w-10 h-10 mt-2">
-            <div className="absolute inset-0 bg-white/20 rounded-md animate-spin flex items-center justify-center p-[2px]">
-              <AvatarImg className="w-full h-full rounded-md object-cover" fullname={short.creator.fullname} avatar={short.creator.avatar} />
-            </div>
-          </div>
+
         </div>
 
         {/* Bottom Info Area */}
@@ -377,19 +361,11 @@ export const Short = () => {
 
         {/* Comments Drawer */}
         {openedCard === "comments" && (
-          <>
-            <div
-              className="fixed inset-0 bg-black/60 z-40 transition-opacity"
-              onClick={() => dispatch(setOpenCard(""))}
-            />
-            <div className="fixed bottom-0 left-0 w-full h-[70vh] bg-background z-50 rounded-t-2xl overflow-hidden transition-transform duration-300 ease-in-out flex flex-col">
-              <ShortComments
-                shortId={short._id}
-                playerRef={playerRef}
-                creatorId={short.creator._id}
-              />
-            </div>
-          </>
+          <ShortComments
+            shortId={short._id}
+            playerRef={playerRef}
+            creatorId={short.creator._id}
+          />
         )}
       </div>
     );
@@ -407,7 +383,7 @@ export const Short = () => {
             playerRef={playerRef}
             onViewTracked={onViewTracked}
             controls={[]}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
             subtitle={short.subtitle}
           />
           <div className="absolute top-4 justify-between h-11 w-full  px-2 group-hover:flex hidden">
@@ -613,7 +589,7 @@ export const Short = () => {
         )}
       </div>
       {openedCard === "description" && (
-        <div className="hidden sm:block ml-4">
+        <div className="sm:ml-4">
           <DescriptionCard short={short} likes={likesCount} />
         </div>
       )}
@@ -625,7 +601,7 @@ export const Short = () => {
               onClick={() => dispatch(setOpenCard(""))}
             />
           )}
-          <div className="fixed bottom-0 left-0 w-full z-50 sm:static sm:w-auto sm:ml-4 sm:h-full transition-transform duration-300 ease-in-out">
+          <div className="fixed bottom-0 left-0 w-full z-50 sm:static sm:w-auto sm:ml-16 lg:ml-24 sm:h-full transition-transform duration-300 ease-in-out">
             <ShortComments
               shortId={short._id}
               playerRef={playerRef}

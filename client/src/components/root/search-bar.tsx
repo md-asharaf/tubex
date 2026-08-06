@@ -19,7 +19,7 @@ export const SearchBar = () => {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                     placeholder="Search"
-                    className="w-full h-9 sm:h-10 pl-4 pr-12 rounded-l-full border text-sm sm:text-base"
+                    className="w-full h-9 sm:h-10 pl-4 pr-12 rounded-l-full border text-sm sm:text-base focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-400"
                 />
                 {input && (
                     <button

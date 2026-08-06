@@ -39,8 +39,10 @@ export const TextArea: React.FC<TextAreaProps> = ({
 
   useEffect(() => {
     const handleSetReply = (e: any) => {
-      if (e.detail && submitLabel === "Reply" && hideAvatar) {
-        setContent(`@${e.detail} `);
+      if (submitLabel === "Reply" && hideAvatar) {
+        if (e.detail) {
+          setContent(`@${e.detail} `);
+        }
         setTimeout(() => textareaRef.current?.focus(), 10);
       }
     };

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useInfiniteQuery } from "@tanstack/react-query";
 import { replyService } from "@/services/reply";
 import { Button } from "@/components/ui/button";
-import { Edit, EllipsisVertical, Loader2, ThumbsUp, Trash, MessageSquare } from "lucide-react";
+import { Edit, EllipsisVertical, Loader2, ThumbsUp, Trash, MessageSquare, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useSelector } from "react-redux";
@@ -22,7 +22,7 @@ import { AvatarImg } from "./avatar-image";
 import { useIntersection } from "@mantine/hooks";
 import { processText } from "@/lib";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ThreadBranch } from "./thread-line";
+import { ThreadBranch, ThreadLine } from "./thread-line";
 
 const Replies = ({
   commentId,
@@ -205,7 +205,7 @@ const Replies = ({
       </div>
     );
   return (
-    <div className="flex flex-col w-full max-w-[736px] overflow-y-auto overflow-x-hidden">
+    <div className="flex flex-col w-full overflow-y-auto overflow-x-hidden">
       {isDeletionPending && (
         <div className="flex items-center justify-center">
           <Loader2 className="h-6 w-6 animate-spin" />
@@ -213,13 +213,16 @@ const Replies = ({
       )}
       <div>
         {replies?.map((reply, index) => {
+          const isLast = index === (replies?.length ?? 0) - 1;
           return (
             <div
               key={index}
-              ref={index === replies.length - 1 ? ref : null}
-              className="pb-3 sm:pb-4"
+              ref={isLast ? ref : null}
+              className="relative pb-3 sm:pb-4"
             >
-              {editingReplyId === reply._id ? (
+              <ThreadBranch />
+              {!isLast && <ThreadLine topClassName="top-0" />}
+              {editingReplyId === reply._id && !isMobile ? (
                 isUpdationPending ? (
                   <div className="flex items-center justify-center">
                     <Loader2 className="h-6 w-6 animate-spin" />
@@ -235,8 +238,7 @@ const Replies = ({
                   />
                 )
               ) : (
-                <div className="relative pl-[45px]">
-                  <ThreadBranch />
+                <div className="pl-11">
                   <div className="flex justify-between">
                     <div className="flex space-x-2 items-start">
                       <div
@@ -323,6 +325,25 @@ const Replies = ({
                     )}
                   </div>
                   <div>
+                    {replyingToReplyId === reply._id && !isMobile && (
+                      <div className="mt-2">
+                        {isAdditionPending ? (
+                          <div className="flex items-center justify-center">
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                          </div>
+                        ) : (
+                          <TextArea
+                            fullname={userData?.fullname}
+                            userAvatar={userData?.avatar}
+                            initialValue={`@${reply.creator.username} `}
+                            placeholder={`Reply to @${reply.creator.username}...`}
+                            onSubmit={(content) => addReply(content)}
+                            onCancel={() => setReplyingToReplyId(null)}
+                            submitLabel="Reply"
+                          />
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -331,11 +352,30 @@ const Replies = ({
         })}
       </div>
 
-      <div className="flex items-center justify-center">
-        {isFetchingNextPage && (
-          <Loader2 className="h-10 w-10 animate-spin" />
-        )}
+      <div className="flex items-center justify-center mb-10">
+        {isFetchingNextPage && <Loader2 className="h-10 w-10 animate-spin" />}
       </div>
+      {isMobile && editingReplyId && (() => {
+        const replyToEdit = replies?.find(r => r._id === editingReplyId);
+        if (!replyToEdit) return null;
+        return (
+          <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#212121] p-3 border-t border-gray-200 dark:border-white/10 z-[70] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom-2">
+            <div className="flex justify-between items-center mb-2 px-1">
+              <span className="text-xs font-semibold text-muted-foreground">Editing reply</span>
+              <X className="w-4 h-4 text-muted-foreground cursor-pointer" onClick={() => setEditingReplyId(null)} />
+            </div>
+            <TextArea
+              hideAvatar={true}
+              fullname={userData?.fullname}
+              userAvatar={userData?.avatar}
+              initialValue={replyToEdit.content}
+              onSubmit={(content) => updateReply(content)}
+              onCancel={() => setEditingReplyId(null)}
+              submitLabel="Save"
+            />
+          </div>
+        );
+      })()}
     </div>
   );
 };
