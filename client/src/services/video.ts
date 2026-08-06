@@ -28,5 +28,7 @@ class VideoSevice {
     await axios.patch(`/videos/update-video/${videoId}`, data);
   updateThumbnail = async (videoId: string, thumbnail: string) =>
     await axios.patch(`/videos/update-thumbnail/${videoId}`, { thumbnail });
+  delete = async (videoId: string) =>
+    await axios.delete(`/videos/delete-video/${videoId}`);
 }
 export const videoService = new VideoSevice();

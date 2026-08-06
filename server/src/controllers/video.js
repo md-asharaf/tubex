@@ -9,6 +9,7 @@ import { Subscription } from "../models/subscription.js"
 import { publishNotification } from "../lib/kafka/producer.js";
 import { getCache, setCache } from "../lib/redis.js";
 import { Types } from "mongoose"
+import { deleteS3Folder, OUTPUT_BUCKET } from "../lib/s3-client.js";
 const ObjectId = Types.ObjectId;
 class VideoController {
   publishVideo = asyncHandler(async (req, res) => {
@@ -89,6 +90,23 @@ class VideoController {
     if (video.userId.toString() !== userId.toString()) {
       throw new ApiError(400, "You are not authorized to delete this video")
     }
+
+    try {
+      if (video.source && video.source.includes('s3.ap-south-1.amazonaws.com')) {
+        const urlParts = video.source.split('/');
+        const masterM3u8Index = urlParts.indexOf('master.m3u8');
+        if (masterM3u8Index > 0) {
+          const baseName = urlParts[masterM3u8Index - 1];
+          if (baseName) {
+            await deleteS3Folder(OUTPUT_BUCKET, `${baseName}/`);
+          }
+        }
+      }
+    } catch (s3Error) {
+      console.error("Error deleting video from S3:", s3Error);
+      // We continue deleting the db record even if S3 deletion fails to prevent ghost records
+    }
+
     await Video.findByIdAndDelete(video._id);
     return res.status(200).json(new ApiResponse(200, null, "Video deleted successfully"))
   })
