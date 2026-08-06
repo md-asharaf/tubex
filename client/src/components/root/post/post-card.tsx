@@ -22,7 +22,7 @@ const SharedVideoEmbed = ({ videoData }: { videoData: string | any }) => {
   const videoId = typeof videoData === "string" ? videoData : videoData?._id;
 
   const { data: video, isLoading } = useQuery({
-    queryKey: ["sharedVideo", videoId],
+    queryKey: ["shared-video", videoId],
     queryFn: async () => {
       const data = await videoService.singleVideo(videoId);
       return data.video;
@@ -81,7 +81,7 @@ export const PostCard = ({ post }: { post: IPostData }) => {
 
   // Likes
   const { data: isLiked } = useQuery({
-    queryKey: ["isLiked", post._id, "post"],
+    queryKey: ["is-liked", post._id],
     queryFn: async () => {
       const data = await likeService.isLiked(post._id, "post");
       return data.isLiked;
@@ -89,7 +89,7 @@ export const PostCard = ({ post }: { post: IPostData }) => {
   });
 
   const { data: likesCount } = useQuery({
-    queryKey: ["likesCount", post._id, "post"],
+    queryKey: ["likes-count", post._id],
     queryFn: async () => {
       const data = await likeService.likesCount(post._id, "post");
       return data.likesCount;
@@ -98,15 +98,31 @@ export const PostCard = ({ post }: { post: IPostData }) => {
 
   const toggleLikeMutation = useMutation({
     mutationFn: async () => await likeService.toggleLike(post._id, "post"),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["isLiked", post._id, "post"] });
-      queryClient.invalidateQueries({ queryKey: ["likesCount", post._id, "post"] });
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ["is-liked", post._id] });
+      await queryClient.cancelQueries({ queryKey: ["likes-count", post._id] });
+
+      const previousIsLiked = queryClient.getQueryData(["is-liked", post._id]);
+      const previousLikesCount = queryClient.getQueryData(["likes-count", post._id]);
+
+      queryClient.setQueryData(["is-liked", post._id], (old: boolean) => !old);
+      queryClient.setQueryData(["likes-count", post._id], (old: number) => isLiked ? old - 1 : old + 1);
+
+      return { previousIsLiked, previousLikesCount };
     },
+    onError: (err, newTodo, context) => {
+      if (context?.previousIsLiked !== undefined) {
+        queryClient.setQueryData(["is-liked", post._id], context.previousIsLiked);
+      }
+      if (context?.previousLikesCount !== undefined) {
+        queryClient.setQueryData(["likes-count", post._id], context.previousLikesCount);
+      }
+    }
   });
 
   // Comments count
   const { data: commentsCount } = useQuery({
-    queryKey: ["commentsCount", post._id, "post"],
+    queryKey: ["comments-count", post._id],
     queryFn: async () => {
       const data = await commentService.commentsCount(post._id, "post");
       return data.commentsCount;
@@ -118,7 +134,7 @@ export const PostCard = ({ post }: { post: IPostData }) => {
   };
 
   return (
-    <div className="max-w-[800px] w-full border border-gray-200 dark:border-[#272727] rounded-xl p-4 sm:p-5 bg-white dark:bg-[#0F0F0F] my-4">
+    <div className="max-w-[800px] w-full border border-gray-200 dark:border-[#272727] rounded-xl p-4 bg-white dark:bg-[#0F0F0F] my-4">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center space-x-3">
@@ -132,13 +148,13 @@ export const PostCard = ({ post }: { post: IPostData }) => {
           <div className="flex flex-col justify-center h-full">
             <div className="flex items-center space-x-1.5">
               <Link to={`/channel/${username}`}>
-                <span className="font-bold text-[15px] hover:text-black dark:hover:text-white text-foreground cursor-pointer">
+                <span className="font-medium text-[15px] hover:text-black dark:hover:text-white text-foreground cursor-pointer">
                   {fullname}
                 </span>
               </Link>
               <span className="text-xs text-muted-foreground">•</span>
               <Link to={`/post/${post._id}`}>
-                <span className="text-[13px] text-muted-foreground hover:underline cursor-pointer">
+                <span className="text-[12px] text-muted-foreground hover:underline cursor-pointer">
                   {formatDistanceToNowStrict(new Date(post.updatedAt)).replace("about ", "") + " ago"}
                 </span>
               </Link>
@@ -151,7 +167,7 @@ export const PostCard = ({ post }: { post: IPostData }) => {
       </div>
 
       {/* Body Text */}
-      <div className="mt-3 sm:mt-4 text-[15px] sm:text-base whitespace-pre-wrap text-foreground leading-relaxed font-normal">
+      <div className="mt-3 text-[14px] sm:text-[15px] whitespace-pre-wrap text-foreground leading-relaxed font-normal">
         {post.text}
       </div>
 
@@ -220,35 +236,35 @@ export const PostCard = ({ post }: { post: IPostData }) => {
       <div className="flex items-center space-x-4 mt-4 -ml-2">
         <Button
           variant="ghost"
-          className="rounded-full px-3 h-10 text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-[#272727]"
+          className="rounded-full px-3 h-9 text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-[#272727]"
           onClick={(e) => {
             e.preventDefault();
             toggleLikeMutation.mutate();
           }}
         >
-          <ThumbsUpIcon className="size-5 mr-2" fill={isLiked ? (theme === "dark" ? "white" : "black") : "transparent"} strokeWidth={1.5} />
-          <span className="text-[14px] font-medium">{likesCount > 0 ? likesCount : ''}</span>
+          <ThumbsUpIcon className="size-[18px] mr-2" fill={isLiked ? (theme === "dark" ? "white" : "black") : "transparent"} strokeWidth={1.5} />
+          <span className="text-[13px] font-medium">{likesCount > 0 ? likesCount : ''}</span>
         </Button>
 
         <Link to={`/post/${post._id}`}>
           <Button
             variant="ghost"
-            className="rounded-full px-3 h-10 text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-[#272727]"
+            className="rounded-full px-3 h-9 text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-[#272727]"
           >
-            <MessageSquareMoreIcon className="size-5 mr-2" strokeWidth={1.5} />
-            <span className="text-[14px] font-medium">{commentsCount > 0 ? commentsCount : ''}</span>
+            <MessageSquareMoreIcon className="size-[18px] mr-2" strokeWidth={1.5} />
+            <span className="text-[13px] font-medium">{commentsCount > 0 ? commentsCount : ''}</span>
           </Button>
         </Link>
 
         <Button
           variant="ghost"
-          className="rounded-full px-3 h-10 text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-[#272727]"
+          className="rounded-full px-3 h-9 text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-[#272727]"
           onClick={(e) => {
             e.preventDefault();
             handleShare();
           }}
         >
-          <Share2Icon className="size-5" strokeWidth={1.5} />
+          <Share2Icon className="size-[18px]" strokeWidth={1.5} />
         </Button>
       </div>
     </div>

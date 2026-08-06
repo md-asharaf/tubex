@@ -21,7 +21,7 @@ export const ChannelShorts = () => {
         enabled: !!username,
     });
     return (
-        <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+        <div className="grid gap-x-2 gap-y-4 sm:gap-x-4 sm:gap-y-8 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
             {isLoading ? (
                 <div className="flex justify-center items-center w-full min-h-[50vh] col-span-full">
                     <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />

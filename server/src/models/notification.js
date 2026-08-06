@@ -25,6 +25,7 @@ const notificationSchema = new mongoose.Schema({
     creator: {
         _id: String,
         fullname: String,
+        username: String,
         avatar: String,
     },
     read: {

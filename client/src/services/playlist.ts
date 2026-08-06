@@ -21,5 +21,7 @@ class PLaylistService {
         await axios.get(
             `/playlists/is-video-saved?${type}Id=${id}`
         );
+    deletePlaylist = async (playlistId: string) =>
+        await axios.delete(`/playlists/delete-playlist/${playlistId}`);
 }
 export const playlistService = new PLaylistService();

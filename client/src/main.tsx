@@ -6,20 +6,21 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import App from "./App";
 export const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            staleTime: 1000 * 60 * 3,
-            refetchOnReconnect: true,
-        },
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 3,
+      refetchOnReconnect: true,
+      refetchOnWindowFocus: false,
     },
+  },
 });
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
 root.render(
-    <Provider store={store}>
-        <QueryClientProvider client={queryClient}>
-            <Toaster position="bottom-right" richColors expand />
-            <App />
-        </QueryClientProvider>
-    </Provider>
+  <Provider store={store}>
+    <QueryClientProvider client={queryClient}>
+      <Toaster position="top-right" richColors expand />
+      <App />
+    </QueryClientProvider>
+  </Provider>
 );

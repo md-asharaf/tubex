@@ -195,13 +195,6 @@ export const Video = () => {
           isSubscribed ? prevData - 1 : prevData + 1
       );
     },
-    onSuccess: () => {
-      if (isSubscribed) {
-        toast.success('Subscription added')
-      } else {
-        toast.success('Subscription removed')
-      }
-    }
   });
 
   const { mutate: addToWatchHistory } = useMutation({

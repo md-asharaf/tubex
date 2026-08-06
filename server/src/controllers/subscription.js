@@ -34,7 +34,8 @@ class SubscriptionController {
       creator: {
         _id: subscriber._id,
         avatar: subscriber.avatar,
-        fullname: subscriber.fullname
+        fullname: subscriber.fullname,
+        username: subscriber.username
       },
       read: false,
       createdAt: new Date(Date.now()),

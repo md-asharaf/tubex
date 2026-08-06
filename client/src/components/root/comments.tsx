@@ -94,7 +94,8 @@ export const Comments: React.FC<CommentProps> = ({
         id,
         pageParam,
         type,
-        filter
+        filter,
+        userData?._id
       );
       return data.comments;
     },
@@ -189,13 +190,25 @@ export const Comments: React.FC<CommentProps> = ({
       return data.commentId;
     },
     onSuccess: (commentId) => {
-      toast.success("Comment deleted");
-      commentsPages.pages[0].totalDocs--;
-      commentsPages.pages.forEach((page) => {
-        page.docs = page.docs.filter(
-          (comment) => comment._id !== commentId
-        );
-      });
+      queryClient.setQueryData(
+        ["comments", id, filter],
+        (oldData: any) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page: any, index: number) => {
+              const newTotalDocs = index === 0 ? page.totalDocs - 1 : page.totalDocs;
+              return {
+                ...page,
+                totalDocs: newTotalDocs,
+                docs: page.docs.filter(
+                  (comment: any) => comment._id !== commentId
+                ),
+              };
+            }),
+          };
+        }
+      );
     },
   });
   const { mutate: updateComment } = useMutation({
@@ -203,13 +216,24 @@ export const Comments: React.FC<CommentProps> = ({
       await commentService.updateComment(editingCommentId, content);
     },
     onSuccess: (_, content) => {
-      commentsPages.pages.forEach((page) => {
-        page.docs.forEach((comment) => {
-          if (comment._id === editingCommentId)
-            comment.content = content;
-        });
-      });
-      toast.success("Comment updated");
+      queryClient.setQueryData(
+        ["comments", id, filter],
+        (oldData: any) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page: any) => ({
+              ...page,
+              docs: page.docs.map((comment: any) => {
+                if (comment._id === editingCommentId) {
+                  return { ...comment, content };
+                }
+                return comment;
+              }),
+            })),
+          };
+        }
+      );
     },
     onSettled: () => {
       setEditingCommentId(null);
@@ -224,7 +248,6 @@ export const Comments: React.FC<CommentProps> = ({
       return data.reply;
     },
     onSuccess: () => {
-      toast.success("Reply added");
     },
     onSettled: () => {
       queryClient.invalidateQueries({

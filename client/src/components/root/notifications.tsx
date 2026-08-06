@@ -71,6 +71,20 @@ export const Notifications = () => {
     },
   });
 
+  const handleNotificationClick = (notification: any) => {
+    markAsRead(notification.createdAt);
+    setOpen(open.map(() => false)); // close dropdown
+    if (notification.video?._id) {
+      navigate(`/video/${notification.video._id}`);
+    } else if (notification.short?._id) {
+      navigate(`/short/${notification.short._id}`);
+    } else if (notification.post?._id) {
+      navigate(`/post/${notification.post._id}`);
+    } else if (notification.creator?.username) {
+      navigate(`/channel/${notification.creator.username}`);
+    }
+  };
+
   const {
     fetchNextPage,
     hasNextPage,
@@ -180,7 +194,7 @@ export const Notifications = () => {
                 return (
                   <DropdownMenuItem
                     onClick={() =>
-                      markAsRead(notification.createdAt)
+                      handleNotificationClick(notification)
                     }
                     key={index}
                     ref={

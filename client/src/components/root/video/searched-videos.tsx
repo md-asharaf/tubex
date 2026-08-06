@@ -41,16 +41,16 @@ export const SearchedVideos = () => {
                                 className="w-full rounded-lg object-cover"
                                 loading="lazy"
                             />
-                            <span className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 text-xs rounded">
+                            <span className="absolute bottom-2 right-2 bg-black/80 text-white px-1.5 py-0.5 text-xs font-medium rounded">
                                 {formatDuration(video.duration)}
                             </span>
                         </div>
                         <div className="flex flex-col flex-1 overflow-hidden text-sm sm:text-base lg:text-lg">
                             <div className="flex flex-col sm:gap-1">
-                                <h2 className="font-semibold truncate">
+                                <h2 className="font-normal text-[16px] sm:text-[18px] leading-snug line-clamp-2">
                                     {video.title}
                                 </h2>
-                                <p className="text-muted-foreground">
+                                <p className="text-[14px] text-muted-foreground mt-1">
                                     {`${formatViews(
                                         video.views
                                     )} • ${formatDistanceToNowStrict(
@@ -64,12 +64,12 @@ export const SearchedVideos = () => {
                                     avatar={video.creator.avatar}
                                     fullname={video.creator.fullname}
                                 />
-                                <p className="font-medium">
+                                <p className="text-[14px] text-muted-foreground hover:text-foreground">
                                     {video.creator.fullname}
                                 </p>
                             </div>
                             <p
-                                className="text-sm lg:text-base text-muted-foreground sm:mt-2 truncate"
+                                className="text-[14px] text-muted-foreground sm:mt-2 line-clamp-2"
                                 title={video.description}
                             >
                                 {video.description}

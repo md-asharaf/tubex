@@ -78,7 +78,7 @@ export const Short = () => {
   const { data: topComment } = useQuery({
     queryKey: ["top-comment", shortId],
     queryFn: async (): Promise<IComment | null> => {
-      const data = await commentService.getComments(shortId as string, 1, "short", "All");
+      const data = await commentService.getComments(shortId as string, 1, "short", "All", userId);
       return data?.comments?.length > 0 ? data.comments[0] : null;
     },
     enabled: !!shortId,
@@ -148,13 +148,6 @@ export const Short = () => {
           isSubscribed ? prevData - 1 : prevData + 1
       );
     },
-    onSuccess: () => {
-      if (isSubscribed) {
-        toast.success('Subscription added')
-      } else {
-        toast.success('Subscription removed')
-      }
-    }
   });
   const { mutate: toggleLike } = useMutation({
     mutationFn: async () => {
@@ -247,6 +240,34 @@ export const Short = () => {
       playerRef.current.volume = volume / 100;
     }
   }, [volume]);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientY);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientY);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isUpSwipe = distance > minSwipeDistance;
+    const isDownSwipe = distance < -minSwipeDistance;
+
+    if (isUpSwipe && short.next) {
+      navigate(`/short/${short.next}`, { replace: true });
+    }
+    if (isDownSwipe && short.prev) {
+      navigate(`/short/${short.prev}`, { replace: true });
+    }
+  };
+
   if (isLoading || !short) {
     return (
       <div className="flex items-center justify-center w-full min-h-[50vh]">
@@ -257,7 +278,12 @@ export const Short = () => {
 
   if (isMobile) {
     return (
-      <div className="relative w-full h-[calc(100dvh-56px)] bg-black overflow-hidden text-white font-sans touch-none">
+      <div 
+        className="relative w-full h-[calc(100dvh-56px)] bg-black overflow-hidden text-white font-sans touch-none"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         {/* Video Player */}
         <div className="absolute inset-0 z-0">
           <PlyrPlayer
@@ -372,7 +398,7 @@ export const Short = () => {
   }
 
   return (
-    <div className="flex items-start justify-center w-full sm:px-4 py-4 overflow-x-hidden h-[calc(100dvh-120px)] sm:h-[calc(100dvh-80px)]">
+    <div className="flex items-start justify-center w-full sm:px-4 py-4 overflow-x-hidden h-[calc(100dvh-120px)] sm:h-[calc(100dvh-80px)] sm:gap-12 lg:gap-16">
       <div className="flex relative rounded-lg shadow-lg group w-full sm:w-[450px] h-full justify-center">
         <div className="relative w-full h-full bg-black sm:rounded-lg overflow-hidden">
           <PlyrPlayer
@@ -601,7 +627,7 @@ export const Short = () => {
               onClick={() => dispatch(setOpenCard(""))}
             />
           )}
-          <div className="fixed bottom-0 left-0 w-full z-50 sm:static sm:w-auto sm:ml-16 lg:ml-24 sm:h-full transition-transform duration-300 ease-in-out">
+          <div className="fixed bottom-0 left-0 w-full z-50 sm:static sm:w-auto sm:h-full transition-transform duration-300 ease-in-out">
             <ShortComments
               shortId={short._id}
               playerRef={playerRef}

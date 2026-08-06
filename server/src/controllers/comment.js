@@ -11,7 +11,8 @@ const ObjectId = Types.ObjectId;
 class CommentController {
   getAllVideoComments = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
-    const { page = 1, limit = 10, sentiment = 'All' } = req.query;
+    const { page = 1, limit = 10, sentiment = 'All', userId } = req.query;
+    const userObjectId = userId ? new ObjectId(userId) : null;
     if (!videoId) {
       throw new ApiError(400, "Video ID is required")
     }
@@ -40,6 +41,13 @@ class CommentController {
       },
       {
         $addFields: {
+          isCurrentUserComment: {
+            $cond: {
+              if: userObjectId ? { $eq: ["$userId", userObjectId] } : false,
+              then: 1,
+              else: 0
+            }
+          },
           creator: {
             $first: "$creator"
           },
@@ -50,6 +58,7 @@ class CommentController {
       },
       {
         $sort: {
+          isCurrentUserComment: -1,
           createdAt: -1
         }
       },
@@ -98,7 +107,8 @@ class CommentController {
         creator: {
           _id: user._id,
           avatar: user.avatar,
-          fullname: user.fullname
+          fullname: user.fullname,
+          username: user.username
         },
         read: false,
         createdAt: new Date(Date.now()),
@@ -112,7 +122,8 @@ class CommentController {
   });
   getAllShortComments = asyncHandler(async (req, res) => {
     const { shortId } = req.params;
-    const { page = 1, limit = 10, sentiment = 'All' } = req.query;
+    const { page = 1, limit = 10, sentiment = 'All', userId } = req.query;
+    const userObjectId = userId ? new ObjectId(userId) : null;
     if (!shortId) {
       throw new ApiError(400, "Short ID is required")
     }
@@ -141,6 +152,13 @@ class CommentController {
       },
       {
         $addFields: {
+          isCurrentUserComment: {
+            $cond: {
+              if: userObjectId ? { $eq: ["$userId", userObjectId] } : false,
+              then: 1,
+              else: 0
+            }
+          },
           creator: {
             $first: "$creator"
           },
@@ -151,6 +169,7 @@ class CommentController {
       },
       {
         $sort: {
+          isCurrentUserComment: -1,
           createdAt: -1
         }
       },
@@ -202,7 +221,8 @@ class CommentController {
         creator: {
           _id: user._id,
           avatar: user.avatar,
-          fullname: user.fullname
+          fullname: user.fullname,
+          username: user.username
         },
         read: false,
         createdAt: new Date(Date.now()),
@@ -217,7 +237,8 @@ class CommentController {
 
   getAllPostComments = asyncHandler(async (req, res) => {
     const { postId } = req.params;
-    const { page = 1, limit = 10, sentiment = 'All' } = req.query;
+    const { page = 1, limit = 10, sentiment = 'All', userId } = req.query;
+    const userObjectId = userId ? new ObjectId(userId) : null;
     if (!postId) {
       throw new ApiError(400, "Post ID is required")
     }
@@ -246,6 +267,13 @@ class CommentController {
       },
       {
         $addFields: {
+          isCurrentUserComment: {
+            $cond: {
+              if: userObjectId ? { $eq: ["$userId", userObjectId] } : false,
+              then: 1,
+              else: 0
+            }
+          },
           creator: {
             $first: "$creator"
           },
@@ -256,6 +284,7 @@ class CommentController {
       },
       {
         $sort: {
+          isCurrentUserComment: -1,
           createdAt: -1
         }
       },
@@ -310,7 +339,8 @@ class CommentController {
         creator: {
           _id: user._id,
           avatar: user.avatar,
-          fullname: user.fullname
+          fullname: user.fullname,
+          username: user.username
         },
         read: false,
         createdAt: new Date(Date.now()),

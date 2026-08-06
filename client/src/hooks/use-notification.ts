@@ -1,12 +1,16 @@
 import { addNotification } from "@/store/reducers/notification";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 import { io } from "socket.io-client";
 const SOCKET_URL = process.env.WEB_SOCKET_URL;
 export default function useNotification() {
     const dispatch = useDispatch();
+    const userData = useSelector((state: RootState) => state.auth.userData);
 
     useEffect(() => {
+        if (!userData) return;
+
         const socket = io(SOCKET_URL, {
             withCredentials: true,
             transports: ["websocket"],
@@ -28,7 +32,7 @@ export default function useNotification() {
         return () => {
             socket.disconnect();
         };
-    }, [dispatch]);
+    }, [dispatch, userData]);
 
     return;
 }

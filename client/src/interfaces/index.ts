@@ -162,3 +162,50 @@ export interface IPostData {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export interface IStudioVideo {
+    _id: string;
+    title: string;
+    description: string;
+    source: string;
+    thumbnail: string;
+    visibility: string;
+    createdAt: Date;
+    likes: number;
+    views: number;
+    comments: number;
+}
+
+export interface IStudioShort {
+    _id: string;
+    title: string;
+    description: string;
+    source: string;
+    thumbnail: string;
+    visibility: string;
+    createdAt: string;
+    likes: number;
+    views: number;
+    comments: number;
+}
+
+export interface IStudioPost {
+    _id: string;
+    content: string;
+    imageUrl: string;
+    type: string;
+    visibility: string;
+    createdAt: string;
+    likes: number;
+    comments: number;
+}
+
+export interface IStudioPlaylist {
+    _id: string;
+    name: string;
+    description: string;
+    visibility: string;
+    updatedAt: string;
+    videoCount: number;
+    thumbnail: string;
+}

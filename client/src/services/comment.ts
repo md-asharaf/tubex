@@ -8,9 +8,10 @@ class CommentService {
         page: number,
         type: string,
         sentiment: string,
+        userId?: string,
     ) =>
         await axios.get(
-            `/comments/all-${type}-comments/${id}?page=${page}&sentiment=${sentiment}`
+            `/comments/all-${type}-comments/${id}?page=${page}&sentiment=${sentiment}${userId ? `&userId=${userId}` : ''}`
         );
     comment = async (id: string, content: string, type: string) =>
         await axios.post(`/comments/add-comment-to-${type}/${id}`, { content });

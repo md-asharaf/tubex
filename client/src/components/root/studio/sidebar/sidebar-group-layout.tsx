@@ -21,7 +21,12 @@ export const SidebarGroupLayout = ({
     options,
     children,
 }: SidebarGroupProps) => {
-    const { state } = useSidebar();
+    const { state, setOpenMobile, isMobile } = useSidebar();
+    const handleClick = () => {
+        if (isMobile) {
+            setOpenMobile(false);
+        }
+    };
     return (
         <SidebarGroup>
             <SidebarMenu>
@@ -39,7 +44,7 @@ export const SidebarGroupLayout = ({
                             tooltip={item.title}
                             asChild
                             isActive={false}
-                            onClick={() => {}}
+                            onClick={handleClick}
                         >
                             <Link
                                 to={item.url}
@@ -69,7 +74,7 @@ export const SidebarGroupLayout = ({
                         tooltip={"Exit Studio"}
                         asChild
                         isActive={false}
-                        onClick={() => {}}
+                        onClick={handleClick}
                     >
                         <Link
                             to="/"

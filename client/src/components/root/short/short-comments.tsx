@@ -45,7 +45,6 @@ export const ShortComments = ({
       return data.comment;
     },
     onSuccess: () => {
-      toast.success("Comment added");
       queryClient.invalidateQueries({
         queryKey: ["comments", shortId, filter],
       });

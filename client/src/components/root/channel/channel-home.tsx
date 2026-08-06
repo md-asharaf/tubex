@@ -52,13 +52,13 @@ export const ChannelHome = () => {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-10">
             {videos.length > 0 && (
-                <section className="space-y-3">
+                <section className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">Latest videos</h3>
+                        <h3 className="text-[16px] font-bold">Latest videos</h3>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8">
                         {videos.slice(0, 4).map((video) => (
                             <Link to={`/video/${video._id}`} key={video._id} className="block">
                                 <VideoCard video={video} playerRef={playerRef} />
@@ -69,11 +69,11 @@ export const ChannelHome = () => {
             )}
 
             {shorts.length > 0 && (
-                <section className="space-y-3">
+                <section className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">Latest shorts</h3>
+                        <h3 className="text-[16px] font-bold">Latest shorts</h3>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-8">
                         {shorts.slice(0, 5).map((short) => (
                             <Link to={`/short/${short._id}`} key={short._id} className="block">
                                 <ShortCard short={short} playerRef={playerRef} />
@@ -84,11 +84,11 @@ export const ChannelHome = () => {
             )}
 
             {posts.length > 0 && (
-                <section className="space-y-3">
+                <section className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">Latest posts</h3>
+                        <h3 className="text-[16px] font-bold">Latest posts</h3>
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         {posts.slice(0, 3).map((post) => (
                             <Link to={`/post/${post._id}`} key={post._id} className="block">
                                 <PostCard post={post} />

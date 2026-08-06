@@ -62,6 +62,19 @@ export const MobileNotifications = () => {
     },
   });
 
+  const handleNotificationClick = (notification: any) => {
+    markAsRead(notification.createdAt);
+    if (notification.video?._id) {
+      navigate(`/video/${notification.video._id}`);
+    } else if (notification.short?._id) {
+      navigate(`/short/${notification.short._id}`);
+    } else if (notification.post?._id) {
+      navigate(`/post/${notification.post._id}`);
+    } else if (notification.creator?.username) {
+      navigate(`/channel/${notification.creator.username}`);
+    }
+  };
+
   const {
     fetchNextPage,
     hasNextPage,
@@ -117,7 +130,7 @@ export const MobileNotifications = () => {
       <div
         key={index}
         ref={isLast ? ref : null}
-        onClick={() => markAsRead(notification.createdAt)}
+        onClick={() => handleNotificationClick(notification)}
         className="flex items-start py-4 px-2 hover:bg-gray-100 dark:hover:bg-[#282828] cursor-pointer"
       >
         {/* Unread indicator */}

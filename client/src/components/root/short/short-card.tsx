@@ -34,8 +34,8 @@ export const ShortCard = ({ short, playerRef }) => {
                 />
             )}
             <div className="space-y-1">
-                <p className="font-bold line-clamp-2">{short.title}</p>
-                <div className="text-sm">{`${short.views} views`}</div>
+                <p className="font-semibold text-[16px] leading-snug line-clamp-2">{short.title}</p>
+                <div className="text-[14px] text-muted-foreground">{`${short.views} views`}</div>
             </div>
         </div>
     );

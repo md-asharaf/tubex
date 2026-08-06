@@ -14,28 +14,50 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { studioService } from "@/services/studio";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { shortService } from "@/services/short";
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-interface Short {
-    _id: string;
-    title: string;
-    description: string;
-    source: string;
-    thumbnail: string;
-    visibility: string;
-    createdAt: string;
-    likes: number;
-    views: number;
-    comments: number;
-}
+import { useDispatch } from "react-redux";
+import { setAlertDialogData } from "@/store/reducers/ui";
+import { toast } from "sonner";
+import { queryClient } from "@/main";
+import { ThreeDots } from "@/components/root/three-dots";
+import { IStudioShort } from "@/interfaces";
 export const ContentShorts = () => {
     const { username } = useParams();
     const [page, setPage] = useState(1);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const { mutate: deleteShort } = useMutation({
+        mutationFn: async (shortId: string) => {
+            await shortService.deleteShort(shortId);
+        },
+        onSuccess: () => {
+            toast.success("Short deleted successfully");
+            queryClient.invalidateQueries({
+                queryKey: ["shorts", username],
+            });
+        },
+        onError: () => {
+            toast.error("Failed to delete short");
+        }
+    });
+
+    const handleDelete = (shortId: string) => {
+        dispatch(
+            setAlertDialogData({
+                open: true,
+                message: "Delete Short",
+                onConfirm: () => deleteShort(shortId),
+            })
+        );
+    };
+
     const { data: shortsPages } = useInfiniteQuery({
         queryKey: ["shorts", username, page],
-        queryFn: async ({ pageParam }): Promise<{docs:Short[],totalPages:number,hasNextPage:boolean}> => {
+        queryFn: async ({ pageParam }): Promise<{docs:IStudioShort[],totalPages:number,hasNextPage:boolean}> => {
             const data = await studioService.getUserShorts(username, pageParam);
             return data.shorts;
         },
@@ -57,6 +79,7 @@ export const ContentShorts = () => {
                         <TableHead>Views</TableHead>
                         <TableHead>Comments</TableHead>
                         <TableHead>Likes</TableHead>
+                        <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -87,6 +110,15 @@ export const ContentShorts = () => {
                             <TableCell>{short.views}</TableCell>
                             <TableCell>{short.comments}</TableCell>
                             <TableCell>{short.likes}</TableCell>
+                            <TableCell>
+                                <ThreeDots
+                                    videoId={short._id}
+                                    task={{
+                                        title: "Delete Forever",
+                                        handler: () => handleDelete(short._id),
+                                    }}
+                                />
+                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

@@ -63,7 +63,8 @@ class VideoController {
           creator: {
             _id: user._id,
             avatar: user.avatar,
-            fullname: user.fullname
+            fullname: user.fullname,
+            username: user.username
           },
           read: false,
           createdAt: new Date(Date.now()),

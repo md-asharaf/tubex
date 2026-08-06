@@ -56,7 +56,7 @@ export const VideoCard: React.FC<Props> = ({
                                 className={`w-full h-full object-cover rounded-xl`}
                                 loading="lazy"
                             />
-                            <p className="absolute right-[6px] bottom-2 bg-black bg-opacity-75 text-white text-[10px] font-bold px-2 py-[1px] rounded">
+                            <p className="absolute right-2 bottom-2 bg-black/80 text-white text-xs font-medium px-1.5 py-0.5 rounded">
                                 {formatDuration(video.duration)}
                             </p>
                         </div>
@@ -70,7 +70,7 @@ export const VideoCard: React.FC<Props> = ({
                                 playerRef={playerRef}
                                 controls={["progress"]}
                             />
-                            <p className="absolute right-[6px] bottom-2 bg-black bg-opacity-75 text-white text-[10px] font-bold px-2 py-[1px] rounded">
+                            <p className="absolute right-2 bottom-2 bg-black/80 text-white text-xs font-medium px-1.5 py-0.5 rounded">
                                 {formatDuration(video.duration)}
                             </p>
                             {putExtraOptions && (
@@ -109,7 +109,7 @@ export const VideoCard: React.FC<Props> = ({
                     )}
                 </div>
             </div>
-            <div className="flex space-x-3 dark:text-white items-start">
+            <div className="flex space-x-3 dark:text-white items-start mt-3">
                 {isAvatar && (
                     <AvatarImg
                         className="w-10 h-10 rounded-full object-cover aspect-square"
@@ -118,32 +118,34 @@ export const VideoCard: React.FC<Props> = ({
                     />
                 )}
                 <div className="flex-1 overflow-hidden">
-                    <p
-                        className={`font-bold line-clamp-2 ${
-                            !video.creator && "text-xs"
+                    <h3
+                        className={`font-semibold text-[16px] leading-snug line-clamp-2 ${
+                            !video.creator && "text-sm"
                         }`}
                     >
                         {video.title}
-                    </p>
-                    {video.creator && (
-                        <span
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                navigate(`/channel/${video.creator.username}`);
-                            }}
-                            className="font-semibold text-gray-500 dark:text-zinc-400 hover:text-black truncate cursor-pointer"
-                        >
-                            {video.creator.fullname}
-                        </span>
-                    )}
-                    <p className="text-gray-500 dark:text-zinc-300 text-xs truncate">
-                        {`${formatViews(
-                            video.views
-                        )} • ${formatDistanceToNowStrict(video.createdAt, {
-                            addSuffix: true,
-                        })}`}
-                    </p>
+                    </h3>
+                    <div className="flex flex-col mt-1">
+                        {video.creator && (
+                            <span
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    navigate(`/channel/${video.creator.username}`);
+                                }}
+                                className="font-normal text-[14px] text-muted-foreground hover:text-foreground truncate cursor-pointer"
+                            >
+                                {video.creator.fullname}
+                            </span>
+                        )}
+                        <p className="text-[14px] text-muted-foreground truncate">
+                            {`${formatViews(
+                                video.views
+                            )} • ${formatDistanceToNowStrict(video.createdAt, {
+                                addSuffix: true,
+                            })}`}
+                        </p>
+                    </div>
                 </div>
                 <button
                     onClick={(e) => {

@@ -92,13 +92,13 @@ const Replies = ({
     }) => await likeService.toggleLike(replyId, "reply"),
     onMutate: ({ index }) => {
       queryClient.cancelQueries({
-        queryKey: ["comments-like-status", commentId],
+        queryKey: ["replies-like-status", commentId],
       });
       queryClient.cancelQueries({
-        queryKey: ["comments-likes-count", commentId],
+        queryKey: ["replies-likes-count", commentId],
       });
       queryClient.setQueryData(
-        ["comments-like-status", commentId],
+        ["replies-like-status", commentId],
         (prev: boolean[]) => {
           const updatedLikes = [...prev];
           updatedLikes[index] = !updatedLikes[index];
@@ -106,7 +106,7 @@ const Replies = ({
         }
       );
       queryClient.setQueryData(
-        ["comments-likes-count", commentId],
+        ["replies-likes-count", commentId],
         (prev: number[]) => {
           const updatedLikes = [...prev];
           updatedLikes[index] += updatedLikes[index] ? -1 : 1;
@@ -116,13 +116,13 @@ const Replies = ({
     },
     onError: ({ message }, { index }) => {
       queryClient.cancelQueries({
-        queryKey: ["comments-like-status", commentId],
+        queryKey: ["replies-like-status", commentId],
       });
       queryClient.cancelQueries({
-        queryKey: ["comments-likes-count", commentId],
+        queryKey: ["replies-likes-count", commentId],
       });
       queryClient.setQueryData(
-        ["comments-like-status", commentId],
+        ["replies-like-status", commentId],
         (prev: boolean[]) => {
           const updatedLikes = [...prev];
           updatedLikes[index] = !updatedLikes[index];
@@ -130,7 +130,7 @@ const Replies = ({
         }
       );
       queryClient.setQueryData(
-        ["comments-likes-count", commentId],
+        ["replies-likes-count", commentId],
         (prev: number[]) => {
           const updatedLikes = [...prev];
           updatedLikes[index] += updatedLikes[index] ? -1 : 1;
@@ -142,12 +142,20 @@ const Replies = ({
   const { mutate: deleteReply, isPending: isDeletionPending } = useMutation({
     mutationFn: async (replyId: string) =>
       await replyService.deleteReply(replyId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["replies", commentId],
-        exact: true,
-      });
-      toast.success("Reply deleted");
+    onSuccess: (data, replyId) => {
+      queryClient.setQueryData(
+        ["replies", commentId],
+        (oldData: any) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page: any) => ({
+              ...page,
+              docs: page.docs.filter((reply: any) => reply._id !== replyId)
+            }))
+          };
+        }
+      );
     },
     onError: (error) => {
       toast.error(error.message);
@@ -157,12 +165,25 @@ const Replies = ({
   const { mutate: updateReply, isPending: isUpdationPending } = useMutation({
     mutationFn: async (content: string) =>
       await replyService.updateReply(editingReplyId, content),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["replies", commentId],
-        exact: true,
-      });
-      toast.success("Reply updated");
+    onSuccess: (_, content) => {
+      queryClient.setQueryData(
+        ["replies", commentId],
+        (oldData: any) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page: any) => ({
+              ...page,
+              docs: page.docs.map((reply: any) => {
+                if (reply._id === editingReplyId) {
+                  return { ...reply, content };
+                }
+                return reply;
+              })
+            }))
+          };
+        }
+      );
     },
     onSettled: () => {
       setEditingReplyId(null);
@@ -182,7 +203,6 @@ const Replies = ({
         queryKey: ["replies", commentId],
         exact: true,
       });
-      toast.success("Reply added");
     },
     onError: (error) => {
       toast.error(error.message);

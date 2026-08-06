@@ -1,10 +1,9 @@
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { toggleVideoModal } from "@/store/reducers/ui";
+import { toggleVideoModal, setCreatePlaylistDialog } from "@/store/reducers/ui";
 import { RootState } from "@/store/store";
 import {
   ListPlusIcon,
@@ -41,6 +40,7 @@ export const CreateDropdown = ({ isPlaylist = false }: CreateDropdownProps) => {
   }
   const onNewPlaylistClick = () => {
     setOpen(false);
+    dispatch(setCreatePlaylistDialog(true));
   }
 
   const triggerButton = (

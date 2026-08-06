@@ -28,7 +28,6 @@ export const ThreeDotContent = ({ videoId, task }) => {
             await userService.saveToWatchLater(videoId, "video");
         },
         onSuccess: () => {
-            toast.success("Saved to watch later");
             refetch();
         },
         onSettled: () => {
@@ -44,7 +43,6 @@ export const ThreeDotContent = ({ videoId, task }) => {
             await userService.removeFromWatchLater(videoId, "video");
         },
         onSuccess: () => {
-            toast.success("Removed from watch later");
             refetch();
         },
         onSettled: () => {

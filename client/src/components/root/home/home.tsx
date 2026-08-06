@@ -73,7 +73,7 @@ export const Home = () => {
         <FilterCarousel value={filter} setValue={setFilter} />
       </div>
       <div className="pt-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 sm:gap-y-2 w-full ">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-y-6 sm:gap-x-4 sm:gap-y-8 w-full">
           {videos?.map((video, i) => (
             <Link
               to={`/video/${video._id}`}
@@ -97,7 +97,7 @@ export const Home = () => {
                 <div className="font-bold text-2xl">Shorts</div>
               </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-y-2 w-full">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-2 gap-y-4 sm:gap-x-4 sm:gap-y-8 w-full">
               {shorts?.map((short) => (
                 <Link
                   to={`/short/${short._id}`}

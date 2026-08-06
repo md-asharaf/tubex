@@ -23,18 +23,7 @@ import { useDispatch } from "react-redux";
 import { setAlertDialogData } from "@/store/reducers/ui";
 import { toast } from "sonner";
 import { queryClient } from "@/main";
-interface Video {
-  _id: string;
-  title: string;
-  description: string;
-  source: string;
-  thumbnail: string;
-  visibility: string;
-  createdAt: Date;
-  likes: number;
-  views: number;
-  comments: number;
-}
+import { IStudioVideo } from "@/interfaces";
 export const ContentVideos = () => {
   const { username } = useParams();
   const [page, setPage] = useState(1);
@@ -68,7 +57,7 @@ export const ContentVideos = () => {
 
   const { data: videosPages } = useInfiniteQuery({
     queryKey: ["videos", username, page],
-    queryFn: async (): Promise<{ docs: Video[], totalPages: number, hasNextPage: boolean }> => {
+    queryFn: async (): Promise<{ docs: IStudioVideo[], totalPages: number, hasNextPage: boolean }> => {
       const data = await studioService.getUserVideos(username, page);
       return data.videos;
     },

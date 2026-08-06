@@ -1,3 +1,5 @@
+import { ListVideo } from "lucide-react";
+
 interface Props {
     playlistThumbnail: string;
     videosLength: number;
@@ -12,9 +14,12 @@ export const PlaylistCard: React.FC<Props> = ({ playlistThumbnail, videosLength 
                 loading="lazy"
                 alt="Empty playlist"
             />
-            <p className="absolute right-2 bottom-2 bg-black text-white text-xs font-bold py-1 px-2 rounded">
-                {`${videosLength || 0} videos`}
-            </p>
+            <div className="absolute inset-x-0 bottom-0 bg-black/60 text-white p-2 rounded-b-xl flex items-center justify-between backdrop-blur-sm">
+                <div className="flex items-center gap-1.5 font-medium text-xs">
+                    <ListVideo className="w-4 h-4" />
+                    <span>{`${videosLength || 0} videos`}</span>
+                </div>
+            </div>
         </div>
     );
 };

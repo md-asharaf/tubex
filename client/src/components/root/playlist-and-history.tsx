@@ -20,7 +20,7 @@ export const PlaylistNhistory = () => {
   const userData = useSelector((state: RootState) => state.auth.userData);
 
   const { data: subscriberCount } = useQuery({
-    queryKey: ["subscriberCount", userData?._id],
+    queryKey: ["subscribers-count", userData?._id],
     queryFn: async (): Promise<number> => {
       const data = await subService.getSubscribersCount(userData?._id);
       return data.subscribersCount;

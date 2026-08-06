@@ -59,9 +59,13 @@ import { PlaylistAnalytics } from "./components/root/studio/playlist/playlist-an
 import { PlaylistDetails } from "./components/root/studio/playlist/playlist-details";
 import { PostComments } from "./components/root/studio/post/post-comments";
 import { PostDetails } from "./components/root/studio/post/post-details";
+import useNotification from "./hooks/use-notification";
 
 function App() {
   const theme = useSelector((state: RootState) => state.theme.mode);
+  
+  useNotification();
+  
   useEffect(() => {
     document.body.classList.remove("dark", "light");
     document.body.classList.add(theme);

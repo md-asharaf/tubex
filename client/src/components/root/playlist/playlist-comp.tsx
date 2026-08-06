@@ -56,7 +56,6 @@ export const PlaylistComp: React.FC<Props> = ({ playlist }) => {
             await playlistService.removeFromPlaylist(playlistId, videoId, "video");
         },
         onMutate: ({ videoId }) => {
-            toast.success(`Removed from ${playlist.name}`);
             let video;
             let index;
             playlist.videos = playlist.videos.filter((v, i) => {
@@ -78,7 +77,6 @@ export const PlaylistComp: React.FC<Props> = ({ playlist }) => {
             await likeService.toggleLike(videoId, "video");
         },
         onMutate: (videoId) => {
-            toast.success(`Removed from liked videos`);
             let video;
             let index;
             playlist.videos = playlist.videos.filter((v, i) => {
@@ -205,10 +203,10 @@ export const PlaylistComp: React.FC<Props> = ({ playlist }) => {
                                 </div>
 
                                 <div className="flex-1 min-w-0 flex flex-col justify-start">
-                                    <h3 className="text-sm sm:text-base font-semibold text-foreground line-clamp-2 leading-tight mb-1">
+                                    <h3 className="font-semibold text-[16px] leading-snug text-foreground line-clamp-2 mb-1">
                                         {video.title}
                                     </h3>
-                                    <div className="flex flex-col sm:flex-row sm:items-center text-xs sm:text-sm text-muted-foreground line-clamp-2">
+                                    <div className="flex flex-col sm:flex-row sm:items-center text-[14px] font-normal text-muted-foreground line-clamp-2">
                                         <span>{video.creator.fullname}</span>
                                         <span className="hidden sm:inline mx-1.5">•</span>
                                         <span>

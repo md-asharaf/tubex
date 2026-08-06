@@ -14,30 +14,54 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { studioService } from "@/services/studio";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { playlistService } from "@/services/playlist";
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
+import { useDispatch } from "react-redux";
+import { setAlertDialogData } from "@/store/reducers/ui";
+import { toast } from "sonner";
+import { queryClient } from "@/main";
+import { ThreeDots } from "@/components/root/three-dots";
 import { AlignJustifyIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-interface Playlist {
-  _id: string;
-  name: string;
-  description: string;
-  visibility: string;
-  updatedAt: string;
-  videoCount: number;
-  thumbnail: string;
-}
+import { IStudioPlaylist } from "@/interfaces";
 export const ContentPlaylists = () => {
   const { username } = useParams();
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { mutate: deletePlaylist } = useMutation({
+    mutationFn: async (playlistId: string) => {
+      await playlistService.deletePlaylist(playlistId);
+    },
+    onSuccess: () => {
+      toast.success("Playlist deleted successfully");
+      queryClient.invalidateQueries({
+        queryKey: ["playlists", username],
+      });
+    },
+    onError: () => {
+      toast.error("Failed to delete playlist");
+    }
+  });
+
+  const handleDelete = (playlistId: string) => {
+    dispatch(
+      setAlertDialogData({
+        open: true,
+        message: "Delete Playlist",
+        onConfirm: () => deletePlaylist(playlistId),
+      })
+    );
+  };
 
   const { data: playlistsPages } = useInfiniteQuery({
     queryKey: ["playlists", username, page],
     queryFn: async ({
       pageParam,
     }): Promise<{
-      docs: Playlist[];
+      docs: IStudioPlaylist[];
       totalPages: number;
       hasNextPage: boolean;
     }> => {
@@ -60,6 +84,7 @@ export const ContentPlaylists = () => {
             <TableHead>Visibility</TableHead>
             <TableHead>Last Updated</TableHead>
             <TableHead>Video Count</TableHead>
+            <TableHead className="w-[50px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -101,6 +126,15 @@ export const ContentPlaylists = () => {
                 })}
               </TableCell>
               <TableCell>{playlist.videoCount}</TableCell>
+              <TableCell>
+                <ThreeDots
+                  videoId={playlist._id}
+                  task={{
+                    title: "Delete Forever",
+                    handler: () => handleDelete(playlist._id),
+                  }}
+                />
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

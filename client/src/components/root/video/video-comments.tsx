@@ -32,7 +32,6 @@ export const VideoComments = ({ videoId, playerRef, creatorId, isDrawer = false,
       return data.comment;
     },
     onSuccess: () => {
-      toast.success("Comment added");
       queryClient.invalidateQueries({
         queryKey: ["comments", videoId, filter],
       });

@@ -24,5 +24,7 @@ class ShortSevice {
   updateShort = async (shortId: string, data: any) =>
     await axios.patch(`/shorts/update-short/${shortId}`, data);
   randomShort = async () => await axios.get("/shorts/random-short");
+  deleteShort = async (shortId: string) =>
+    await axios.delete(`/shorts/delete-short/${shortId}`);
 }
 export const shortService = new ShortSevice();
