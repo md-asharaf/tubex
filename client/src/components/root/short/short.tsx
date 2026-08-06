@@ -240,31 +240,34 @@ export const Short = () => {
       playerRef.current.volume = volume / 100;
     }
   }, [volume]);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const touchStartRef = useRef<number | null>(null);
+  const touchEndRef = useRef<number | null>(null);
 
   const minSwipeDistance = 50;
 
   const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientY);
+    touchEndRef.current = null;
+    touchStartRef.current = e.targetTouches[0].clientY;
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientY);
+    touchEndRef.current = e.targetTouches[0].clientY;
   };
 
   const onTouchEnd = () => {
-    if (!touchStart) return;
+    if (touchStartRef.current === null) return;
 
-    if (!touchEnd) {
+    if (touchEndRef.current === null) {
       togglePlayPause();
+      touchStartRef.current = null;
       return;
     }
 
-    const distance = touchStart - touchEnd;
+    const distance = touchStartRef.current - touchEndRef.current;
     if (Math.abs(distance) < 10) {
       togglePlayPause();
+      touchStartRef.current = null;
+      touchEndRef.current = null;
       return;
     }
     const isUpSwipe = distance > minSwipeDistance;
@@ -276,6 +279,9 @@ export const Short = () => {
     if (isDownSwipe && short.prev) {
       navigate(`/short/${short.prev}`, { replace: true });
     }
+    
+    touchStartRef.current = null;
+    touchEndRef.current = null;
   };
 
   if (isLoading || !short) {
