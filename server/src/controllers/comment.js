@@ -5,6 +5,7 @@ import { Comment } from "../models/comment.js";
 import { Video } from "../models/video.js";
 import { publishNotification } from "../lib/kafka/producer.js";
 import { Short } from "../models/short.js";
+import { Post } from "../models/post.js";
 import { Types } from "mongoose"
 const ObjectId = Types.ObjectId;
 class CommentController {
@@ -189,7 +190,7 @@ class CommentController {
     }
     //publishing notification
     const short = await Short.findById(shortId);
-    if (!short.userId.equals(user._id)) {
+    if (short && !short.userId.equals(user._id)) {
       const message = `@${user.username} commented: "${content}"`;
       publishNotification({
         userId: short.userId,
@@ -213,16 +214,126 @@ class CommentController {
       .status(201)
       .json(new ApiResponse(201, { comment }, "Comment created successfully"));
   });
+
+  getAllPostComments = asyncHandler(async (req, res) => {
+    const { postId } = req.params;
+    const { page = 1, limit = 10, sentiment = 'All' } = req.query;
+    if (!postId) {
+      throw new ApiError(400, "Post ID is required")
+    }
+    const aggregate = Comment.aggregate([
+      {
+        $match: {
+          postId: new ObjectId(postId),
+          sentiment: sentiment === 'All' ? { $exists: true } : sentiment
+        }
+      },
+      {
+        $lookup: {
+          from: "replies",
+          localField: "_id",
+          foreignField: "commentId",
+          as: "replies"
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "creator"
+        }
+      },
+      {
+        $addFields: {
+          creator: {
+            $first: "$creator"
+          },
+          repliesCount: {
+            $size: "$replies"
+          }
+        }
+      },
+      {
+        $sort: {
+          createdAt: -1
+        }
+      },
+      {
+        $project: {
+          content: 1,
+          sentiment: 1,
+          createdAt: 1,
+          creator: {
+            username: 1,
+            fullname: 1,
+            avatar: 1
+          },
+          repliesCount: 1,
+        }
+      }
+    ])
+    const options = {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10)
+    };
+    const comments = await Comment.aggregatePaginate(aggregate, options).catch((error) => {
+      throw new ApiError(500, error?.message || "Failed to fetch comments")
+    });
+    return res.status(200).json(new ApiResponse(200, { comments }, "Comments fetched successfully"))
+  })
+
+  addCommentToPost = asyncHandler(async (req, res) => {
+    const { content, sentiment } = req.body;
+    const { postId } = req.params;
+    const user = req.user;
+
+    if (!content || !postId || !sentiment) {
+      throw new ApiError(400, "Content, postId, and sentiment are required");
+    }
+    const comment = await Comment.create({
+      content,
+      postId,
+      userId: user._id,
+      sentiment,
+    });
+    if (!comment) {
+      throw new ApiError(500, "Comment could not be created");
+    }
+    //publishing notification
+    const post = await Post.findById(postId);
+    if (post && !post.userId.equals(user._id)) {
+      const message = `@${user.username} commented: "${content}"`;
+      publishNotification({
+        userId: post.userId,
+        message,
+        creator: {
+          _id: user._id,
+          avatar: user.avatar,
+          fullname: user.fullname
+        },
+        read: false,
+        createdAt: new Date(Date.now()),
+      });
+    }
+    //end
+
+    return res
+      .status(201)
+      .json(new ApiResponse(201, { comment }, "Comment created successfully"));
+  });
   commentsCount = asyncHandler(async (req, res) => {
-    const { videoId, shortId } = req.query;
-    if (!videoId && !shortId) {
-      throw new ApiError(400, "video id or short id is required")
+    const { videoId, shortId, postId } = req.query;
+    if (!videoId && !shortId && !postId) {
+      throw new ApiError(400, "video id, short id, or post id is required")
     }
     let commentsCount = 0;
     if (videoId) {
       commentsCount = await Comment.countDocuments({ videoId: new ObjectId(videoId) })
-    } else {
+    } else if (shortId) {
       commentsCount = await Comment.countDocuments({ shortId: new ObjectId(shortId) })
+    } else if (postId) {
+      commentsCount = await Comment.countDocuments({ postId: new ObjectId(postId) })
     }
     return res.status(200).json(new ApiResponse(200, { commentsCount }, "comments count fetched successfully"))
   })

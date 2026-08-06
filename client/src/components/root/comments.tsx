@@ -252,7 +252,7 @@ export const Comments: React.FC<CommentProps> = ({
       </div>
     );
   return (
-    <div className="flex flex-col mt-4 space-y-4 sm:space-y-5 w-full max-w-[736px]">
+    <div className="flex flex-col mt-4 space-y-4 sm:space-y-5 w-full">
       {comments?.map((comment, index) => {
         const sentiment = comment.sentiment?.toLowerCase();
         return (

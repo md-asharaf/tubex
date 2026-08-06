@@ -33,7 +33,7 @@ export const CreatePost = () => {
     >("text");
     const [data, setData] = useState<any>({ text: "" });
 
-    const { fullname, avatar } =
+    const { fullname, avatar, username } =
         useSelector((state: RootState) => state.auth.userData) || {};
 
     const generateAndUploadToPresignedUrl = async (
@@ -176,7 +176,9 @@ export const CreatePost = () => {
                                 fullname={fullname}
                                 className="w-10 h-10"
                             />
-                            <h1>{fullname}</h1>
+                            <div className="flex flex-col">
+                                <span className="font-bold text-[14px]">@{username}</span>
+                            </div>
                         </div>
                         <div className="text-muted-foreground">
                             Visibility: Public

@@ -11,7 +11,8 @@ if [ -z "$FILE_KEY" ] || [ -z "$INPUT_BUCKET" ] || [ -z "$OUTPUT_BUCKET" ] || [ 
 fi
 
 # Define base name from the FILE_KEY
-BASE_NAME=$(basename "$FILE_KEY" .mp4)
+FILENAME=$(basename "$FILE_KEY")
+BASE_NAME="${FILENAME%.*}"
 
 # Define input and output paths
 INPUT_FILE="https://s3.ap-south-1.amazonaws.com/${INPUT_BUCKET}/${FILE_KEY}"

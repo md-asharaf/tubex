@@ -7,6 +7,8 @@ const router = Router();
 
 router.get("/all-posts/:username", postController.getUserPosts);
 router.post("/create-post", limiter(10), verifyJWT, postController.createPost);
+router.get("/:postId", postController.getPostById);
+
 router.use(verifyJWT);
 router.patch("/update-post/:postId", postController.updatePost);
 router.delete("/delete-post/:postId", postController.deletePost);

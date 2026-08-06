@@ -80,7 +80,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
 
   return (
     <div className="flex gap-y-1 flex-col justify-start w-full">
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-3 w-full">
         {!hideAvatar && (
           <AvatarImg
             className={`mt-0.5 ${submitLabel == "Comment"
@@ -91,7 +91,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
             avatar={userAvatar}
           />
         )}
-        <div className="flex-1 bg-gray-200 dark:bg-[#272727] sm:bg-transparent rounded-[18px] sm:rounded-none px-4 py-1.5 sm:px-0 sm:py-0 sm:border-b sm:border-gray-500 sm:focus-within:border-gray-400 transition-all flex items-center min-h-[36px]">
+        <div className="flex-1 bg-gray-200 dark:bg-[#272727] sm:bg-transparent sm:dark:bg-transparent rounded-[18px] sm:rounded-none px-4 py-1.5 sm:px-0 sm:py-0 sm:border-b sm:border-gray-500 sm:focus-within:border-gray-400 transition-all flex items-center min-h-[36px] w-full">
           <textarea
             ref={textareaRef}
             value={content}
@@ -126,7 +126,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
         </div>
       </div>
       {(isInputFocused || content) && (
-        <div className="hidden sm:flex ml-12 space-x-2 justify-between items-start mt-2">
+        <div className={`hidden sm:flex space-x-2 justify-between items-start mt-2 w-full ${!hideAvatar ? 'pl-[52px]' : ''}`}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild className="focus:outline-none">
               <Button

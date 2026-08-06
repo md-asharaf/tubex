@@ -207,29 +207,33 @@ class LikeController {
     return res.status(200).json(new ApiResponse(200, null, `${dbLike ? "unliked" : "liked"} reply`))
   })
   likesCount = asyncHandler(async (req, res) => {
-    const { videoId, shortId } = req.query;
-    if (!videoId && !shortId) {
-      throw new ApiError(400, "video id or short id is required")
+    const { videoId, shortId, postId } = req.query;
+    if (!videoId && !shortId && !postId) {
+      throw new ApiError(400, "video id, short id, or post id is required")
     }
     let likesCount = 0;
     if (videoId) {
       likesCount = await Like.countDocuments({ videoId })
-    } else {
+    } else if (shortId) {
       likesCount = await Like.countDocuments({ shortId })
+    } else if (postId) {
+      likesCount = await Like.countDocuments({ postId })
     }
     return res.status(200).json(new ApiResponse(200, { likesCount }, "likes fetched successfully"))
   })
   isLiked = asyncHandler(async (req, res) => {
-    const { videoId, shortId } = req.query;
+    const { videoId, shortId, postId } = req.query;
     const userId = req.user?._id;
-    if (!videoId && !shortId) throw new ApiError(400, "video id or short id is required");
+    if (!videoId && !shortId && !postId) throw new ApiError(400, "video id, short id, or post id is required");
     let isLiked = false;
     if (videoId) {
       isLiked = await Like.findOne({ videoId: new ObjectId(videoId), userId });
-    } else {
+    } else if (shortId) {
       isLiked = await Like.findOne({ shortId: new ObjectId(shortId), userId });
+    } else if (postId) {
+      isLiked = await Like.findOne({ postId: new ObjectId(postId), userId });
     }
-    return res.status(200).json(new ApiResponse(200, { isLiked }, `user has${isLiked ? "" : " not"} liked this video`))
+    return res.status(200).json(new ApiResponse(200, { isLiked: !!isLiked }, "is liked fetched successfully"));
   })
   videoCommentsLikeCount = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
@@ -250,6 +254,16 @@ class LikeController {
     let likesCount = [];
     for (let comment of comments) { likesCount.push(await Like.countDocuments({ commentId: comment._id })) }
     return res.status(200).json(new ApiResponse(200, { likesCount }, "short comments like count fetched successfully"))
+  })
+  postCommentsLikeCount = asyncHandler(async (req, res) => {
+    const { postId } = req.params;
+    if (!postId) throw new ApiError(400, "post id is required");
+    const comments = await Comment.find({
+      postId: new ObjectId(postId),
+    })
+    let likesCount = [];
+    for (let comment of comments) { likesCount.push(await Like.countDocuments({ commentId: comment._id })) }
+    return res.status(200).json(new ApiResponse(200, { likesCount }, "post comments like count fetched successfully"))
   })
   commentRepliesLikeCount = asyncHandler(async (req, res) => {
     const { commentId } = req.params;
@@ -286,6 +300,19 @@ class LikeController {
       likedStatus.push(await Like.findOne({ commentId: comment._id, userId }) ?? false)
     }
     return res.status(200).json(new ApiResponse(200, { likedStatus }, "liked status of short comments fetched successfully"))
+  })
+  likedStatusofPostComments = asyncHandler(async (req, res) => {
+    const { postId } = req.params;
+    const userId = req.user?._id;
+    if (!postId) throw new ApiError(400, "post id is required");
+    const comments = await Comment.find({
+      postId: new ObjectId(postId)
+    })
+    let likedStatus = [];
+    for (let comment of comments) {
+      likedStatus.push(await Like.findOne({ commentId: comment._id, userId }) ?? false)
+    }
+    return res.status(200).json(new ApiResponse(200, { likedStatus }, "liked status of post comments fetched successfully"))
   })
   likedStatusofCommentReplies = asyncHandler(async (req, res) => {
     const { commentId } = req.params;

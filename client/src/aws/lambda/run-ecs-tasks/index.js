@@ -98,7 +98,7 @@ const startEcsTasks = async (isShort, height, width, file_key, input_bucket, id)
     } else {
       console.log('Video is a regular video, starting transcoding tasks for multiple resolutions...');
       const filteredResolutions = resolutions.filter(
-        (resolution) => resolution.height <= parseInt(maxHeight)
+        (resolution) => resolution.height <= parseInt(height)
       );
 
       const transcodingPromises = filteredResolutions.map((resolution) => {

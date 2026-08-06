@@ -3,14 +3,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-  DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { toggleVideoModal } from "@/store/reducers/ui";
 import { RootState } from "@/store/store";
 import {
   ListPlusIcon,
   Plus,
-  PlusCircle,
   SquarePenIcon,
   SquarePlayIcon,
 } from "lucide-react";

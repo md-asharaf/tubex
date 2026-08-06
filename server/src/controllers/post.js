@@ -1,6 +1,7 @@
 import { asyncHandler } from "../utils/handler.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { ApiError } from "../utils/api-error.js";
+import mongoose from "mongoose";
 import { Post } from "../models/post.js";
 import { Subscription } from "../models/subscription.js";
 import { publishNotification } from "../lib/kafka/producer.js";
@@ -152,9 +153,57 @@ class PostController {
         $match: {
           userId: user._id
         }
+      },
+      {
+        $sort: {
+          createdAt: -1
+        }
       }
     ])
     return res.status(200).json(new ApiResponse(200, { posts }, "Posts fetched successfully"))
+  })
+
+  getPostById = asyncHandler(async (req, res) => {
+    const { postId } = req.params;
+    if (!postId) {
+      throw new ApiError(400, "Post id is required");
+    }
+
+    const post = await Post.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(postId)
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "creator",
+          pipeline: [
+            {
+              $project: {
+                username: 1,
+                fullname: 1,
+                avatar: 1
+              }
+            }
+          ]
+        }
+      },
+      {
+        $addFields: {
+          creator: { $first: "$creator" }
+        }
+      }
+    ]);
+
+    if (!post || post.length === 0) {
+      throw new ApiError(404, "Post not found");
+    }
+
+    return res.status(200).json(new ApiResponse(200, { post: post[0] }, "Post fetched successfully"));
   })
 }
 

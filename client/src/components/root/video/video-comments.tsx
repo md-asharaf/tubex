@@ -47,7 +47,7 @@ export const VideoComments = ({ videoId, playerRef, creatorId }) => {
     return (
         <div className="space-y-2 flex flex-col h-full relative">
             <div className="flex sm:space-x-16 items-center justify-between sm:justify-normal px-1 sm:px-0 mb-3 sm:mb-0">
-                <div className="font-bold text-[18px] sm:text-2xl text-foreground sm:text-zinc-600 sm:dark:text-zinc-300 sm:mb-2">
+                <div className="font-bold text-[18px] sm:text-2xl text-foreground sm:text-zinc-600 sm:dark:text-zinc-300">
                     <span className="sm:hidden">Comments</span>
                     <span className="hidden sm:inline">{`${totalComments} Comments`}</span>
                 </div>

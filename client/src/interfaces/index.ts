@@ -157,6 +157,7 @@ export interface IPostData {
     correct?: number;
     explanation?: string;
     images?: string;
+    video?: string | IVideoData;
     creator: IUser;
     createdAt: Date;
     updatedAt: Date;

@@ -15,13 +15,14 @@ async function getVideoMetadata(Bucket,Key) {
     return data.Metadata;
 }
 module.exports.handler = async (event) => {
+    let id = "unknown";
     try {
         const eventBody = event.Records[0];
         const FILE_KEY = eventBody.s3.object.key;
         const INPUT_BUCKET = eventBody.s3.bucket.name;
         const audio_url = `https://${INPUT_BUCKET}.s3.amazonaws.com/${FILE_KEY}`;
         const metadata = await getVideoMetadata(INPUT_BUCKET,FILE_KEY);
-        const id = metadata.shortid || metadata.videoid;
+        id = metadata.shortid || metadata.videoid;
         console.log({
             FILE_KEY,
             INPUT_BUCKET,

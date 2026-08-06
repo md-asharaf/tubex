@@ -27,6 +27,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { shortService } from "@/services/short";
 import { commentService } from "@/services/comment";
 import { subService } from "@/services/subscription";
+import { userService } from "@/services/user";
 import { IShortData, IComment } from "@/interfaces";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
@@ -189,8 +190,30 @@ export const Short = () => {
         ["is-liked", shortId],
         (prevData: boolean) => !prevData
       );
+      queryClient.setQueryData(
+        ["is-liked", shortId],
+        (prevData: boolean) => !prevData
+      );
     },
   });
+
+  const { mutate: incrementViews } = useMutation({
+    mutationFn: async ({ shortId }: { shortId: string }) =>
+      await shortService.incrementViews(shortId),
+  });
+
+  const { mutate: addToWatchHistory } = useMutation({
+    mutationFn: async () => {
+      await userService.addToWatchHistory(shortId as string, "short");
+    },
+  });
+
+  const onViewTracked = () => {
+    incrementViews({ shortId: shortId as string });
+    if (!userId) return;
+    addToWatchHistory();
+  };
+
   const enterFullscreen = () => {
     if (playerRef.current) {
       playerRef.current.fullscreen.enter();
@@ -242,7 +265,7 @@ export const Short = () => {
             minWatchTime={10}
             source={short.source}
             playerRef={playerRef}
-            onViewTracked={() => { }}
+            onViewTracked={onViewTracked}
             controls={[]}
             className="w-full h-full object-cover"
             subtitle={short.subtitle}
@@ -382,7 +405,7 @@ export const Short = () => {
             minWatchTime={10}
             source={short.source}
             playerRef={playerRef}
-            onViewTracked={() => { }}
+            onViewTracked={onViewTracked}
             controls={[]}
             className="w-full h-full object-cover"
             subtitle={short.subtitle}
