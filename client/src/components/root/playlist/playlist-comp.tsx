@@ -37,6 +37,7 @@ export const PlaylistComp: React.FC<Props> = ({ playlist }) => {
         image.src = playlist.videos[0].thumbnail;
 
         image.onload = () => {
+            // @ts-ignore
             const colorThief = new ColorThief();
             try {
                 const dominantColor = colorThief.getColor(image);

@@ -88,19 +88,19 @@ axiosInstance.interceptors.response.use(
 );
 class Axios {
     get<T = any>(url: string): Promise<T> {
-        return axiosInstance.get(url);
+        return axiosInstance.get(url) as unknown as Promise<T>;
     }
     post<T = any>(url: string, data?: any): Promise<T> {
-        return axiosInstance.post(url, data);
+        return axiosInstance.post(url, data) as unknown as Promise<T>;
     }
     put<T = any>(url: string, data?: any): Promise<T> {
-        return axiosInstance.put(url, data);
+        return axiosInstance.put(url, data) as unknown as Promise<T>;
     }
     patch<T = any>(url: string, data?: any): Promise<T> {
-        return axiosInstance.patch(url, data);
+        return axiosInstance.patch(url, data) as unknown as Promise<T>;
     }
     delete<T = any>(url: string): Promise<T> {
-        return axiosInstance.delete(url);
+        return axiosInstance.delete(url) as unknown as Promise<T>;
     }
 }
 
