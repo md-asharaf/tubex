@@ -1,4 +1,3 @@
-import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser"
@@ -22,17 +21,17 @@ const ORIGIN = process.env.CLIENT_URL
 const app = express();
 
 app.use(cors({
-    origin: [ORIGIN],
-    credentials: true
+  origin: [ORIGIN],
+  credentials: true
 }))
 
 app.use(bodyParser.json({
-    limit: "30mb"
+  limit: "30mb"
 }))
 
 app.use(bodyParser.urlencoded({
-    limit: "30mb",
-    extended: true
+  limit: "30mb",
+  extended: true
 }))
 
 app.use(express.json());
@@ -65,7 +64,7 @@ app.use('/api/v1/replies', replyRoutes)
 
 app.use('/api/v1/studio', studioRoutes)
 
-app.use("/api/v1/webhooks",webhookRoutes)
+app.use("/api/v1/webhooks", webhookRoutes)
 
 app.use(errorHandler)
 

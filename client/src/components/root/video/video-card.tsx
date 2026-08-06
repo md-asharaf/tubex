@@ -70,6 +70,8 @@ export const VideoCard: React.FC<Props> = ({
                                 playerRef={playerRef}
                                 controls={["progress"]}
                             />
+                            {/* Click shield to allow navigation */}
+                            <div className="absolute inset-0 z-10 cursor-pointer" />
                             <p className="absolute right-2 bottom-2 bg-black/80 text-white text-xs font-medium px-1.5 py-0.5 rounded">
                                 {formatDuration(video.duration)}
                             </p>

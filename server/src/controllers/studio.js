@@ -249,11 +249,23 @@ class StudioController {
         return res.end();
       }
 
-      const splits = document.source.split('/');
+      const url = new URL(document.source);
+      const bucketName = url.hostname.split('.')[0];
+      const key = url.pathname.slice(1);
+      const splits = key.split('/');
       splits.pop();
       const subtitlePath = `${splits.join('/')}/subtitle.vtt`;
 
-      const subtitleText = await getObjectAsString(subtitlePath);
+      let subtitleText;
+      try {
+        subtitleText = await getObjectAsString(subtitlePath, bucketName);
+      } catch (err) {
+        if (err.name === 'NoSuchKey') {
+          throw new ApiError(404, "Subtitle file not found on the server. The AI cannot generate metadata.");
+        }
+        throw err;
+      }
+
       if (!subtitleText) {
         throw new ApiError(500, "Failed to fetch subtitle content");
       }

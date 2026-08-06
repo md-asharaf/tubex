@@ -255,8 +255,18 @@ export const Short = () => {
   };
 
   const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
+    if (!touchStart) return;
+
+    if (!touchEnd) {
+      togglePlayPause();
+      return;
+    }
+
     const distance = touchStart - touchEnd;
+    if (Math.abs(distance) < 10) {
+      togglePlayPause();
+      return;
+    }
     const isUpSwipe = distance > minSwipeDistance;
     const isDownSwipe = distance < -minSwipeDistance;
 
@@ -285,7 +295,7 @@ export const Short = () => {
         onTouchEnd={onTouchEnd}
       >
         {/* Video Player */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0" onClick={togglePlayPause}>
           <PlyrPlayer
             thumbnail={short.thumbnail}
             key={shortId}
@@ -393,7 +403,7 @@ export const Short = () => {
   return (
     <div className="flex items-start justify-center w-full sm:px-4 py-4 overflow-x-hidden h-[calc(100dvh-120px)] sm:h-[calc(100dvh-80px)] sm:gap-20 lg:gap-24 xl:gap-28">
       <div className="flex relative rounded-lg shadow-lg group w-full sm:w-[450px] h-full justify-center">
-        <div className="relative w-full h-full bg-black sm:rounded-lg overflow-hidden">
+        <div className="relative w-full h-full bg-black sm:rounded-lg overflow-hidden" onClick={togglePlayPause}>
           <PlyrPlayer
             thumbnail={short.thumbnail}
             key={shortId}
@@ -409,7 +419,10 @@ export const Short = () => {
             <div className="flex space-x-2">
               <button
                 className="p-3 hover:bg-opacity-50 bg-opacity-60 bg-[#676D72] text-white rounded-full transition"
-                onClick={togglePlayPause}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  togglePlayPause();
+                }}
               >
                 {isPlaying ? (
                   <Pause size={20} className="text-white" />
@@ -421,24 +434,18 @@ export const Short = () => {
                 className="flex space-x-2 p-3 hover:bg-opacity-50 bg-opacity-60 bg-[#676D72] text-white rounded-full transition items-center"
                 onMouseEnter={() => setIsVolumeHovered(true)}
                 onMouseLeave={() => setIsVolumeHovered(false)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMuted(!isMuted);
+                }}
               >
                 {isMuted ? (
-                  <VolumeX
-                    size={20}
-                    onClick={() => {
-                      setIsMuted(false);
-                    }}
-                  />
+                  <VolumeX size={20} />
                 ) : (
-                  <Volume2
-                    size={20}
-                    onClick={() => {
-                      setIsMuted(true);
-                    }}
-                  />
+                  <Volume2 size={20} />
                 )}
                 {isVolumeHovered && (
-                  <div className="relative flex items-center">
+                  <div className="relative flex items-center" onClick={(e) => e.stopPropagation()}>
                     <input
                       type="range"
                       min="0"

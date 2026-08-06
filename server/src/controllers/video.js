@@ -9,7 +9,9 @@ import { Subscription } from "../models/subscription.js"
 import { publishNotification } from "../lib/kafka/producer.js";
 import { getCache, setCache } from "../lib/redis.js";
 import { Types } from "mongoose"
-import { deleteS3Folder, OUTPUT_BUCKET } from "../lib/s3-client.js";
+import { deleteS3Folder } from "../lib/s3-client.js";
+import { logger } from "../utils/logger.js";
+const OUTPUT_BUCKET = process.env.OUTPUT_BUCKET;
 const ObjectId = Types.ObjectId;
 class VideoController {
   publishVideo = asyncHandler(async (req, res) => {
@@ -81,6 +83,10 @@ class VideoController {
   })
 
   deleteVideo = asyncHandler(async (req, res) => {
+    if (!OUTPUT_BUCKET) {
+      logger.warn("OUTPUT_BUCKET is not defined");
+      throw new ApiError(500, "OUTPUT_BUCKET is not defined");
+    }
     const { videoId } = req.params;
     const userId = req.user?._id;
     if (!videoId) throw new ApiError(400, "video id is required")
@@ -105,7 +111,6 @@ class VideoController {
       }
     } catch (s3Error) {
       console.error("Error deleting video from S3:", s3Error);
-      // We continue deleting the db record even if S3 deletion fails to prevent ghost records
     }
 
     await Video.findByIdAndDelete(video._id);

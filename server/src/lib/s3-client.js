@@ -10,7 +10,8 @@ import {
   DeleteObjectsCommand
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-
+import { logger } from "../utils/logger.js";
+import { ApiError } from "../utils/api-error.js";
 const s3Client = new S3Client({
   region: "ap-south-1",
   credentials: {
@@ -19,9 +20,11 @@ const s3Client = new S3Client({
   },
 });
 
-export const OUTPUT_BUCKET = process.env.OUTPUT_BUCKET;
-export const INPUT_BUCKET = process.env.INPUT_BUCKET;
-const BUCKET_NAME = OUTPUT_BUCKET;
+const BUCKET_NAME = process.env.OUTPUT_BUCKET;
+if (!BUCKET_NAME) {
+  logger.warn("OUTPUT_BUCKET is not defined");
+  throw new ApiError(500, "OUTPUT_BUCKET is not defined");
+}
 
 const generatePresignedUrlForPartUpload = async (uploadId, partNumber, Key) => {
   try {
@@ -111,10 +114,10 @@ export const putObjectUrl = async (fileKey, contentType, type = "", id = "") => 
   }
 }
 
-export const getObjectAsString = async (Key) => {
+export const getObjectAsString = async (Key, bucket = process.env.OUTPUT_BUCKET) => {
   try {
     const command = new GetObjectCommand({
-      Bucket: BUCKET_NAME,
+      Bucket: bucket,
       Key,
     });
     const response = await s3Client.send(command);

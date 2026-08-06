@@ -41,7 +41,7 @@ export const PlyrPlayer = ({
           enabled: !!thumbnailPreviews,
           src: thumbnailPreviews,
         },
-        tooltips: { controls: true, seek: true },
+        tooltips: { controls: true, seek: true }
       };
 
       if (!Hls.isSupported()) {
