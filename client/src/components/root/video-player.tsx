@@ -15,6 +15,8 @@ export const PlyrPlayer = ({
   controls,
   thumbnail,
   onEnded = () => { },
+  trackProgressId = null,
+  userId = null,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
@@ -29,9 +31,58 @@ export const PlyrPlayer = ({
     "5000000": 1080,
   };
   useEffect(() => {
+    let isMounted = true;
+
     const initializePlayer = () => {
       const video = videoRef.current;
       if (!video) return;
+
+      const setupProgressTracking = (player: any) => {
+        if (!trackProgressId) return;
+        const storageKey = `video-progress-${userId || 'guest'}`;
+
+        const handleRestore = () => {
+          try {
+            const savedProgress = JSON.parse(localStorage.getItem(storageKey) || '{}');
+            if (savedProgress[trackProgressId]) {
+              player.currentTime = savedProgress[trackProgressId];
+            }
+          } catch (e) {}
+        };
+
+        let hasRestored = false;
+        player.on('loadedmetadata', () => {
+          if (hasRestored) return;
+          hasRestored = true;
+          handleRestore();
+        });
+        
+        // Fallback for HLS or edge cases where loadedmetadata fires early
+        player.on('playing', () => {
+          if (hasRestored) return;
+          hasRestored = true;
+          handleRestore();
+        });
+
+        let lastSavedTime = 0;
+        player.on('timeupdate', () => {
+          const ct = player.currentTime;
+          if (Math.abs(ct - lastSavedTime) > 3) {
+            lastSavedTime = ct;
+            try {
+              const progress = JSON.parse(localStorage.getItem(storageKey) || '{}');
+              const duration = player.duration;
+              
+              if (duration && ct > duration - 5) {
+                delete progress[trackProgressId];
+              } else {
+                progress[trackProgressId] = ct;
+              }
+              localStorage.setItem(storageKey, JSON.stringify(progress));
+            } catch (e) {}
+          }
+        });
+      };
 
       const defaultOptions: Plyr.Options = {
         hideControls: true,
@@ -48,15 +99,19 @@ export const PlyrPlayer = ({
         }
       };
 
-      if (!Hls.isSupported()) {
+      const isHls = source?.includes('.m3u8');
+
+      if (!isHls || !Hls.isSupported()) {
         video.src = source;
         playerRef.current = new Plyr(video, defaultOptions);
+        setupProgressTracking(playerRef.current);
       } else {
         const hls = new Hls();
         hlsRef.current = hls;
-        hls.loadSource(source);
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          if (!isMounted) return;
+          
           const availableQualities = hls.levels.map(
             (l) => bitrateToResolution[l.bitrate]
           );
@@ -87,6 +142,7 @@ export const PlyrPlayer = ({
           };
 
           playerRef.current = new Plyr(video, defaultOptions);
+          setupProgressTracking(playerRef.current);
 
           playerRef.current.on("ready", () => {
             if (playerRef.current) {
@@ -96,6 +152,7 @@ export const PlyrPlayer = ({
           });
         });
 
+        hls.loadSource(source);
         hls.attachMedia(video);
       }
     };
@@ -103,6 +160,7 @@ export const PlyrPlayer = ({
     initializePlayer();
 
     return () => {
+      isMounted = false;
       if (hlsRef.current) {
         hlsRef.current.destroy();
       }
@@ -110,7 +168,7 @@ export const PlyrPlayer = ({
         playerRef.current.destroy();
       }
     };
-  }, [source]);
+  }, [source, trackProgressId, userId]);
 
   useEffect(() => {
     const video = videoRef.current;

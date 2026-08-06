@@ -258,6 +258,7 @@ export const Video = () => {
       <div className="space-y-4 w-full xl:w-2/3 2xl:w-[70%]">
         <div className="flex flex-col space-y-2 sm:px-2" onClickCapture={handleVideoClick}>
           <PlyrPlayer
+            key={video._id}
             thumbnail={video.thumbnail}
             thumbnailPreviews={video.thumbnailPreviews}
             source={video.source}
@@ -280,6 +281,8 @@ export const Video = () => {
                 : 15
             }
             className="aspect-video"
+            trackProgressId={video._id}
+            userId={userId}
           />
           <div className="px-3 sm:px-0 flex flex-col space-y-2">
             <h1 className="font-bold text-xl">{video.title}</h1>
