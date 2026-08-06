@@ -278,7 +278,7 @@ export const Short = () => {
 
   if (isMobile) {
     return (
-      <div 
+      <div
         className="relative w-full h-[calc(100dvh-56px)] bg-black overflow-hidden text-white font-sans touch-none"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
@@ -378,13 +378,6 @@ export const Short = () => {
           <p className="text-sm font-medium line-clamp-2 w-full pr-4">{short.title}</p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="absolute bottom-0 left-0 w-full h-1 bg-white/30 z-20">
-          <div className="h-full bg-red-600 w-1/4 relative">
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-red-600 rounded-full" />
-          </div>
-        </div>
-
         {/* Comments Drawer */}
         {openedCard === "comments" && (
           <ShortComments
@@ -398,7 +391,7 @@ export const Short = () => {
   }
 
   return (
-    <div className="flex items-start justify-center w-full sm:px-4 py-4 overflow-x-hidden h-[calc(100dvh-120px)] sm:h-[calc(100dvh-80px)] sm:gap-12 lg:gap-16">
+    <div className="flex items-start justify-center w-full sm:px-4 py-4 overflow-x-hidden h-[calc(100dvh-120px)] sm:h-[calc(100dvh-80px)] sm:gap-20 lg:gap-24 xl:gap-28">
       <div className="flex relative rounded-lg shadow-lg group w-full sm:w-[450px] h-full justify-center">
         <div className="relative w-full h-full bg-black sm:rounded-lg overflow-hidden">
           <PlyrPlayer

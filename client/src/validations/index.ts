@@ -48,4 +48,6 @@ export const videoUpdateFormValidation = z.object({
     playlists: z.array(z.string()).optional(),
     visibility: z.enum(["public", "private"]).default("public"),
     categories: z.array(z.string()).optional(),
+    sourceStatus: z.enum(["FAILED", "PROCESSING", "READY"]).optional(),
+    subtitleStatus: z.enum(["FAILED", "PROCESSING", "READY"]).optional(),
 })

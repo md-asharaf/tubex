@@ -19,7 +19,7 @@ export const StudioNavbar = () => {
   const navigate = useNavigate();
 
   return (
-    <nav className="fixed top-0 bg-white dark:bg-black right-0 left-0 flex items-center justify-between h-16 px-2 sm:px-5 z-50 shadow-md border-b">
+    <nav className="fixed top-0 bg-white dark:bg-black right-0 left-0 flex items-center justify-between h-16 px-2 sm:px-5 z-50 border-b">
       <div className="flex items-center gap-2 sm:gap-4 w-full">
         <div className="flex items-center flex-shrink-0 gap-2 sm:gap-4">
           <SidebarTrigger />

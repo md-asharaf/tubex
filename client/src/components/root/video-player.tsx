@@ -143,7 +143,7 @@ export const PlyrPlayer = ({
         className={`plyr-react plyr ${className}`}
         crossOrigin="anonymous"
         preload="none"
-        // autoPlay
+        autoPlay
         poster={thumbnail}
         onEnded={onEnded}
       >

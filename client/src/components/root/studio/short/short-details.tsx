@@ -49,7 +49,7 @@ import { PlyrPlayer } from "@/components/root/video-player";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { playlistService } from "@/services/playlist";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { uploadService } from "@/services/upload";
@@ -83,6 +83,13 @@ export const ShortDetails = () => {
     },
     enabled: !!shortId,
   });
+
+  useEffect(() => {
+    if (short?.thumbnail) {
+      setIsThumbnailUploaded(true);
+    }
+  }, [short?.thumbnail]);
+
   const origin =
     typeof window !== "undefined"
       ? window.location.origin
@@ -111,6 +118,8 @@ export const ShortDetails = () => {
           ?.filter((p) => p.shorts.includes(short._id))
           .map((p) => p._id) || [],
       visibility: short.visibility || "public",
+      sourceStatus: (short.sourceStatus as "FAILED" | "PROCESSING" | "READY") || "PROCESSING",
+      subtitleStatus: (short.subtitleStatus as "FAILED" | "PROCESSING" | "READY") || "PROCESSING",
       thumbnail: "",
     },
   });
@@ -230,17 +239,16 @@ export const ShortDetails = () => {
             <span className="text-2xl font-semibold">Short Details</span>
             <div className="flex gap-2">
               <Button
-                variant="secondary"
-                className="rounded-full"
+                variant="ghost"
                 disabled={!form.formState.isDirty}
+                className="font-semibold text-muted-foreground hover:bg-transparent"
                 onClick={() => form.reset()}
               >
                 Undo changes
               </Button>
               <Button
-                variant={form.formState.isDirty ? "default" : "secondary"}
-                className="rounded-full"
                 disabled={!form.formState.isDirty}
+                className="rounded-sm bg-[#3ea6ff] hover:bg-[#3ea6ff]/90 text-black font-semibold h-9 px-4"
                 type="submit"
               >
                 Save
@@ -263,55 +271,51 @@ export const ShortDetails = () => {
                 control={form.control}
                 name="title"
                 render={({ field }) => (
-                  <Card className="px-2">
-                    <FormItem className="space-y-0">
-                      <div className="flex justify-between items-center mb-2">
-                        <FormLabel className="text-sm text-[#6B6B6B]">
-                          Title (required)
-                        </FormLabel>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={handleGenerateMetadata}
-                          disabled={isGeneratingMetadata || short.subtitleStatus !== "READY"}
-                          className="h-7 text-xs flex items-center gap-1"
-                        >
-                          {isGeneratingMetadata ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} className="text-blue-500" />}
-                          Generate with AI
-                        </Button>
-                      </div>
-                      <FormControl className="p-0 m-0">
-                        <Textarea
-                          {...field}
-                          maxLength={100}
-                          className="resize-none"
-                          placeholder="Add a title that describes your short"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  </Card>
+                  <FormItem className="relative border border-zinc-300 dark:border-[#3f3f3f] rounded-sm p-2 focus-within:border-[#3ea6ff] focus-within:ring-1 focus-within:ring-[#3ea6ff] transition-all bg-transparent">
+                    <div className="flex justify-between items-center mb-1">
+                      <FormLabel className="text-xs text-muted-foreground px-1 font-normal">
+                        Title (required)
+                      </FormLabel>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleGenerateMetadata}
+                        disabled={isGeneratingMetadata || short.subtitleStatus !== "READY"}
+                        className="h-6 text-xs flex items-center gap-1 hover:bg-transparent px-1"
+                      >
+                        {isGeneratingMetadata ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} className="text-[#3ea6ff]" />}
+                        <span className="text-[#3ea6ff]">Generate with AI</span>
+                      </Button>
+                    </div>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        maxLength={100}
+                        className="resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-1 text-base bg-transparent shadow-none min-h-[40px]"
+                        placeholder="Add a title that describes your short"
+                      />
+                    </FormControl>
+                  </FormItem>
                 )}
               />
               <FormField
                 control={form.control}
                 name="description"
                 render={({ field }) => (
-                  <Card className="px-2">
-                    <FormItem className="space-y-0">
-                      <FormLabel className="text-sm text-[#6B6B6B] mb-2 block">
-                        Description
-                      </FormLabel>
-                      <FormControl className="p-0 m-0">
-                        <Textarea
-                          {...field}
-                          maxLength={5000}
-                          className="resize-none min-h-60"
-                          placeholder="Tell viewers about your short"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  </Card>
+                  <FormItem className="relative border border-zinc-300 dark:border-[#3f3f3f] rounded-sm p-2 focus-within:border-[#3ea6ff] focus-within:ring-1 focus-within:ring-[#3ea6ff] transition-all bg-transparent">
+                    <FormLabel className="text-xs text-muted-foreground px-1 font-normal mb-1 block">
+                      Description
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        maxLength={5000}
+                        className="resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-1 text-base bg-transparent shadow-none min-h-[160px]"
+                        placeholder="Tell viewers about your short"
+                      />
+                    </FormControl>
+                  </FormItem>
                 )}
               />
               <FormField
@@ -492,7 +496,7 @@ export const ShortDetails = () => {
               />
             </div>
             <div className="lg:col-span-2 space-y-4">
-              <Card className="space-y-4 pb-2">
+              <Card className="space-y-4 pb-2 bg-[#f9f9f9] dark:bg-[#1f1f1f] shadow-none rounded-sm border-0">
                 <PlyrPlayer
                   key={form.getValues("thumbnail")}
                   thumbnail={form.getValues("thumbnail") || short.thumbnail}
@@ -518,18 +522,48 @@ export const ShortDetails = () => {
                     {isCopied ? <CopyCheckIcon /> : <CopyIcon />}
                   </div>
                 </div>
-                <div className="flex flex-col px-4">
-                  <div className="text-xs text-muted-foreground">
-                    Short Status:
-                  </div>
-                  <div className="text-sm">{short.sourceStatus}</div>
-                </div>
-                <div className="flex flex-col px-4">
-                  <div className="text-xs text-muted-foreground">
-                    Subtitle Status:
-                  </div>
-                  <div className="text-sm">{short.subtitleStatus}</div>
-                </div>
+                <FormField
+                  name="sourceStatus"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col px-4 pt-4">
+                      <FormLabel className="text-xs text-muted-foreground">Short Status:</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-8 text-sm w-[140px]">
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="PROCESSING">PROCESSING</SelectItem>
+                          <SelectItem value="READY">READY</SelectItem>
+                          <SelectItem value="FAILED">FAILED</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="subtitleStatus"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col px-4 pb-4">
+                      <FormLabel className="text-xs text-muted-foreground">Subtitle Status:</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-8 text-sm w-[140px]">
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="PROCESSING">PROCESSING</SelectItem>
+                          <SelectItem value="READY">READY</SelectItem>
+                          <SelectItem value="FAILED">FAILED</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
               </Card>
               <FormField
                 name="visibility"

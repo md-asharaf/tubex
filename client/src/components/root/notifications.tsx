@@ -163,7 +163,7 @@ export const Notifications = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         collisionPadding={40}
-        className="w-[calc(100vw-24px)] sm:w-[480px] dark:bg-[#282828] p-0 mt-1 rounded-xl shadow-2xl"
+        className="w-[calc(100vw-24px)] sm:w-[480px] dark:bg-[#282828] p-0 mt-1 rounded-xl"
       >
         <div className="sticky top-0 z-10 bg-white dark:bg-[#282828] rounded-t-xl">
           <DropdownMenuLabel className="text-lg font-bold mx-4 my-2">
@@ -264,7 +264,7 @@ export const Notifications = () => {
                               notification.post?.image
                             }
                             alt="thumbnail"
-                            className="h-auto w-full aspect-video object-cover rounded-md shadow-sm"
+                            className="h-auto w-full aspect-video object-cover rounded"
                           />
                         </div>
                       )}
@@ -292,7 +292,7 @@ export const Notifications = () => {
                             }));
                           }}
                           collisionPadding={120}
-                          className="dark:bg-[#282828] p-0 rounded-lg shadow-lg space-y-2"
+                          className="dark:bg-[#282828] p-0 rounded-lg space-y-2"
                         >
                           <button
                             className="flex space-x-2 hover:bg-muted-foreground w-full p-2"

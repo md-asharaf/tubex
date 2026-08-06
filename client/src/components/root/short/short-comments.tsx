@@ -123,7 +123,7 @@ export const ShortComments = ({
   }
 
   return (
-    <Card className="flex flex-col w-full h-full sm:w-[400px] rounded-t-3xl sm:rounded-lg rounded-b-none sm:rounded-b-lg border-0 sm:border shadow-2xl">
+    <Card className="flex flex-col w-full h-full sm:w-[400px] rounded-t-3xl sm:rounded-lg rounded-b-none sm:rounded-b-lg border-0 sm:border shadow">
       <CardTitle className="flex items-center justify-between p-2 text-xl w-full">
         <div className="flex-1 pr-2">
           {TitleContent}
@@ -135,8 +135,8 @@ export const ShortComments = ({
           className="cursor-pointer shrink-0 ml-2"
         />
       </CardTitle>
-      <Separator />
-      <CardContent className="flex-1 overflow-y-auto pb-16">
+      <Separator className="mb-2" />
+      <CardContent className="flex-1 overflow-y-auto pb-16 px-2">
         <Comments
           key={shortId}
           playerRef={playerRef}

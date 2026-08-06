@@ -23,5 +23,7 @@ class PLaylistService {
         );
     deletePlaylist = async (playlistId: string) =>
         await axios.delete(`/playlists/delete-playlist/${playlistId}`);
+    updatePlaylist = async (playlistId: string, data: any) =>
+        await axios.patch(`/playlists/update-playlist/${playlistId}`, data);
 }
 export const playlistService = new PLaylistService();

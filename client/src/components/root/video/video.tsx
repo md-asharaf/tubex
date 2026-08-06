@@ -444,7 +444,7 @@ export const Video = () => {
             )}
             {isMobile && (
               <div
-                className="mt-2 w-full p-3 shadow-md rounded-xl bg-[#F2F2F2] dark:bg-[#28292A] cursor-pointer"
+                className="mt-2 w-full p-3 rounded-xl bg-[#F2F2F2] dark:bg-[#28292A] cursor-pointer"
                 onClick={() => setIsMobileCommentsOpen(true)}
               >
                 <div className="flex justify-between items-center">

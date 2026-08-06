@@ -274,7 +274,6 @@ class StudioController {
         res.write(`data: ${JSON.stringify({ chunk: chunkText })}\n\n`);
       }
 
-      // Cache the full response for 24 hours (86400 seconds)
       await setCache(cacheKey, accumulatedText, 86400);
 
       res.end();
