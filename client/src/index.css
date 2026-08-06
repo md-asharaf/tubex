@@ -7,6 +7,18 @@ body {
     --plyr-color-main: red;
     --plyr-range-track-height:3px;
 }
+
+/* Fix for Plyr settings menu overflowing and hiding behind navbars */
+.plyr__menu__container {
+    z-index: 60 !important;
+}
+@media (max-width: 640px) {
+    .plyr__menu__container > div {
+        max-height: 160px !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+}
 .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;

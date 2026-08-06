@@ -237,10 +237,26 @@ export const Video = () => {
       <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
     </div>
   );
+  const handleVideoClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+
+    if (target.closest('.plyr__controls')) {
+      return;
+    }
+
+    if (playerRef.current) {
+      if (playerRef.current.paused) {
+        playerRef.current.play();
+      } else {
+        playerRef.current.pause();
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col space-y-4 xl:flex-row w-full">
       <div className="space-y-4 w-full xl:w-2/3 2xl:w-[70%]">
-        <div className="flex flex-col space-y-2 sm:px-2">
+        <div className="flex flex-col space-y-2 sm:px-2" onClickCapture={handleVideoClick}>
           <PlyrPlayer
             thumbnail={video.thumbnail}
             thumbnailPreviews={video.thumbnailPreviews}

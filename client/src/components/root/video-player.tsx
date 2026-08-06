@@ -41,7 +41,11 @@ export const PlyrPlayer = ({
           enabled: !!thumbnailPreviews,
           src: thumbnailPreviews,
         },
-        tooltips: { controls: true, seek: true }
+        tooltips: { controls: true, seek: true },
+        speed: {
+          selected: 1,
+          options: [0.5, 1, 1.5, 2],
+        }
       };
 
       if (!Hls.isSupported()) {
