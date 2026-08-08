@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { IPostData } from "@/interfaces";
 import { useQuery } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,6 +11,8 @@ import { Separator } from "@/components/ui/separator";
 export const ChannelPosts = () => {
   const dispatch = useDispatch();
   const { username } = useParams();
+  const location = useLocation();
+  const autoFocus = location.state?.autoFocus || false;
   const currentUser = useSelector(
     (state: RootState) => state.auth.userData
   );
@@ -27,7 +29,7 @@ export const ChannelPosts = () => {
     <div className="p-2 space-y-12">
       {username === uname && (
         <>
-          <CreatePost />
+          <CreatePost autoFocus={autoFocus} />
           <Separator className="max-w-4xl" />
         </>
       )}

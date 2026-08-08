@@ -36,7 +36,7 @@ export const CreateDropdown = ({ isPlaylist = false }: CreateDropdownProps) => {
   }
   const onCreatePostClick = () => {
     setOpen(false);
-    navigate(`/channel/${username}/posts`)
+    navigate(`/channel/${username}/posts`, { state: { autoFocus: true } });
   }
   const onNewPlaylistClick = () => {
     setOpen(false);

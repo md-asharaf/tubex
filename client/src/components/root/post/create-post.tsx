@@ -26,7 +26,7 @@ import { uploadToPresignedUrl } from "@/lib/upload";
 const BUCKET = process.env.INPUT_BUCKET || "default-bucket-name";
 
 
-export const CreatePost = () => {
+export const CreatePost = ({ autoFocus = false }: { autoFocus?: boolean }) => {
     const [isUploading, setIsUploading] = useState(false);
     const [postType, setPostType] = useState<
         "text" | "image" | "text-poll" | "image-poll" | "video" | "quiz"
@@ -160,7 +160,7 @@ export const CreatePost = () => {
             case "video":
                 return <VideoPost data={data} setData={setData} />;
             case "text":
-                return <TextPost data={data} setData={setData} />;
+                return <TextPost data={data} setData={setData} autoFocus={autoFocus} />;
             default:
                 return null;
         }
