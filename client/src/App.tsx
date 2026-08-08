@@ -62,7 +62,7 @@ import { PostComments } from "./components/root/studio/post/post-comments";
 import { PostDetails } from "./components/root/studio/post/post-details";
 import useNotification from "./hooks/use-notification";
 import { AuthRoutes } from "./routes/auth-route";
-import { RootRoutes } from "./routes/public-route";
+import { RootRoutes } from "./routes/root-route";
 
 function App() {
   const theme = useSelector((state: RootState) => state.theme.mode);

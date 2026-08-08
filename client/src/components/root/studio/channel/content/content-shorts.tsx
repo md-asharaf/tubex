@@ -17,7 +17,7 @@ import { studioService } from "@/services/studio";
 import { shortService } from "@/services/short";
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setAlertDialogData } from "@/store/reducers/ui";
 import { toast } from "sonner";

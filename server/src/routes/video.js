@@ -14,7 +14,6 @@ router.post("/increase-views/:videoId", videoController.increaseViews)
 router.use(verifyJWT);
 router.post("/publish-video", videoController.publishVideo);
 router.delete("/delete-video/:videoId", videoController.deleteVideo);
-// router.patch("/update-thumbnail/:videoId", videoController.updateVideoThumbnail);
 router.patch("/update-video/:videoId", videoController.updateVideoDetails);
 
 export const videoRoutes = router;
