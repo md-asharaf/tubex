@@ -5,6 +5,7 @@ import {
   MessageSquareMoreIcon,
   Share2Icon,
   ThumbsUpIcon,
+  ThumbsDownIcon,
 } from "lucide-react";
 import { formatDistanceToNowStrict } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -233,38 +234,49 @@ export const PostCard = ({ post }: { post: IPostData }) => {
       )}
 
       {/* Action Buttons */}
-      <div className="flex items-center space-x-4 mt-4 -ml-2">
-        <Button
-          variant="ghost"
-          className="rounded-full px-3 h-9 text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-[#272727]"
-          onClick={(e) => {
-            e.preventDefault();
-            toggleLikeMutation.mutate();
-          }}
-        >
-          <ThumbsUpIcon className="size-[18px] mr-2" fill={isLiked ? (theme === "dark" ? "white" : "black") : "transparent"} strokeWidth={1.5} />
-          <span className="text-[13px] font-medium">{likesCount > 0 ? likesCount : ''}</span>
-        </Button>
+      <div className="flex items-center space-x-2 mt-4 sm:ml-0">
+        <div className="flex items-center bg-black/5 dark:bg-white/10 rounded-full">
+          <Button
+            variant="ghost"
+            className="rounded-l-full rounded-r-none px-3 h-9 text-muted-foreground hover:text-foreground hover:bg-black/10 dark:hover:bg-white/20"
+            onClick={(e) => {
+              e.preventDefault();
+              toggleLikeMutation.mutate();
+            }}
+          >
+            <ThumbsUpIcon className="size-[18px] mr-2" fill={isLiked ? (theme === "dark" ? "white" : "black") : "transparent"} strokeWidth={1.5} />
+            <span className="text-[13px] font-medium">{likesCount > 0 ? likesCount : ''}</span>
+          </Button>
+          <div className="w-[1px] h-5 bg-black/10 dark:bg-white/20" />
+          <Button
+            variant="ghost"
+            className="rounded-r-full rounded-l-none px-3 h-9 text-muted-foreground hover:text-foreground hover:bg-black/10 dark:hover:bg-white/20"
+          >
+            <ThumbsDownIcon className="size-[18px]" strokeWidth={1.5} />
+          </Button>
+        </div>
 
         <Link to={`/post/${post._id}`}>
           <Button
             variant="ghost"
-            className="rounded-full px-3 h-9 text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-[#272727]"
+            className="rounded-full px-4 h-9 bg-black/5 dark:bg-white/10 text-muted-foreground hover:text-foreground hover:bg-black/10 dark:hover:bg-white/20"
           >
-            <MessageSquareMoreIcon className="size-[18px] mr-2" strokeWidth={1.5} />
-            <span className="text-[13px] font-medium">{commentsCount > 0 ? commentsCount : ''}</span>
+            <MessageSquareMoreIcon className="size-[18px] sm:mr-2" strokeWidth={1.5} />
+            <span className="text-[13px] font-medium hidden sm:inline">{commentsCount > 0 ? commentsCount : ''}</span>
+            <span className="text-[13px] font-medium sm:hidden ml-1">{commentsCount > 0 ? commentsCount : ''}</span>
           </Button>
         </Link>
 
         <Button
           variant="ghost"
-          className="rounded-full px-3 h-9 text-muted-foreground hover:text-foreground hover:bg-gray-100 dark:hover:bg-[#272727]"
+          className="rounded-full px-4 h-9 bg-black/5 dark:bg-white/10 text-muted-foreground hover:text-foreground hover:bg-black/10 dark:hover:bg-white/20"
           onClick={(e) => {
             e.preventDefault();
             handleShare();
           }}
         >
-          <Share2Icon className="size-[18px]" strokeWidth={1.5} />
+          <Share2Icon className="size-[18px] sm:mr-2" strokeWidth={1.5} />
+          <span className="text-[13px] font-medium hidden sm:inline">Share</span>
         </Button>
       </div>
     </div>

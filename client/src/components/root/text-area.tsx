@@ -20,6 +20,7 @@ interface TextAreaProps {
   onCancel?: () => void;
   submitLabel: string;
   hideAvatar?: boolean;
+  autoFocus?: boolean;
 }
 
 export const TextArea: React.FC<TextAreaProps> = ({
@@ -31,6 +32,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
   onCancel,
   submitLabel,
   hideAvatar = false,
+  autoFocus = false,
 }) => {
   const [content, setContent] = useState(initialValue);
   const [isInputFocused, setIsInputFocused] = useState(
@@ -104,6 +106,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
             style={{ lineHeight: "1.2" }}
             onFocus={() => setIsInputFocused(true)}
             maxLength={500}
+            autoFocus={autoFocus}
           />
           <div className="sm:hidden flex items-center ml-2 shrink-0">
             {content ? (

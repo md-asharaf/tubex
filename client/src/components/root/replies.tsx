@@ -256,6 +256,7 @@ const Replies = ({
                     onSubmit={(content) => updateReply(content)}
                     onCancel={() => setEditingReplyId(null)}
                     submitLabel="Save"
+                    autoFocus={true}
                   />
                 )
               ) : (
@@ -361,6 +362,7 @@ const Replies = ({
                             onSubmit={(content) => addReply(content)}
                             onCancel={() => setReplyingToReplyId(null)}
                             submitLabel="Reply"
+                            autoFocus={true}
                           />
                         )}
                       </div>

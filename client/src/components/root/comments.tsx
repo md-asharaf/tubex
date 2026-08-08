@@ -1,7 +1,6 @@
 import { commentService } from "@/services/comment";
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
-import { formatDistanceToNowStrict } from "date-fns";
 import { getRelativeShortTime } from "@/lib/time";
 import { likeService } from "@/services/like";
 import { IComment } from "@/interfaces";
@@ -293,6 +292,7 @@ export const Comments: React.FC<CommentProps> = ({
                 onSubmit={(content) => updateComment(content)}
                 onCancel={() => setEditingCommentId(null)}
                 submitLabel="Save"
+                autoFocus={true}
               />
             ) : (
               <>
@@ -472,6 +472,7 @@ export const Comments: React.FC<CommentProps> = ({
                             setReplyingToCommentId(null)
                           }
                           submitLabel="Reply"
+                          autoFocus={true}
                         />
                       </div>
                     )}
