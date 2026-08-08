@@ -28,6 +28,8 @@ export const ContentVideos = () => {
   const { username } = useParams();
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
+  const searchParams = new URLSearchParams(location.search);
+  const searchQuery = searchParams.get("q") || "";
   const dispatch = useDispatch();
 
   const { mutate: deleteVideo } = useMutation({
@@ -56,9 +58,9 @@ export const ContentVideos = () => {
   };
 
   const { data: videosPages } = useInfiniteQuery({
-    queryKey: ["videos", username, page],
+    queryKey: ["videos", username, page, searchQuery],
     queryFn: async (): Promise<{ docs: IStudioVideo[], totalPages: number, hasNextPage: boolean }> => {
-      const data = await studioService.getUserVideos(username, page);
+      const data = await studioService.getUserVideos(username as string, page, searchQuery);
       return data.videos;
     },
     initialPageParam: page,

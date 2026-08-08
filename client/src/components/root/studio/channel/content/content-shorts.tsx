@@ -28,7 +28,10 @@ export const ContentShorts = () => {
     const { username } = useParams();
     const [page, setPage] = useState(1);
     const navigate = useNavigate();
+    const location = useLocation();
     const dispatch = useDispatch();
+    const searchParams = new URLSearchParams(location.search);
+    const searchQuery = searchParams.get("q") || "";
 
     const { mutate: deleteShort } = useMutation({
         mutationFn: async (shortId: string) => {
@@ -56,9 +59,9 @@ export const ContentShorts = () => {
     };
 
     const { data: shortsPages } = useInfiniteQuery({
-        queryKey: ["shorts", username, page],
+        queryKey: ["shorts", username, page, searchQuery],
         queryFn: async ({ pageParam }): Promise<{docs:IStudioShort[],totalPages:number,hasNextPage:boolean}> => {
-            const data = await studioService.getUserShorts(username, pageParam);
+            const data = await studioService.getUserShorts(username as string, pageParam, searchQuery);
             return data.shorts;
         },
         initialPageParam: 1,

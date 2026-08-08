@@ -34,7 +34,7 @@ export const StudioNavbar = () => {
           </div>
         </div>
         <div className="flex-1 justify-center max-w-[720px] mx-auto hidden sm:flex">
-          <SearchBar />
+          <SearchBar isStudio={true} />
         </div>
         <div className="flex items-center gap-2 sm:gap-8 ml-auto">
           <div>

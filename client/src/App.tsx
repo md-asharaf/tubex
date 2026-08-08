@@ -61,12 +61,14 @@ import { PlaylistDetails } from "./components/root/studio/playlist/playlist-deta
 import { PostComments } from "./components/root/studio/post/post-comments";
 import { PostDetails } from "./components/root/studio/post/post-details";
 import useNotification from "./hooks/use-notification";
+import { AuthRoutes } from "./routes/auth-route";
+import { RootRoutes } from "./routes/public-route";
 
 function App() {
   const theme = useSelector((state: RootState) => state.theme.mode);
-  
+
   useNotification();
-  
+
   useEffect(() => {
     document.body.classList.remove("dark", "light");
     document.body.classList.add(theme);
@@ -74,44 +76,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<AuthLayOut />}>
-          <Route path="/login" element={<SignIn />} />
-          <Route path="/register" element={<SignUp />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route
-            path="/reset-password/:resetToken"
-            element={<ResetPassword />}
-          />
-        </Route>
-        <Route path="/" element={<RootLayOut />}>
-          <Route path="" element={<Home />} />
-          <Route path="video/:id" element={<Video />} />
-          <Route path="short/:id" element={<Short />} />
-          <Route path="post/:id" element={<Post />} />
-          <Route path="results" element={<SearchedVideos />} />
-          <Route path="search" element={<MobileSearch />} />
-          <Route path="notifications" element={<MobileNotifications />} />
-          <Route path="settings" element={<MobileSettings />} />
-          <Route path="channel/:username" element={<Channel />}>
-            <Route path="" element={<ChannelHome />} />
-            <Route path="videos" element={<ChannelVideos />} />
-            <Route path="playlists" element={<ChannelPlaylists />} />
-            <Route path="shorts" element={<ChannelShorts />} />
-            <Route path="posts" element={<ChannelPosts />} />
-          </Route>
-          <Route element={<PrivateLayout />}>
-            <Route path="/watch-history" element={<WatchHistory />} />
-            <Route path="/liked-videos" element={<LikedVideos />} />
-            <Route path="/my-videos" element={<MyVideos />} />
-            <Route path="/watch-later" element={<WatchLater />} />
-            <Route path="/playlists" element={<PlayLists />} />
-            <Route path="/playlist/:id" element={<Playlist />} />
-            <Route path="/library" element={<PlaylistNhistory />} />
-            <Route path="/subscriptions" element={<Subscriptions />} />
-            <Route path="/your-videos" element={<YourVideos />} />
-            <Route path="/account/:username" element={<Account />} />
-          </Route>
-        </Route>
+        {AuthRoutes()}
+        {RootRoutes()}
         <Route element={<StudioLayout />} path="/studio">
           <Route path=":username" element={<ChannelLayout />}>
             <Route path="content" element={<ContentLayout />}>

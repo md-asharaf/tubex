@@ -7,6 +7,7 @@ class VideoSevice {
   allVideosByUser = async (username: string) =>
     await axios.get(`/videos/user-videos/${username}`);
   likedVideos = async () => await axios.get("/videos/liked-videos");
+  subscribedVideos = async (page: number = 1) => await axios.get(`/videos/subscribed-videos?page=${page}`);
   incrementViews = async (videoId: string) =>
     await axios.post(`/videos/increase-views/${videoId}`);
   searchVideos = async (query: string) =>

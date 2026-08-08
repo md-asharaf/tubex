@@ -12,17 +12,19 @@ import { getCache, setCache } from "../lib/redis.js";
 import { logger } from "../utils/logger.js";
 class StudioController {
   getUserPosts = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 5 } = req.query;
+    const { page = 1, limit = 5, search } = req.query;
     const { username } = req.params;
     const user = await User.findOne({ username });
     if (!user) {
       throw new ApiError(404, "User not found");
     }
+    const matchStage = { userId: user._id };
+    if (search) {
+      matchStage.content = { $regex: search, $options: "i" };
+    }
     const aggregate = Post.aggregate([
       {
-        $match: {
-          userId: user._id,
-        },
+        $match: matchStage,
       },
       {
         $lookup: {
@@ -63,17 +65,19 @@ class StudioController {
     return res.status(200).json(new ApiResponse(200, { posts }, "Posts fetched successfully for studio"));
   });
   getUserVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 5 } = req.query;
+    const { page = 1, limit = 5, search } = req.query;
     const { username } = req.params;
     const user = await User.findOne({ username });
     if (!user) {
       throw new ApiError(404, "User not found");
     }
+    const matchStage = { userId: user._id };
+    if (search) {
+      matchStage.title = { $regex: search, $options: "i" };
+    }
     const aggregate = Video.aggregate([
       {
-        $match: {
-          userId: user._id,
-        },
+        $match: matchStage,
       },
       {
         $lookup: {
@@ -119,17 +123,19 @@ class StudioController {
     return res.status(200).json(new ApiResponse(200, { videos }, "Videos fetched successfully for studio"));
   });
   getUserPlaylists = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 5 } = req.query;
+    const { page = 1, limit = 5, search } = req.query;
     const { username } = req.params;
     const user = await User.findOne({ username });
     if (!user) {
       throw new ApiError(404, "User not found");
     }
+    const matchStage = { userId: user._id };
+    if (search) {
+      matchStage.name = { $regex: search, $options: "i" };
+    }
     const aggregate = Playlist.aggregate([
       {
-        $match: {
-          userId: user._id,
-        },
+        $match: matchStage,
       },
       {
         $lookup: {
@@ -165,17 +171,19 @@ class StudioController {
     return res.status(200).json(new ApiResponse(200, { playlists }, "Playlists fetched successfully for studio"));
   });
   getUserShorts = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 5 } = req.query;
+    const { page = 1, limit = 5, search } = req.query;
     const { username } = req.params;
     const user = await User.findOne({ username });
     if (!user) {
       throw new ApiError(404, "User not found");
     }
+    const matchStage = { userId: user._id };
+    if (search) {
+      matchStage.title = { $regex: search, $options: "i" };
+    }
     const aggregate = Short.aggregate([
       {
-        $match: {
-          userId: user._id,
-        },
+        $match: matchStage,
       },
       {
         $lookup: {

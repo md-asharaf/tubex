@@ -227,6 +227,60 @@ class VideoController {
       );
   });
 
+  getSubscribedVideos = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 20 } = req.query;
+    const userId = req.user?._id;
+    if (!userId) throw new ApiError(401, "Unauthorized");
+
+    const subscriptions = await Subscription.find({ subscriberId: userId });
+    const channelIds = subscriptions.map((sub) => sub.channelId);
+
+    const aggregate = Video.aggregate([
+      {
+        $match: {
+          userId: { $in: channelIds },
+          visibility: "public",
+          sourceStatus: "READY",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "creator",
+        },
+      },
+      {
+        $addFields: {
+          creator: { $first: "$creator" },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          thumbnail: 1,
+          thumbnailPreviews: 1,
+          source: 1,
+          duration: 1,
+          views: 1,
+          createdAt: 1,
+          creator: {
+            _id: 1,
+            username: 1,
+            fullname: 1,
+            avatar: 1,
+          },
+        },
+      },
+      { $sort: { createdAt: -1 } },
+    ]);
+
+    const videos = await Video.aggregatePaginate(aggregate, { page, limit });
+    return res.status(200).json(new ApiResponse(200, { videos }, "Subscribed videos fetched successfully"));
+  });
+
   getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
     const video = await Video.aggregate(

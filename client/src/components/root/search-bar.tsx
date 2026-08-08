@@ -3,12 +3,22 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { X, Search } from "lucide-react";
 
-export const SearchBar = () => {
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+
+export const SearchBar = ({ isStudio }: { isStudio?: boolean }) => {
     const navigate = useNavigate();
     const [input, setInput] = useState<string>("");
+    const username = useSelector((state: RootState) => state.auth.userData?.username);
 
     const handleSearch = () => {
-        if (input.trim()) navigate("/results?q=" + input);
+        if (input.trim()) {
+            if (isStudio && username) {
+                navigate(`/studio/${username}/content/videos?q=${encodeURIComponent(input)}`);
+            } else {
+                navigate("/results?q=" + encodeURIComponent(input));
+            }
+        }
     };
 
     return (
