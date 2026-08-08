@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
-import { X, Search } from "lucide-react";
+import { X, Search, Mic } from "lucide-react";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
+import { setVoiceSearchModal } from "@/store/reducers/ui";
 
 export const SearchBar = ({ isStudio }: { isStudio?: boolean }) => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [input, setInput] = useState<string>("");
     const username = useSelector((state: RootState) => state.auth.userData?.username);
 
@@ -48,6 +50,13 @@ export const SearchBar = ({ isStudio }: { isStudio?: boolean }) => {
                 aria-label="Search"
             >
                 <Search size={18} />
+            </button>
+            <button
+                onClick={() => dispatch(setVoiceSearchModal(true))}
+                className="flex h-9 w-9 sm:h-10 sm:w-10 ml-2 items-center justify-center rounded-full bg-[#F0F0F0] dark:bg-[#272727] hover:bg-gray-200 dark:hover:bg-[#3f3f3f] shrink-0"
+                aria-label="Search with your voice"
+            >
+                <Mic size={18} />
             </button>
         </div>
     );

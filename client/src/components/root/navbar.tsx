@@ -4,7 +4,7 @@ import { ImYoutube } from "react-icons/im";
 import { Button } from "@/components/ui/button";
 import { Profile } from "./profile";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { toggleMenu } from "@/store/reducers/ui";
+import { setVoiceSearchModal, toggleMenu } from "@/store/reducers/ui";
 import { DarkModeSwitch } from "react-toggle-dark-mode";
 import { toggleTheme } from "@/store/reducers/theme";
 import { Menu, Search, User, ArrowLeft, Mic } from "lucide-react";
@@ -43,7 +43,7 @@ export const NavBar = () => {
                 {new URLSearchParams(location.search).get("q") || "Search TubeX"}
               </span>
             </div>
-            <button className="p-2 rounded-full bg-[#F0F0F0] dark:bg-[#272727] ml-1 shrink-0" onClick={() => navigate("/search")}>
+            <button className="p-2 rounded-full bg-[#F0F0F0] dark:bg-[#272727] ml-1 shrink-0" onClick={() => dispatch(setVoiceSearchModal(true))}>
               <Mic size={18} />
             </button>
           </div>

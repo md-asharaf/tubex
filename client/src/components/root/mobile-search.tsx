@@ -2,9 +2,12 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Search, X, Mic } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useDispatch } from "react-redux";
+import { setVoiceSearchModal } from "@/store/reducers/ui";
 
 export const MobileSearch = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [input, setInput] = useState<string>("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -50,7 +53,7 @@ export const MobileSearch = () => {
             </button>
           )}
         </div>
-        <button className="p-2 rounded-full bg-[#F0F0F0] dark:bg-[#272727] ml-1">
+        <button className="p-2 rounded-full bg-[#F0F0F0] dark:bg-[#272727] ml-1" onClick={() => dispatch(setVoiceSearchModal(true))}>
           <Mic size={18} />
         </button>
       </div>

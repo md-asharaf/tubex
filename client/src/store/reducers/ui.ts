@@ -23,6 +23,7 @@ export interface IUiData {
     message: string;
     onConfirm: () => void;
   };
+  isVoiceSearchModalOpen: boolean;
 }
 const rawData = localStorage.getItem("ui_data");
 let uiData: Partial<IUiData> | null = null;
@@ -56,6 +57,7 @@ const initialState: IUiData = {
     message: "",
     onConfirm: () => { },
   },
+  isVoiceSearchModalOpen: false,
 };
 
 const uiSlice = createSlice({
@@ -112,6 +114,9 @@ const uiSlice = createSlice({
     ) => {
       state.alertDialogData = action.payload;
     },
+    setVoiceSearchModal: (state, action: PayloadAction<boolean>) => {
+      state.isVoiceSearchModalOpen = action.payload;
+    },
   },
 });
 
@@ -122,7 +127,8 @@ export const {
   setShareModalData,
   setCreatePlaylistDialog,
   setSaveToPlaylistDialog,
-  setAlertDialogData
+  setAlertDialogData,
+  setVoiceSearchModal
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

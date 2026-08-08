@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { AuthRoute } from "./routes/auth-route";
 import { StudioRoute } from "./routes/studio-route";
 import { RootRoute } from "./routes/root-route";
+import { VoiceSearchModal } from "./components/root/modals/voice-search-modal";
 
 function App() {
   const theme = useSelector((state: RootState) => state.theme.mode);
@@ -23,6 +24,7 @@ function App() {
         {RootRoute()}
         {StudioRoute()}
       </Routes>
+      <VoiceSearchModal />
     </BrowserRouter>
   );
 }
