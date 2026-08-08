@@ -38,7 +38,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
                     onChange={onChange}
                     type={showPassword ? "text" : "password"}
                     placeholder={placeholder}
-                    className={`pr-10 bg-white ${className}`}
+                    className={`pr-10 ${className}`}
                     {...props}
                 />
 
