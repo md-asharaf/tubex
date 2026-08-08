@@ -22,7 +22,7 @@ import {
   Focus,
   Music
 } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { AvatarImg } from "@/components/root/avatar-image";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { shortService } from "@/services/short";
@@ -49,6 +49,7 @@ export const Short = () => {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const { id: shortId } = useParams();
   const [isPlaying, setIsPlaying] = useState(true);
@@ -84,6 +85,14 @@ export const Short = () => {
     },
     enabled: !!shortId,
   });
+
+  useEffect(() => {
+    const locationState = location.state as { commentId?: string, replyId?: string };
+    if (locationState?.commentId || locationState?.replyId) {
+      dispatch(setOpenCard("comments"));
+    }
+  }, [location.state, dispatch]);
+
   const { data: likesCount } = useQuery({
     queryKey: ["likes-count", shortId],
     queryFn: async (): Promise<number> => {
@@ -336,9 +345,11 @@ export const Short = () => {
               <h1 className="text-2xl font-bold">Shorts</h1>
             </div>
             <div className="flex items-center space-x-5">
-              <button>
-                {isMuted ? <VolumeX size={26} onClick={() => setIsMuted(false)} /> : <Volume2 size={26} onClick={() => setIsMuted(true)} />}
-              </button>
+              {!isPlaying && (
+                <button>
+                  {isMuted ? <VolumeX size={26} onClick={() => setIsMuted(false)} /> : <Volume2 size={26} onClick={() => setIsMuted(true)} />}
+                </button>
+              )}
               <Search size={26} onClick={() => navigate("/search")} className="cursor-pointer" />
               <div onClick={() => setOpen(true)} className="cursor-pointer">
                 <MoreVertical size={26} />
@@ -401,7 +412,7 @@ export const Short = () => {
           </div>
 
           {/* Title */}
-          <p className="text-sm font-medium line-clamp-2 w-full pr-4">{short.title}</p>
+          {!isPlaying && <p className="text-sm font-medium line-clamp-2 w-full pr-4">{short.title}</p>}
         </div>
 
         {/* Comments Drawer */}
@@ -446,8 +457,9 @@ export const Short = () => {
                   <Play size={20} className="text-white" />
                 )}
               </button>
-              <button
-                className="flex space-x-2 p-3 hover:bg-opacity-50 bg-opacity-60 bg-[#676D72] text-white rounded-full transition items-center"
+              {!isPlaying && (
+                <button
+                  className="flex space-x-2 p-3 hover:bg-opacity-50 bg-opacity-60 bg-[#676D72] text-white rounded-full transition items-center"
                 onMouseEnter={() => setIsVolumeHovered(true)}
                 onMouseLeave={() => setIsVolumeHovered(false)}
                 onClick={(e) => {
@@ -491,6 +503,7 @@ export const Short = () => {
                   </div>
                 )}
               </button>
+              )}
             </div>
             {isMobile ? (
               <Popover open={open} onOpenChange={setOpen} key={2}>
@@ -540,7 +553,7 @@ export const Short = () => {
                 {isSubscribed ? "Subscribed" : "Subscribe"}
               </button>}
             </div>
-            <div className="font-semibold">{short.title}</div>
+            {!isPlaying && <div className="font-semibold">{short.title}</div>}
           </div>
         </div>
         <div className="absolute md:bottom-0 md:-right-14 bottom-16 right-2 flex flex-col sm:space-y-4 space-y-2 items-center">

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { IVideoData } from "@/interfaces";
 import { formatDistanceToNowStrict } from "date-fns";
@@ -38,6 +38,7 @@ export const Video = () => {
   const isMobile = useIsMobile();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const listId = searchParams.get("list");
   const shuffle = searchParams.get("shuffle") === "true";
   const toggleExpanded = () => {
@@ -226,6 +227,16 @@ export const Video = () => {
   useEffect(() => {
     dispatch(toggleMenu(false));
   }, []);
+
+  useEffect(() => {
+    const locationState = location.state as { commentId?: string, replyId?: string };
+    if (locationState?.commentId || locationState?.replyId) {
+      if (isMobile) {
+        setIsMobileCommentsOpen(true);
+      }
+    }
+  }, [location.state, isMobile]);
+
   useEffect(() => {
     if (playerRef.current) {
       playerRef.current.muted = true;

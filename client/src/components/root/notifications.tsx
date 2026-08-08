@@ -52,7 +52,7 @@ export const Notifications = () => {
           notifications.filter((n) => n.createdAt !== deletedDate)
         )
       );
-      toast.success("Notification deleted!");
+      toast.success("Notification deleted.");
     },
   });
 
@@ -74,12 +74,13 @@ export const Notifications = () => {
   const handleNotificationClick = (notification: any) => {
     markAsRead(notification.createdAt);
     setOpen(open.map(() => false)); // close dropdown
+    const state = { commentId: notification.comment, replyId: notification.reply };
     if (notification.video?._id) {
-      navigate(`/video/${notification.video._id}`);
+      navigate(`/video/${notification.video._id}`, { state });
     } else if (notification.short?._id) {
-      navigate(`/short/${notification.short._id}`);
+      navigate(`/short/${notification.short._id}`, { state });
     } else if (notification.post?._id) {
-      navigate(`/post/${notification.post._id}`);
+      navigate(`/post/${notification.post._id}`, { state });
     } else if (notification.creator?.username) {
       navigate(`/channel/${notification.creator.username}`);
     }
@@ -308,19 +309,21 @@ export const Notifications = () => {
                               notification
                             </span>
                           </button>
-                          <button
-                            onClick={() =>
-                              markAsRead(
-                                notification.createdAt
-                              )
-                            }
-                            className="flex space-x-2 hover:bg-muted-foreground w-full p-2"
-                          >
-                            <CheckCheck className="h-5 w-5" />
-                            <span>
-                              Mark as read
-                            </span>
-                          </button>
+                          {!notification.read && (
+                            <button
+                              onClick={() =>
+                                markAsRead(
+                                  notification.createdAt
+                                )
+                              }
+                              className="flex space-x-2 hover:bg-muted-foreground w-full p-2"
+                            >
+                              <CheckCheck className="h-5 w-5" />
+                              <span>
+                                Mark as read
+                              </span>
+                            </button>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>

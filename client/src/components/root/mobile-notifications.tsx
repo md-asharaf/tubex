@@ -64,12 +64,13 @@ export const MobileNotifications = () => {
 
   const handleNotificationClick = (notification: any) => {
     markAsRead(notification.createdAt);
+    const state = { commentId: notification.comment, replyId: notification.reply };
     if (notification.video?._id) {
-      navigate(`/video/${notification.video._id}`);
+      navigate(`/video/${notification.video._id}`, { state });
     } else if (notification.short?._id) {
-      navigate(`/short/${notification.short._id}`);
+      navigate(`/short/${notification.short._id}`, { state });
     } else if (notification.post?._id) {
-      navigate(`/post/${notification.post._id}`);
+      navigate(`/post/${notification.post._id}`, { state });
     } else if (notification.creator?.username) {
       navigate(`/channel/${notification.creator.username}`);
     }
@@ -190,17 +191,19 @@ export const MobileNotifications = () => {
                 <EyeOff size={18} />
                 <span>Hide this notification</span>
               </button>
-              <button
-                className="flex items-center space-x-3 hover:bg-muted-foreground/20 w-full p-3 text-sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  markAsRead(notification.createdAt);
-                  setOpenDropdowns((prev) => ({ ...prev, [index]: false }));
-                }}
-              >
-                <CheckCheck size={18} />
-                <span>Mark as read</span>
-              </button>
+              {!notification.read && (
+                <button
+                  className="flex items-center space-x-3 hover:bg-muted-foreground/20 w-full p-3 text-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    markAsRead(notification.createdAt);
+                    setOpenDropdowns((prev) => ({ ...prev, [index]: false }));
+                  }}
+                >
+                  <CheckCheck size={18} />
+                  <span>Mark as read</span>
+                </button>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
