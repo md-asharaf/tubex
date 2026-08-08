@@ -94,7 +94,17 @@ class UserController {
     user.otpExpiry = undefined;
     await user.save({ validateBeforeSave: false });
 
-    return res.status(200).json(new ApiResponse(200, null, "Password set successfully"));
+    const options = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none"
+    };
+
+    return res.status(200)
+      .clearCookie("idToken", options)
+      .clearCookie("accessToken", options)
+      .clearCookie("refreshToken", options)
+      .json(new ApiResponse(200, null, "Password set successfully. Please login again."));
   })
   changeCurrentPassword = asyncHandler(async (req, res) => {
     const { password, newPassword, confirmPassword } = req.body;
@@ -116,7 +126,17 @@ class UserController {
     user.password = newPassword;
     await user.save({ validateBeforeSave: false });
 
-    return res.status(200).json(new ApiResponse(200, null, "Password changed successfully"))
+    const options = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none"
+    };
+
+    return res.status(200)
+      .clearCookie("idToken", options)
+      .clearCookie("accessToken", options)
+      .clearCookie("refreshToken", options)
+      .json(new ApiResponse(200, null, "Password changed successfully. Please login again."))
   })
   getCurrentUser = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, { user: req.user }, req.user ? "User found" : "User not found"))
