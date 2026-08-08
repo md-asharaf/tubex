@@ -404,7 +404,14 @@ export const Comments: React.FC<CommentProps> = ({
                             className="h-8 w-8 rounded-full p-0 flex items-center justify-center ml-2"
                             variant="ghost"
                             onClick={() => {
-                              setReplyingToCommentId(comment._id);
+                              if (isMobile) {
+                                setRepliesDrawerComment(comment);
+                                setTimeout(() => {
+                                  window.dispatchEvent(new CustomEvent("setReplyUsername", { detail: "" }));
+                                }, 300);
+                              } else {
+                                setReplyingToCommentId(comment._id);
+                              }
                             }}
                           >
                             <MessageSquare size={16} className="text-muted-foreground" />
@@ -470,7 +477,7 @@ export const Comments: React.FC<CommentProps> = ({
                     )}
                   </div>
                   <div className="relative z-10">
-                    {replyingToCommentId === comment._id && (
+                    {(!isMobile && replyingToCommentId === comment._id) && (
                       <div className="pl-11 mt-2">
                         <TextArea
                           fullname={userData?.fullname}

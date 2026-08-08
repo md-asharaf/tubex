@@ -11,11 +11,10 @@ import { likeService } from "@/services/like";
 import { useQuery, useMutation, useInfiniteQuery } from "@tanstack/react-query";
 import { PlyrPlayer } from "@/components/root/video-player";
 import { commentService } from "@/services/comment";
-import { Bookmark, Share2, ThumbsUp, MessageSquare } from "lucide-react";
+import { Bookmark, Share2, ThumbsUp } from "lucide-react";
 import { userService } from "@/services/user";
 import { ThreeDots } from "@/components/root/three-dots";
 import { Loader2 } from "lucide-react";
-import { ResponsiveModal } from "@/components/root/modals/responsive-modal";
 import { formatViews } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { RootState } from "@/store/store";
@@ -27,7 +26,6 @@ import {
 import { AvatarImg } from "@/components/root/avatar-image";
 import { VideoComments } from "@/components/root/video/video-comments";
 import { queryClient } from "@/main";
-import { toast } from "sonner";
 export const Video = () => {
   const theme = useSelector((state: RootState) => state.theme.mode);
   const dispatch = useDispatch();
@@ -278,8 +276,9 @@ export const Video = () => {
   return (
     <div className="flex flex-col space-y-4 xl:flex-row w-full">
       <div className="space-y-4 w-full xl:w-2/3 2xl:w-[70%]">
-        <div className="flex flex-col space-y-2 sm:px-2" onClickCapture={handleVideoClick}>
-          <PlyrPlayer
+        <div className="flex flex-col space-y-2 sm:px-2">
+          <div onClickCapture={handleVideoClick}>
+            <PlyrPlayer
             key={video._id}
             thumbnail={video.thumbnail}
             thumbnailPreviews={video.thumbnailPreviews}
@@ -306,6 +305,7 @@ export const Video = () => {
             trackProgressId={video._id}
             userId={userId}
           />
+          </div>
           <div className="px-3 sm:px-0 flex flex-col space-y-2">
             <h1 className="font-bold text-xl">{video.title}</h1>
             <div className="flex justify-between flex-col sm:flex-row gap-y-2 sm:gap-0">

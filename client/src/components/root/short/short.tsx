@@ -223,7 +223,13 @@ export const Short = () => {
       playerRef.current.fullscreen.enter();
     }
   };
-  const togglePlayPause = () => {
+  const togglePlayPause = (e?: React.MouseEvent) => {
+    if (e) {
+      const target = e.target as HTMLElement;
+      if (target.closest('button') || target.closest('.plyr__controls') || target.closest('a')) {
+        return;
+      }
+    }
     if (playerRef.current) {
       if (playerRef.current.paused) {
         playerRef.current.play();

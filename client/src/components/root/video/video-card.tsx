@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatDuration, formatViews } from "@/lib/utils";
 import { PlyrPlayer } from "../video-player";
 import { Volume2, VolumeX, Subtitles } from "lucide-react";
@@ -7,6 +7,10 @@ import { AvatarImg } from "@/components/root/avatar-image";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNowStrict } from "date-fns";
 import { ThreeDots } from "@/components/root/three-dots";
+import { useIntersection } from "@mantine/hooks";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 interface Props {
   video: IVideoData;
@@ -25,6 +29,35 @@ export const VideoCard: React.FC<Props> = ({
   const [isMuted, setIsMuted] = useState(true);
   const [isCCEnabled, setIsCCEnabled] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const isMobile = useIsMobile();
+
+  const { ref, entry } = useIntersection({
+    rootMargin: "-40% 0px -40% 0px",
+    threshold: 0,
+  });
+
+  useEffect(() => {
+    if (isMobile) {
+      if (entry?.isIntersecting) {
+        setIsHovered(true);
+      } else {
+        setIsHovered(false);
+      }
+    }
+  }, [entry?.isIntersecting, isMobile]);
+
+  const userId = useSelector((state: RootState) => state.auth.userData?._id);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    try {
+      const storageKey = `video-progress-${userId || 'guest'}`;
+      const savedProgress = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      if (savedProgress[video._id] && video.duration) {
+        setProgress((savedProgress[video._id] / parseFloat(video.duration)) * 100);
+      }
+    } catch (e) {}
+  }, [video._id, video.duration, userId]);
 
   const toggleMute = () => {
     const player = playerRef.current;
@@ -42,9 +75,10 @@ export const VideoCard: React.FC<Props> = ({
   };
   return (
     <div
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => { if (!isMobile) setIsHovered(true) }}
+      onMouseLeave={() => { if (!isMobile) setIsHovered(false) }}
       className="relative group flex flex-col gap-2 rounded-lg p-2"
+      ref={ref}
     >
       <div>
         <div className="aspect-video">
@@ -56,9 +90,17 @@ export const VideoCard: React.FC<Props> = ({
                 className={`w-full h-full object-cover rounded-xl`}
                 loading="lazy"
               />
-              <p className="absolute right-2 bottom-2 bg-black/80 text-white text-xs font-medium px-1.5 py-0.5 rounded">
+              <p className="absolute right-2 bottom-2 bg-black/80 text-white text-xs font-medium px-1.5 py-0.5 rounded z-10">
                 {formatDuration(video.duration)}
               </p>
+              {progress > 0 && (
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/30 rounded-b-xl overflow-hidden z-20">
+                  <div 
+                    className="h-full bg-red-600" 
+                    style={{ width: `${Math.min(Math.max(progress, 0), 100)}%` }} 
+                  />
+                </div>
+              )}
             </div>
           ) : (
             <div 
