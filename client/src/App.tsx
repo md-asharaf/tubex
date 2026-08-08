@@ -4,8 +4,8 @@ import { RootState } from "./store/store";
 import { useNotification } from "./hooks/use-notification";
 import { useSelector } from "react-redux";
 import { AuthRoute } from "./routes/auth-route";
-import { PublicRoutes } from "./routes/public-route";
 import { StudioRoute } from "./routes/studio-route";
+import { RootRoute } from "./routes/root-route";
 
 function App() {
   const theme = useSelector((state: RootState) => state.theme.mode);
@@ -20,7 +20,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         {AuthRoute()}
-        {PublicRoutes()}
+        {RootRoute()}
         {StudioRoute()}
       </Routes>
     </BrowserRouter>

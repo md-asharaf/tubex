@@ -7,6 +7,7 @@ const router = Router();
 
 router.get("/logout", authController.logoutUser);
 router.get("/get-users", userController.getUsers)
+router.get("/search-channels", userController.searchChannels)
 router.get("/refresh-tokens", authController.refreshTokens);
 router.post("/login", authController.loginUser);
 router.post("/register", limiter(2), authController.registerUser);

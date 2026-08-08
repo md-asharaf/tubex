@@ -257,7 +257,73 @@ class PlaylistController {
     }
     return res.status(200).json(new ApiResponse(200, { playlist: playlists[0] }, "Playlist fetched successfully"));
   })
-}
+  
+  getPlaylistsByQuery = asyncHandler(async (req, res) => {
+    const { query, page = 1, limit = 10 } = req.query;
+    if (!query) throw new ApiError(400, "Please provide a search query");
 
+    const skip = (page - 1) * limit;
+
+    const playlists = await Playlist.aggregate([
+      {
+        $match: {
+          visibility: "public",
+          $or: [
+            { name: { $regex: query, $options: "i" } },
+            { description: { $regex: query, $options: "i" } },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "creator",
+          pipeline: [
+            {
+              $project: {
+                username: 1,
+                fullname: 1,
+                avatar: 1
+              }
+            }
+          ]
+        },
+      },
+      {
+        $addFields: {
+          creator: { $first: "$creator" },
+        },
+      },
+      {
+        $lookup: {
+          from: "videos",
+          localField: "videos",
+          foreignField: "_id",
+          as: "video",
+        }
+      },
+      {
+        $addFields: {
+          thumbnail: { $first: "$video.thumbnail" }
+        }
+      },
+      {
+        $project: {
+          userId: 0,
+          video: 0,
+          __v: 0,
+        },
+      },
+      { $skip: skip },
+      { $limit: parseInt(limit) },
+    ]);
+
+    return res.status(200).json(
+      new ApiResponse(200, { playlists }, "Playlists fetched successfully")
+    );
+  });
+}
 
 export const playlistController = new PlaylistController();

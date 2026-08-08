@@ -29,7 +29,7 @@ import { Route, Navigate } from "react-router-dom";
 
 export function StudioRoute() {
   return (
-    <Route path="/studio" element={<StudioLayout />}>
+    <Route path="studio" element={<StudioLayout />}>
       <Route path=":username" element={<ChannelLayout />}>
         <Route path="content" element={<ContentLayout />}>
           <Route index element={<Navigate to="videos" replace />} />

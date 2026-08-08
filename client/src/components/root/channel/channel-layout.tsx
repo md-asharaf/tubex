@@ -116,20 +116,20 @@ export const Channel = () => {
         );
     }
     return (
-        <div className="space-y-4 w-full relative">
+        <div className="space-y-4 w-full relative pb-10">
             <img
-                className="w-full h-24 md:h-32 lg:h-40 object-cover 2xl:h-48 rounded-lg"
+                className="w-full h-24 md:h-32 lg:h-40 object-cover 2xl:h-48 sm:rounded-lg rounded-none"
                 src={userDetails?.user?.coverImage || DefaultCoverImage}
                 loading="lazy"
                 alt="Cover"
             />
-            <div className="flex space-x-2 sm:space-x-6">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left space-y-4 sm:space-y-0 sm:space-x-6 px-4 sm:px-0">
                 <AvatarImg
-                    className="rounded-full h-24 w-24 sm:h-32 sm:w-32 object-cover lg:h-40 lg:w-40"
+                    className="rounded-full h-20 w-20 sm:h-32 sm:w-32 object-cover lg:h-40 lg:w-40"
                     avatar={userDetails?.user?.avatar}
                     fullname={userDetails?.user?.fullname}
                 />
-                <div className="space-y-2">
+                <div className="space-y-2 flex flex-col items-center sm:items-start w-full sm:w-auto">
                     <h2 className="text-xl sm:text-2xl font-bold">
                         {userDetails?.user?.fullname}
                     </h2>
@@ -137,15 +137,15 @@ export const Channel = () => {
                         } • ${userDetails?.subscribersCount} subscribers • ${videosCount || 0
                         } videos`}</p>
                     {userData?.username !== username && (
-                        <div className="flex space-x-2">
+                        <div className="flex space-x-2 w-full sm:w-auto mt-2">
                             <Button
                                 variant={isSubscribed ? "secondary" : "default"}
                                 onClick={() => toggleSubscription()}
-                                className="rounded-full"
+                                className="rounded-full flex-1 sm:flex-none"
                             >
                                 {isSubscribed ? "Unsubscribe" : "Subscribe"}
                             </Button>
-                            <Button variant="outline" className="rounded-full">
+                            <Button variant="outline" className="rounded-full flex-1 sm:flex-none">
                                 Join
                             </Button>
                         </div>

@@ -22,6 +22,7 @@ export interface IUser {
     email?: string;
     watchHistory?: Array<IVideoData>;
     watchLater?: Array<IVideoData>;
+    subscriberCount?: number;
 }
 export interface IRegisterForm {
     fullname: string;

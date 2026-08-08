@@ -4,6 +4,7 @@ import { playlistController } from "../controllers/playlist.js"
 import { limiter } from "../utils/rate-limiter.js";
 const router = Router();
 
+router.get("/search-playlists", playlistController.getPlaylistsByQuery);
 router.get("/all-playlists/:username", playlistController.getUserPlaylists);
 router.get("/is-video-saved", verifyJWT, playlistController.isSavedToPlaylists);
 router.get("/:playlistId", playlistController.getPlaylistById);

@@ -547,5 +547,54 @@ class UserController {
     else isSaved = user.watchLater.shortIds.includes(shortId);
     return res.status(200).json(new ApiResponse(200, { isSaved }, `Video ${isSaved ? "is" : "is not"} saved to watch later`))
   })
+  searchChannels = asyncHandler(async (req, res) => {
+    const { query, page = 1, limit = 10 } = req.query;
+    if (!query) throw new ApiError(400, "Please provide a search query");
+
+    const skip = (page - 1) * limit;
+
+    const channels = await User.aggregate([
+      {
+        $match: {
+          $or: [
+            { username: { $regex: query, $options: "i" } },
+            { fullname: { $regex: query, $options: "i" } },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "subscriptions",
+          localField: "_id",
+          foreignField: "channelId",
+          as: "subscribers",
+        },
+      },
+      {
+        $addFields: {
+          subscriberCount: { $size: "$subscribers" },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          username: 1,
+          fullname: 1,
+          avatar: 1,
+          coverImage: 1,
+          subscriberCount: 1,
+        },
+      },
+      {
+        $sort: { subscriberCount: -1 },
+      },
+      { $skip: skip },
+      { $limit: parseInt(limit) },
+    ]);
+
+    return res.status(200).json(
+      new ApiResponse(200, { channels }, "Channels fetched successfully")
+    );
+  });
 }
 export const userController = new UserController();

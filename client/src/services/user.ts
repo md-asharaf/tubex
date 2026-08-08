@@ -29,6 +29,8 @@ class UserService {
         await axios.patch("/users/update-account-details", data);
     changePassword = async (data: any) =>
         await axios.patch("/users/change-password", data);
+    searchChannels = async (query: string) =>
+        await axios.get(`/users/search-channels?query=${query}`);
 }
 
 export const userService = new UserService();
