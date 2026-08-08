@@ -37,6 +37,22 @@ axiosInstance.interceptors.response.use(
     }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
+      const isLoggedIn = !!store.getState().auth.userData;
+
+      if (!isLoggedIn) {
+        if (originalRequest.method?.toLowerCase() === "get") {
+          return Promise.reject(error.response?.data as ApiResponse);
+        } else {
+          store.dispatch(
+            setLoginPopoverData({
+              message: "Sign in to perform this action.",
+              open: true,
+            })
+          );
+          return Promise.reject(error.response?.data as ApiResponse);
+        }
+      }
+
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -62,7 +78,7 @@ axiosInstance.interceptors.response.use(
 
           store.dispatch(
             setLoginPopoverData({
-              message: "Your session has expired. Please log in again.",
+              message: "Your session has expired",
               open: true,
             })
           );

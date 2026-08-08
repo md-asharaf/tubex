@@ -33,7 +33,7 @@ export const LoginPopover: React.FC = () => {
     >
       <div className="flex flex-col items-start w-full mt-2">
         <h2 className="text-[18px] sm:text-[20px] font-medium text-foreground mb-3 tracking-tight">
-          Want to {message ? message.toLowerCase() : "perform this action"}?
+          {message || "Sign in to perform this action."}
         </h2>
         <p className="text-[15px] text-muted-foreground mb-8">
           Sign in to make your opinion count.
