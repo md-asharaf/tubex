@@ -5,7 +5,7 @@ import { ApiError } from '../utils/api-error.js';
 import { User } from '../models/user.js';
 import { ApiResponse } from '../utils/api-response.js';
 import { sendEmail } from '../lib/resend.js';
-import { getEmailTemplate } from '../templates/email.js'
+import { getEmailTemplate, getOtpEmailTemplate } from '../templates/email.js'
 import { deleteCacheUsingPattern } from "../lib/redis.js";
 import { Types } from "mongoose"
 const ObjectId = Types.ObjectId;
@@ -31,6 +31,70 @@ class UserController {
       throw new ApiError(500, error.message)
     }
     return res.status(200).json(new ApiResponse(200, null, "we have sent the password reset link on your email."))
+  })
+
+  requestSetPasswordOtp = asyncHandler(async (req, res) => {
+    const userId = req.user?._id;
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+    if (user.password) {
+      throw new ApiError(400, "Password is already set");
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedOtp = await bcrypt.hash(otp, 10);
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+    user.otp = hashedOtp;
+    user.otpExpiry = otpExpiry;
+    await user.save({ validateBeforeSave: false });
+
+    const html = getOtpEmailTemplate(user.fullname, otp);
+    const subject = "Set Your TubeX Password";
+    const { error } = await sendEmail(user.email, subject, html);
+
+    if (error) {
+      throw new ApiError(500, error.message);
+    }
+
+    return res.status(200).json(new ApiResponse(200, null, "OTP sent to your email"));
+  })
+
+  setPasswordWithOtp = asyncHandler(async (req, res) => {
+    const { otp, newPassword, confirmPassword } = req.body;
+    const userId = req.user?._id;
+
+    if (!otp || !newPassword || !confirmPassword) {
+      throw new ApiError(400, "All fields are required");
+    }
+    if (newPassword !== confirmPassword) {
+      throw new ApiError(400, "Passwords do not match");
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+    if (user.password) {
+      throw new ApiError(400, "Password is already set");
+    }
+    if (!user.otp || !user.otpExpiry || user.otpExpiry < new Date()) {
+      throw new ApiError(400, "OTP is invalid or expired");
+    }
+
+    const isOtpCorrect = await bcrypt.compare(otp, user.otp);
+    if (!isOtpCorrect) {
+      throw new ApiError(400, "Invalid OTP");
+    }
+
+    user.password = newPassword;
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    return res.status(200).json(new ApiResponse(200, null, "Password set successfully"));
   })
   changeCurrentPassword = asyncHandler(async (req, res) => {
     const { password, newPassword, confirmPassword } = req.body;

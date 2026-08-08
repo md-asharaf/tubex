@@ -24,6 +24,8 @@ router.post("/save-to-watch-later", userController.saveToWatchLater)
 router.post("/add-to-watch-history", userController.addToWatchHistory)
 router.patch("/remove-from-watch-later", userController.removeFromWatchLater)
 router.patch("/change-password", userController.changeCurrentPassword);
+router.post("/request-otp", userController.requestSetPasswordOtp);
+router.post("/set-password-with-otp", userController.setPasswordWithOtp);
 router.patch("/update-account-details", userController.updateAccountDetails);
 router.delete("/clear-watch-history", userController.clearWatchHistory)
 router.delete("/remove-from-watch-history", userController.removeFromWatchHistory)
