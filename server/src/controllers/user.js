@@ -143,20 +143,26 @@ class UserController {
   })
   updateAccountDetails = asyncHandler(async (req, res) => {
     const userId = req.user?._id;
-    const { email, fullname, avatar, coverImage } = req.body;
-    if (!email || !fullname || !avatar || !coverImage) {
+    const { username, fullname, avatar, coverImage } = req.body;
+    if (!username || !fullname || !avatar || !coverImage) {
       throw new ApiError(400, "All fields are required")
     }
+
+    const existingUser = await User.findOne({ username, _id: { $ne: userId } });
+    if (existingUser) {
+      throw new ApiError(400, "Username is already taken");
+    }
+
     const user = await User.findByIdAndUpdate(userId, {
       $set: {
         fullname,
-        email,
+        username,
         avatar,
         coverImage
       }
     }, {
       new: true
-    })?.select("-password -refreshToken");
+    })?.select("-refreshToken");
     if (!user) {
       throw new ApiError(400, "User not found")
     }

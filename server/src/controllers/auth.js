@@ -56,7 +56,7 @@ class AuthController {
       fullname,
       username: username.toLowerCase()
     })
-    const createdUser = await User.findById(user._id)?.select("-password -refreshToken");
+    const createdUser = await User.findById(user._id)?.select("-refreshToken");
     if (!createdUser) {
       throw new ApiError(500, "Failed to create user");
     }
@@ -82,7 +82,7 @@ class AuthController {
     }
     const accessToken = await existedUser.generateAccessToken();
     const refreshToken = await existedUser.generateRefreshToken();
-    const loggedInUser = await User.findById(existedUser._id).select("-password -refreshToken");
+    const loggedInUser = await User.findById(existedUser._id).select("-refreshToken");
     const options = {
       httpOnly: true,
       secure: true,
@@ -123,7 +123,7 @@ class AuthController {
     user.refreshToken = newRefreshToken;
     await user.save({ validateBeforeSave: false });
 
-    const loggedInUser = await User.findById(_id).select("-password -refreshToken");
+    const loggedInUser = await User.findById(_id).select("-refreshToken");
     const options = { httpOnly: true, secure: true, sameSite: "none" };
     res.cookie("accessToken", newAccessToken, options);
     res.cookie("refreshToken", newRefreshToken, options);
