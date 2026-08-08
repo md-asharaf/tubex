@@ -13,6 +13,7 @@ import {
   Loader2,
   ArrowUp,
   ArrowDown,
+  ArrowLeft,
   Search,
   MoreVertical,
   Repeat,
@@ -324,7 +325,16 @@ export const Short = () => {
         {/* Top Header */}
         <div className="absolute top-0 left-0 w-full z-20 flex flex-col p-4">
           <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold">Shorts</h1>
+            <div className="flex items-center space-x-3">
+              <button 
+                onClick={() => navigate(-1)} 
+                className="p-1 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
+                aria-label="Go back"
+              >
+                <ArrowLeft size={24} className="text-white" />
+              </button>
+              <h1 className="text-2xl font-bold">Shorts</h1>
+            </div>
             <div className="flex items-center space-x-5">
               <button>
                 {isMuted ? <VolumeX size={26} onClick={() => setIsMuted(false)} /> : <Volume2 size={26} onClick={() => setIsMuted(true)} />}
