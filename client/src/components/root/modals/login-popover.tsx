@@ -4,7 +4,6 @@ import { setLoginPopoverData } from "@/store/reducers/ui";
 import { ResponsiveModal } from "./responsive-modal";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Lock } from "lucide-react";
 export const LoginPopover: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,25 +29,23 @@ export const LoginPopover: React.FC = () => {
     <ResponsiveModal
       open={open}
       onOpenChange={onOpenChange}
-      title="Login Required"
-      className="max-w-sm mx-auto"
+      className="max-w-[360px] mx-auto rounded-2xl"
     >
-      <div className="flex flex-col items-center">
-        <Lock
-          className="h-12 w-12 text-primary mb-4 animate-bounce"
-          strokeWidth={1}
-        />
-      </div>
-      <div className="text-center">
-        <p className="text-sm text-muted-foreground mb-6">
-          {message || "Please log in to continue."}
+      <div className="flex flex-col items-start w-full mt-2">
+        <h2 className="text-[18px] sm:text-[20px] font-medium text-foreground mb-3 tracking-tight">
+          Want to {message ? message.toLowerCase() : "perform this action"}?
+        </h2>
+        <p className="text-[15px] text-muted-foreground mb-8">
+          Sign in to make your opinion count.
         </p>
-        <Button
-          className="w-full bg-primary text-primary-foreground hover:bg-primary-hover py-3 text-lg font-medium"
-          onClick={handleLoginClick}
-        >
-          Log In
-        </Button>
+        <div className="flex justify-end w-full">
+          <Button
+            className="rounded-full px-5 h-9 font-medium text-blue-600 dark:text-[#3EA6FF] bg-transparent hover:bg-blue-50 dark:hover:bg-[#263850]"
+            onClick={handleLoginClick}
+          >
+            Sign in
+          </Button>
+        </div>
       </div>
     </ResponsiveModal>
   );
