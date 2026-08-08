@@ -345,14 +345,14 @@ export const Comments: React.FC<CommentProps> = ({
                               >
                                 {sentiment ===
                                   "positive" ? (
-                                  <FaPlus className="text-white text-[10px] mr-1 dark:text-black" />
+                                  <FaPlus className="text-white text-[10px] mr-1" />
                                 ) : sentiment ===
                                   "negative" ? (
-                                  <FiMinus className="text-white text-[10px] mr-1 dark:text-black" />
+                                  <FiMinus className="text-white text-[10px] mr-1" />
                                 ) : (
-                                  <GoDot className="text-white dark:text-black text-sm" />
+                                  <GoDot className="text-black text-sm mr-1" />
                                 )}
-                                <span className="text-white dark:text-black text-[10px] font-bold uppercase tracking-wider">
+                                <span className={`text-[10px] font-bold uppercase tracking-wider ${sentiment === "neutral" ? "text-black" : "text-white"}`}>
                                   {sentiment}
                                 </span>
                               </div>
@@ -626,13 +626,13 @@ export const Comments: React.FC<CommentProps> = ({
                                 className={`flex ${repliesDrawerComment.sentiment?.toLowerCase() === "positive" && "bg-green-500"} ${repliesDrawerComment.sentiment?.toLowerCase() === "negative" && "bg-red-500"} ${repliesDrawerComment.sentiment?.toLowerCase() === "neutral" && "bg-yellow-500"} rounded-full items-center justify-center pl-1 pr-2 whitespace-nowrap shrink-0 ml-1`}
                               >
                                 {repliesDrawerComment.sentiment?.toLowerCase() === "positive" ? (
-                                  <FaPlus className="text-white text-[10px] mr-1 dark:text-black" />
+                                  <FaPlus className="text-white text-[10px] mr-1" />
                                 ) : repliesDrawerComment.sentiment?.toLowerCase() === "negative" ? (
-                                  <FiMinus className="text-white text-[10px] mr-1 dark:text-black" />
+                                  <FiMinus className="text-white text-[10px] mr-1" />
                                 ) : (
-                                  <GoDot className="text-white dark:text-black text-sm" />
+                                  <GoDot className="text-black text-sm mr-1" />
                                 )}
-                                <span className="text-white dark:text-black text-[10px] font-bold uppercase tracking-wider">
+                                <span className={`text-[10px] font-bold uppercase tracking-wider ${repliesDrawerComment.sentiment?.toLowerCase() === "neutral" ? "text-black" : "text-white"}`}>
                                   {repliesDrawerComment.sentiment?.toLowerCase()}
                                 </span>
                               </div>
