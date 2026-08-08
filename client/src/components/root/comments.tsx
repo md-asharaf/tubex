@@ -2,6 +2,7 @@ import { commentService } from "@/services/comment";
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { formatDistanceToNowStrict } from "date-fns";
+import { getRelativeShortTime } from "@/lib/time";
 import { likeService } from "@/services/like";
 import { IComment } from "@/interfaces";
 import { useNavigate } from "react-router-dom";
@@ -303,7 +304,7 @@ export const Comments: React.FC<CommentProps> = ({
                   <div className="flex justify-between group relative z-10">
                     <div className="flex space-x-3 items-start w-full">
                       <AvatarImg
-                        className="rounded-full h-8 w-8 sm:h-10 sm:w-10 shrink-0 cursor-pointer mt-0.5"
+                        className="rounded-full h-7 w-7 shrink-0 cursor-pointer mt-0.5"
                         onClick={() =>
                           navigate(
                             `/channel/${comment.creator?.username}`
@@ -325,14 +326,7 @@ export const Comments: React.FC<CommentProps> = ({
                             {`@${comment.creator.username}`}
                           </div>
                           <div className="text-muted-foreground text-[12px]">
-                            {formatDistanceToNowStrict(
-                              new Date(
-                                comment.createdAt
-                              ),
-                              {
-                                addSuffix: true,
-                              }
-                            )}
+                            {getRelativeShortTime(comment.createdAt)}
                           </div>
                           {userData?._id ===
                             creatorId && (
@@ -591,7 +585,7 @@ export const Comments: React.FC<CommentProps> = ({
                     <div className="flex justify-between group pb-3">
                       <div className="flex space-x-3 items-start w-full">
                         <AvatarImg
-                          className="rounded-full h-8 w-8 sm:h-10 sm:w-10 shrink-0 cursor-pointer mt-0.5"
+                          className="rounded-full h-7 w-7 sm:h-10 sm:w-10 shrink-0 cursor-pointer mt-0.5"
                           onClick={() => navigate(`/channel/${repliesDrawerComment.creator?.username}`)}
                           fullname={repliesDrawerComment.creator.fullname}
                           avatar={repliesDrawerComment.creator.avatar}
@@ -604,8 +598,8 @@ export const Comments: React.FC<CommentProps> = ({
                             >
                               {`@${repliesDrawerComment.creator.username}`}
                             </div>
-                            <div className="text-muted-foreground text-[12px]">
-                              {formatDistanceToNowStrict(new Date(repliesDrawerComment.createdAt), { addSuffix: true })}
+                            <div className="text-muted-foreground text-[12px] whitespace-nowrap">
+                              {getRelativeShortTime(repliesDrawerComment.createdAt)}
                             </div>
                             {userData?._id === creatorId && (
                               <div

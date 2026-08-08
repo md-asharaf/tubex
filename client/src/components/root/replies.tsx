@@ -3,8 +3,10 @@ import { useQuery, useMutation, useInfiniteQuery } from "@tanstack/react-query";
 import { replyService } from "@/services/reply";
 import { Button } from "@/components/ui/button";
 import { Edit, EllipsisVertical, Loader2, ThumbsUp, Trash, MessageSquare, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useIntersection } from "@mantine/hooks";
 import { formatDistanceToNowStrict } from "date-fns";
+import { getRelativeShortTime } from "@/lib/time";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { likeService } from "@/services/like";
@@ -19,7 +21,6 @@ import { IReply } from "@/interfaces";
 import { toast } from "sonner";
 import { queryClient } from "@/main";
 import { AvatarImg } from "./avatar-image";
-import { useIntersection } from "@mantine/hooks";
 import { processText } from "@/lib";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ThreadBranch, ThreadLine } from "./thread-line";
@@ -262,13 +263,13 @@ const Replies = ({
                   <div className="flex justify-between">
                     <div className="flex space-x-2 items-start">
                       <div
-                        className="rounded-full h-7 w-7 shrink-0 cursor-pointer mt-0.5"
+                        className="rounded-full h-6 w-6 shrink-0 cursor-pointer mt-0.5"
                         onClick={() => navigate(`/channel/${reply.creator.username}`)}
                       >
                         <AvatarImg
                           fullname={reply.creator.fullname}
                           avatar={reply.creator.avatar}
-                          className="h-7 w-7"
+                          className="h-6 w-6"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -280,7 +281,7 @@ const Replies = ({
                             {`@${reply.creator.username}`}
                           </div>
                           <div className="text-muted-foreground text-[12px]">
-                            {formatDistanceToNowStrict(new Date(reply.createdAt), { addSuffix: true })}
+                            {getRelativeShortTime(reply.createdAt)}
                           </div>
                         </div>
                         <div className="break-words whitespace-pre-wrap text-[14px] leading-snug mt-0.5 text-foreground">
