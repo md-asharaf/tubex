@@ -416,65 +416,67 @@ export const Comments: React.FC<CommentProps> = ({
                           >
                             <MessageSquare size={16} className="text-muted-foreground" />
                           </Button>
-                          <Button
-                            className="h-8 w-8 rounded-full p-0 flex items-center justify-center ml-1"
-                            variant="ghost"
-                            onClick={() => {
-                              dispatch(setShareModalData({
-                                open: true,
-                                id: comment._id,
-                                type: "comment",
-                                parentId: id,
-                                parentType: type
-                              }));
-                            }}
-                          >
-                            <Share2 size={16} className="text-muted-foreground" />
-                          </Button>
                         </div>
                       </div>
                     </div>
-                    {userData?._id === comment.creator._id && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild className="focus:outline-none">
-                          <EllipsisVertical className="cursor-pointer h-5 w-5 mt-1 shrink-0 text-muted-foreground opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-white dark:bg-[#212121] p-0">
-                          <DropdownMenuItem
-                            className="rounded-none dark:hover:bg-[#535353] hover:bg-[#E5E5E5] px-4 py-3"
-                            onClick={() =>
-                              setEditingCommentId(
-                                comment._id
-                              )
-                            }
-                          >
-                            <Edit className="h-5 w-5 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="rounded-none dark:hover:bg-[#535353] hover:bg-[#E5E5E5] px-4 py-3"
-                            onClick={() => {
-                              dispatch(
-                                setAlertDialogData({
-                                  open: true,
-                                  message:
-                                    "this will delete your comment permanently",
-                                  onConfirm: () =>
-                                    deleteComment(
-                                      comment._id
-                                    ),
-                                })
-                              );
-                            }}
-                          >
-                            <div className="flex gap-2">
-                              <Trash className="h-5 w-5" />
-                              <span>Delete</span>
-                            </div>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild className="focus:outline-none">
+                        <EllipsisVertical className="cursor-pointer h-5 w-5 mt-1 shrink-0 text-muted-foreground" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="bg-white dark:bg-[#212121] p-0">
+                        {userData?._id === comment.creator._id && (
+                          <>
+                            <DropdownMenuItem
+                              className="rounded-none dark:hover:bg-[#535353] hover:bg-[#E5E5E5] px-4 py-3"
+                              onClick={() =>
+                                setEditingCommentId(
+                                  comment._id
+                                )
+                              }
+                            >
+                              <Edit className="h-5 w-5 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="rounded-none dark:hover:bg-[#535353] hover:bg-[#E5E5E5] px-4 py-3"
+                              onClick={() => {
+                                dispatch(
+                                  setAlertDialogData({
+                                    open: true,
+                                    message:
+                                      "this will delete your comment permanently",
+                                    onConfirm: () =>
+                                      deleteComment(
+                                        comment._id
+                                      ),
+                                  })
+                                );
+                              }}
+                            >
+                              <div className="flex gap-2">
+                                <Trash className="h-5 w-5" />
+                                <span>Delete</span>
+                              </div>
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        <DropdownMenuItem
+                          className="rounded-none dark:hover:bg-[#535353] hover:bg-[#E5E5E5] px-4 py-3"
+                          onClick={() => {
+                            dispatch(setShareModalData({
+                              open: true,
+                              id: comment._id,
+                              type: "comment",
+                              parentId: id,
+                              parentType: type
+                            }));
+                          }}
+                        >
+                          <Share2 size={16} className="mr-2" />
+                          Share
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                   <div className="relative z-10">
                     {(!isMobile && replyingToCommentId === comment._id) && (
