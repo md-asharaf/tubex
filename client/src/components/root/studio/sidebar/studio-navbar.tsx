@@ -19,7 +19,7 @@ export const StudioNavbar = () => {
   const navigate = useNavigate();
 
   return (
-    <nav className="fixed top-0 bg-white dark:bg-black right-0 left-0 flex items-center justify-between h-16 px-2 sm:px-5 z-50 border-b">
+    <nav className="fixed top-0 bg-white dark:bg-[#0F0F0F] right-0 left-0 flex items-center justify-between h-16 px-2 sm:px-5 z-50 border-b">
       <div className="flex items-center gap-2 sm:gap-4 w-full">
         <div className="flex items-center flex-shrink-0 gap-2 sm:gap-4">
           <SidebarTrigger />
@@ -37,7 +37,7 @@ export const StudioNavbar = () => {
           <SearchBar />
         </div>
         <div className="flex items-center gap-2 sm:gap-8 ml-auto">
-          <div className="hidden sm:block">
+          <div>
             <DarkModeSwitch
               checked={theme === "dark"}
               onChange={() => dispatch(toggleTheme())}
@@ -53,7 +53,6 @@ export const StudioNavbar = () => {
             </button>
           </div>
           <CreateDropdown isPlaylist />
-          <Profile />
         </div>
       </div>
     </nav>
