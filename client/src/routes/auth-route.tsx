@@ -5,13 +5,13 @@ import { SignIn } from "@/components/auth/signin";
 import { SignUp } from "@/components/auth/signup";
 import { Route } from "react-router-dom";
 
-export function AuthRoutes() {
+export function AuthRoute() {
   return (<Route element={<AuthLayOut />}>
-    <Route path="/login" element={<SignIn />} />
-    <Route path="/register" element={<SignUp />} />
-    <Route path="/forgot-password" element={<ForgotPassword />} />
+    <Route path="login" element={<SignIn />} />
+    <Route path="register" element={<SignUp />} />
+    <Route path="forgot-password" element={<ForgotPassword />} />
     <Route
-      path="/reset-password/:resetToken"
+      path="reset-password/:resetToken"
       element={<ResetPassword />}
     />
   </Route>);

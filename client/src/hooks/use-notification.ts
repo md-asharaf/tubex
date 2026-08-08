@@ -4,35 +4,35 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { io } from "socket.io-client";
 const SOCKET_URL = process.env.WEB_SOCKET_URL;
-export default function useNotification() {
-    const dispatch = useDispatch();
-    const userData = useSelector((state: RootState) => state.auth.userData);
+export function useNotification() {
+  const dispatch = useDispatch();
+  const userData = useSelector((state: RootState) => state.auth.userData);
 
-    useEffect(() => {
-        if (!userData) return;
+  useEffect(() => {
+    if (!userData) return;
 
-        const socket = io(SOCKET_URL, {
-            withCredentials: true,
-            transports: ["websocket"],
-            path: "/socket.io/",
-        });
+    const socket = io(SOCKET_URL, {
+      withCredentials: true,
+      transports: ["websocket"],
+      path: "/socket.io/",
+    });
 
-        socket.on("notification", (notification) => {
-            dispatch(addNotification(notification));
-        });
+    socket.on("notification", (notification) => {
+      dispatch(addNotification(notification));
+    });
 
-        socket.on("connect", () => {
-            console.log("Connected to WebSocket server");
-        });
+    socket.on("connect", () => {
+      console.log("Connected to WebSocket server");
+    });
 
-        socket.on("disconnect", () => {
-            console.log("Disconnected from WebSocket server");
-        });
+    socket.on("disconnect", () => {
+      console.log("Disconnected from WebSocket server");
+    });
 
-        return () => {
-            socket.disconnect();
-        };
-    }, [dispatch, userData]);
+    return () => {
+      socket.disconnect();
+    };
+  }, [dispatch, userData]);
 
-    return;
+  return;
 }
