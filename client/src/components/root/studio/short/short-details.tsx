@@ -247,10 +247,11 @@ export const ShortDetails = () => {
                 Undo changes
               </Button>
               <Button
-                disabled={!form.formState.isDirty}
+                disabled={!form.formState.isDirty || form.formState.isSubmitting}
                 className="rounded-sm bg-[#3ea6ff] hover:bg-[#3ea6ff]/90 text-black font-semibold h-9 px-4"
                 type="submit"
               >
+                {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save
               </Button>
               <DropdownMenu>
