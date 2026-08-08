@@ -47,6 +47,9 @@ export const ShortComments = ({
       queryClient.invalidateQueries({
         queryKey: ["comments", shortId, filter],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["comments-count", shortId],
+      });
     },
   });
   const isMobile = useIsMobile();

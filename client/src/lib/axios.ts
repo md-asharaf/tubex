@@ -45,7 +45,7 @@ axiosInstance.interceptors.response.use(
         } else {
           store.dispatch(
             setLoginPopoverData({
-              message: "Sign in to perform this action.",
+              message: "Sign In Required",
               open: true,
             })
           );

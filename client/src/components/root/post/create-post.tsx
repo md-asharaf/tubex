@@ -20,6 +20,7 @@ import { VideoPost } from "./video-post";
 import { TextPost } from "./text-post";                                                    
 import { postService } from "@/services/post";
 import { toast } from "sonner";
+import { queryClient } from "@/main";
 import { uploadService } from "@/services/upload";
 import { uploadToPresignedUrl } from "@/lib/upload";
 
@@ -78,6 +79,7 @@ export const CreatePost = ({ autoFocus = false }: { autoFocus?: boolean }) => {
                 });
             }
             toast.success("Post created successfully");
+            queryClient.invalidateQueries({ queryKey: ["posts", username] });
             reset();
         } catch (error) {
             toast.error(error.message);

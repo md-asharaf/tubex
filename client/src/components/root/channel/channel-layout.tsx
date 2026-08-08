@@ -47,7 +47,7 @@ export const Channel = () => {
     });
 
     const { data: videosCount, isLoading } = useQuery({
-        queryKey: ["videos", userDetails?.user?._id],
+        queryKey: ["videos-count", userDetails?.user?.username],
         queryFn: async (): Promise<number> => {
             const data = await videoService.videosCount(userDetails?.user?._id);
             return data.videosCount;

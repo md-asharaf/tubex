@@ -41,6 +41,9 @@ export const ContentVideos = () => {
       queryClient.invalidateQueries({
         queryKey: ["videos", username],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["videos-count", username],
+      });
     },
     onError: () => {
       toast.error("Failed to delete video");

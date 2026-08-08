@@ -29,14 +29,14 @@ export const LoginPopover: React.FC = () => {
     <ResponsiveModal
       open={open}
       onOpenChange={onOpenChange}
-      className="max-w-[360px] mx-auto rounded-2xl"
+      className="sm:max-w-[360px] w-full max-w-full mx-auto rounded-2xl"
     >
       <div className="flex flex-col items-start w-full mt-2">
         <h2 className="text-[18px] sm:text-[20px] font-medium text-foreground mb-3 tracking-tight">
-          {message || "Sign in to perform this action."}
+          {message || "Sign In Required"}
         </h2>
-        <p className="text-[15px] text-muted-foreground mb-8">
-          Sign in to make your opinion count.
+        <p className="text-[15px] text-muted-foreground mb-8 mx-auto">
+          Sign in to perform this action.
         </p>
         <div className="flex justify-end w-full">
           <Button

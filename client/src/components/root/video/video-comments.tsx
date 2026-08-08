@@ -35,6 +35,9 @@ export const VideoComments = ({ videoId, playerRef, creatorId, isDrawer = false,
       queryClient.invalidateQueries({
         queryKey: ["comments", videoId, filter],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["comments-count", videoId],
+      });
     },
   });
   if (isLoading) {
