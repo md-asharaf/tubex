@@ -1,7 +1,6 @@
 import http from 'http';
 import { Server } from 'socket.io';
 import { validateAccessToken } from '../middlewares/auth.js';
-import { validateIdToken } from '../lib/firebase-admin.js';
 import cookie from "cookie"
 import { logger } from '../utils/logger.js';
 
@@ -17,12 +16,10 @@ const io = new Server(webSocketServer, {
 
 const userSocketMap = {};
 io.use(async (socket, next) => {
-  const { accessToken, idToken } = cookie.parse(socket.handshake.headers.cookie||"");
+  const { accessToken } = cookie.parse(socket.handshake.headers.cookie||"");
   try {
     let user = null;
-    if (idToken) {
-      user = await validateIdToken(idToken);
-    } else if (accessToken) {
+    if (accessToken) {
       user = await validateAccessToken(accessToken);
     }
     socket.user = user;
