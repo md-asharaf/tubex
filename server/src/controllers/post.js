@@ -152,10 +152,16 @@ class PostController {
     if (!user) {
       throw new ApiError(404, "User not found")
     }
+    const isOwner = req.user?._id?.toString() === user._id.toString();
+    const visibilityMatch = isOwner 
+      ? { $in: ["public", "private", "unlisted"] } 
+      : "public";
+
     const posts = await Post.aggregate([
       {
         $match: {
-          userId: user._id
+          userId: user._id,
+          visibility: visibilityMatch
         }
       },
       {
@@ -206,8 +212,12 @@ class PostController {
     if (!post || post.length === 0) {
       throw new ApiError(404, "Post not found");
     }
+    const postData = post[0];
+    if (postData.visibility === "private" && postData.creator._id.toString() !== req.user?._id?.toString()) {
+      throw new ApiError(403, "This post is private");
+    }
 
-    return res.status(200).json(new ApiResponse(200, { post: post[0] }, "Post fetched successfully"));
+    return res.status(200).json(new ApiResponse(200, { post: postData }, "Post fetched successfully"));
   })
 }
 

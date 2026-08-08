@@ -1,15 +1,15 @@
 import { Router } from "express";
-import { verifyJWT } from "../middlewares/auth.js";
+import { verifyJWT, optionalAuth } from "../middlewares/auth.js";
 import { videoController } from "../controllers/video.js";
 const router = Router();
 
-router.get("/search-videos", videoController.getVideosByQuery);
-router.get("/videos-count/:userId", videoController.getUserVideosCount)
-router.get("/recommended-videos", videoController.getRecommendedVideos);
-router.get("/user-videos/:username", videoController.getVideosByUserId);
+router.get("/search-videos", optionalAuth, videoController.getVideosByQuery);
+router.get("/videos-count/:userId", optionalAuth, videoController.getUserVideosCount)
+router.get("/recommended-videos", optionalAuth, videoController.getRecommendedVideos);
+router.get("/user-videos/:username", optionalAuth, videoController.getVideosByUserId);
 router.get("/subscribed-videos", verifyJWT, videoController.getSubscribedVideos);
 router.get("/liked-videos", verifyJWT, videoController.getLikedVideos);
-router.get("/:videoId", videoController.getVideoById);
+router.get("/:videoId", optionalAuth, videoController.getVideoById);
 router.post("/increase-views/:videoId", videoController.increaseViews)
 router.use(verifyJWT);
 router.post("/publish-video", videoController.publishVideo);

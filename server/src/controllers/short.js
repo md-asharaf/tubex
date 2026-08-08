@@ -233,6 +233,11 @@ class ShortController {
       .sort({ createdAt: -1 })
       .select("_id")
       .lean())?._id ?? "";
+      
+    if (short.visibility === "private" && short.creator._id.toString() !== req.user?._id?.toString()) {
+      throw new ApiError(403, "This short is private");
+    }
+
     return res.status(200).json(new ApiResponse(200, { short }, "Short fetched successfully"));
   });
 
@@ -241,11 +246,16 @@ class ShortController {
     if (!username) throw new ApiError(400, "Please provide username")
     const user = await User.findOne({ username });
     if (!user) throw new ApiError(400, "Please provide valid username")
+    const isOwner = req.user?._id?.toString() === user._id.toString();
+    const visibilityMatch = isOwner 
+      ? { $in: ["public", "private", "unlisted"] } 
+      : "public";
+
     const shorts = await Short.aggregate([
       {
         $match: {
           userId: user._id,
-          visibility: "public",
+          visibility: visibilityMatch,
           sourceStatus: "READY"
         }
       },

@@ -580,7 +580,7 @@ export const VideoDetails = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Visibility</FormLabel>
-                    <Select onValueChange={field.onChange}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select" />

@@ -126,10 +126,15 @@ class PlaylistController {
     if (!user) {
       throw new ApiError(404, "User not found")
     }
+    const isOwner = req.user?._id?.toString() === user._id.toString();
+    const visibilityMatch = isOwner 
+      ? { $in: ["public", "private", "unlisted"] } 
+      : "public";
+
     const playlists = await Playlist.aggregate([
       {
         $match: {
-          visibility: "public",
+          visibility: visibilityMatch,
           userId: user._id
         }
       },
@@ -255,7 +260,12 @@ class PlaylistController {
     if (!playlists) {
       throw new ApiError(404, "Playlist not found")
     }
-    return res.status(200).json(new ApiResponse(200, { playlist: playlists[0] }, "Playlist fetched successfully"));
+    const playlistData = playlists[0];
+    if (playlistData.visibility === "private" && playlistData.creator._id.toString() !== req.user?._id?.toString()) {
+      throw new ApiError(403, "This playlist is private");
+    }
+
+    return res.status(200).json(new ApiResponse(200, { playlist: playlistData }, "Playlist fetched successfully"));
   })
   
   getPlaylistsByQuery = asyncHandler(async (req, res) => {

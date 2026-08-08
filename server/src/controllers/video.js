@@ -311,18 +311,32 @@ class VideoController {
         }
       ]
     )
-    return res.status(200).json(new ApiResponse(200, { video: video[0] }, "Video fetched successfully"))
+    if (!video || video.length === 0) {
+      throw new ApiError(404, "Video not found")
+    }
+
+    const videoData = video[0];
+    if (videoData.visibility === "private" && videoData.creator._id.toString() !== req.user?._id?.toString()) {
+      throw new ApiError(403, "This video is private");
+    }
+
+    return res.status(200).json(new ApiResponse(200, { video: videoData }, "Video fetched successfully"))
   })
   getVideosByUserId = asyncHandler(async (req, res) => {
     const { username } = req.params;
     if (!username) throw new ApiError(400, "Please provide username")
     const user = await User.findOne({ username })
     if (!user) throw new ApiError(400, "User not found")
+    const isOwner = req.user?._id?.toString() === user._id.toString();
+    const visibilityMatch = isOwner 
+      ? { $in: ["public", "private", "unlisted"] } 
+      : "public";
+
     const videos = await Video.aggregate([
       {
         $match: {
           userId: user._id,
-          visibility: "public",
+          visibility: visibilityMatch,
           sourceStatus: "READY"
         }
       },

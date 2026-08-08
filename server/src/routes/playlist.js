@@ -1,13 +1,13 @@
 import { Router } from "express";
-import { verifyJWT } from "../middlewares/auth.js";
+import { verifyJWT, optionalAuth } from "../middlewares/auth.js";
 import { playlistController } from "../controllers/playlist.js"
 import { limiter } from "../utils/rate-limiter.js";
 const router = Router();
 
-router.get("/search-playlists", playlistController.getPlaylistsByQuery);
-router.get("/all-playlists/:username", playlistController.getUserPlaylists);
+router.get("/search-playlists", optionalAuth, playlistController.getPlaylistsByQuery);
+router.get("/all-playlists/:username", optionalAuth, playlistController.getUserPlaylists);
 router.get("/is-video-saved", verifyJWT, playlistController.isSavedToPlaylists);
-router.get("/:playlistId", playlistController.getPlaylistById);
+router.get("/:playlistId", optionalAuth, playlistController.getPlaylistById);
 router.post("/create-playlist", limiter(3), verifyJWT, playlistController.createPlaylist);
 router.use(verifyJWT);
 router.patch("/update-playlist/:playlistId", playlistController.updatePlaylist);

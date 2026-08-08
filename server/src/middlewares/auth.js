@@ -30,3 +30,16 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
   next();
 });
 
+export const optionalAuth = asyncHandler(async (req, res, next) => {
+  const { accessToken } = req.cookies;
+  if (!accessToken) {
+    return next();
+  }
+  try {
+    const user = await validateAccessToken(accessToken);
+    req.user = user;
+  } catch (error) {
+  }
+  next();
+});
+
