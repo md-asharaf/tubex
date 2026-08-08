@@ -44,23 +44,26 @@ export const SignUp = () => {
   };
 
   return (
-    <div className="flex w-full items-center justify-center mx-2 text-black">
-      <div className="bg-white p-6 md:p-8 rounded-lg w-full z-10">
-        <div className="text-center mb-6">
-          <div className="flex justify-center space-x-1 items-center">
-            <IoLogoYoutube className="text-3xl" />
-            <div className="text-red-500 font-bold text-pretty">
+    <div className="flex w-full min-h-screen items-center justify-center p-4 text-black dark:text-white bg-[#F9F9F9] dark:bg-[#0F0F0F]">
+      <div className="bg-white dark:bg-[#212121] p-8 md:p-10 rounded-2xl md:shadow-lg w-full max-w-[450px] border border-gray-200 dark:border-white/10 md:border-transparent">
+        <div className="text-center mb-8">
+          <div className="flex justify-center items-center mb-4">
+            <IoLogoYoutube className="text-4xl text-red-600" />
+            <div className="text-2xl font-bold ml-1 dark:text-white tracking-tight">
               TubeX
             </div>
           </div>
-          <h2 className="text-xl font-semibold text-gray-800">
-            Sign Up
+          <h2 className="text-2xl font-normal text-gray-900 dark:text-white">
+            Create a TubeX Account
           </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+            Enter your details to sign up
+          </p>
         </div>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 w-full"
+            className="space-y-5 w-full"
           >
             <FormField
               control={form.control}
@@ -72,10 +75,10 @@ export const SignUp = () => {
                       type="text"
                       placeholder="Fullname"
                       {...field}
-                      className="bg-white"
+                      className="bg-transparent border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-12 text-base px-4"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -88,10 +91,10 @@ export const SignUp = () => {
                     <Input
                       placeholder="Username"
                       {...field}
-                      className="bg-white"
+                      className="bg-transparent border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-12 text-base px-4"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -105,10 +108,10 @@ export const SignUp = () => {
                       type="email"
                       placeholder="Email address"
                       {...field}
-                      className="bg-white"
+                      className="bg-transparent border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-12 text-base px-4"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -121,27 +124,29 @@ export const SignUp = () => {
                     <PasswordInput
                       placeholder="Password"
                       {...field}
+                      className="bg-transparent border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-12 text-base px-4"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
-            <button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 px-32 text-white font-medium py-2 rounded-lg"
-            >
-              {loading ? <Loader2 className="h-6 w-6 animate-spin mx-auto" /> : "Sign Up"}
-            </button>
+            <div className="flex items-center justify-between pt-6">
+              <Link
+                to="/login"
+                className="text-[#065FD4] font-medium text-sm hover:bg-blue-50 dark:hover:bg-white/10 px-4 py-2 rounded-full transition-colors"
+              >
+                Sign in instead
+              </Link>
+              <button
+                type="submit"
+                className="bg-[#065FD4] hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-full transition-colors flex items-center justify-center min-w-[100px]"
+              >
+                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Next"}
+              </button>
+            </div>
           </form>
         </Form>
-
-        <div className="text-center text-sm mt-6">
-          <p>Already have an account?</p>
-          <Link to="/login" className="text-blue-500 hover:underline">
-            Log In
-          </Link>
-        </div>
       </div>
     </div>
   );

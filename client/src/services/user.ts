@@ -25,6 +25,10 @@ class UserService {
         await axios.patch(`/users/remove-from-watch-later?${type}Id=${id}`);
     isSavedToWatchLater = async (id: string,type:string) =>
         await axios.get(`/users/is-saved-to-watch-later?${type}Id=${id}`);
+    updateAccountDetails = async (data: { fullname?: string, username?: string, email?: string, avatar?: string, coverImage?: string, description?: string }) =>
+        await axios.patch("/users/update-account-details", data);
+    changePassword = async (data: any) =>
+        await axios.patch("/users/change-password", data);
 }
 
 export const userService = new UserService();

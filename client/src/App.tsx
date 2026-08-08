@@ -25,6 +25,7 @@ import { YourVideos } from "./components/root/your-videos";
 import { MobileSearch } from "./components/root/mobile-search";
 import { MobileNotifications } from "./components/root/mobile-notifications";
 import { MobileSettings } from "./components/root/mobile-settings";
+import { Account } from "./components/root/account";
 import { StudioLayout } from "./components/root/studio/studio-layout";
 import { Channel } from "./components/root/channel/channel-layout";
 import { ContentVideos } from "./components/root/studio/channel/content/content-videos";
@@ -108,6 +109,7 @@ function App() {
             <Route path="/library" element={<PlaylistNhistory />} />
             <Route path="/subscriptions" element={<Subscriptions />} />
             <Route path="/your-videos" element={<YourVideos />} />
+            <Route path="/account/:username" element={<Account />} />
           </Route>
         </Route>
         <Route element={<StudioLayout />} path="/studio">
