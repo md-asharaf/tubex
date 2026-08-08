@@ -17,6 +17,7 @@ export interface IUser {
     username: string;
     fullname: string;
     avatar?: string;
+    hasPassword?: boolean;
     limit?: number;
     coverImage?: string;
     email?: string;

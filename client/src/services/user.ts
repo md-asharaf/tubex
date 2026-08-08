@@ -29,6 +29,10 @@ class UserService {
         await axios.patch("/users/update-account-details", data);
     changePassword = async (data: any) =>
         await axios.patch("/users/change-password", data);
+    requestSetPasswordOtp = async () =>
+        await axios.post("/users/request-otp");
+    setPasswordWithOtp = async (data: any) =>
+        await axios.post("/users/set-password-with-otp", data);
     searchChannels = async (query: string) =>
         await axios.get(`/users/search-channels?query=${query}`);
 }

@@ -31,12 +31,23 @@ const passwordSchema = z.object({
   path: ["confirmPassword"],
 });
 
+const setPasswordSchema = z.object({
+  otp: z.string().length(6, "OTP must be 6 digits"),
+  newPassword: z.string().min(6, "New password must be at least 6 characters"),
+  confirmPassword: z.string().min(6, "Please confirm your new password"),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
 export const Account = () => {
   const dispatch = useDispatch();
   const userData = useSelector((state: RootState) => state.auth.userData);
   
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [requestOtpLoading, setRequestOtpLoading] = useState(false);
+  const [isOtpSent, setIsOtpSent] = useState(false);
   
   const [avatarPreview, setAvatarPreview] = useState(userData?.avatar);
   const [coverPreview, setCoverPreview] = useState(userData?.coverImage);
@@ -55,6 +66,15 @@ export const Account = () => {
     resolver: zodResolver(passwordSchema),
     defaultValues: {
       password: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
+
+  const setPasswordForm = useForm({
+    resolver: zodResolver(setPasswordSchema),
+    defaultValues: {
+      otp: "",
       newPassword: "",
       confirmPassword: "",
     },
@@ -147,6 +167,36 @@ export const Account = () => {
     }
   };
 
+  const handleRequestOtp = async () => {
+    setRequestOtpLoading(true);
+    try {
+      await userService.requestSetPasswordOtp();
+      toast.success("OTP sent to your email");
+      setIsOtpSent(true);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to send OTP");
+    } finally {
+      setRequestOtpLoading(false);
+    }
+  };
+
+  const onSetPasswordSubmit = async (values: z.infer<typeof setPasswordSchema>) => {
+    setPasswordLoading(true);
+    try {
+      await userService.setPasswordWithOtp(values);
+      toast.success("Password set successfully");
+      setPasswordForm.reset();
+      setIsOtpSent(false);
+      // Fetch user again to update hasPassword state
+      const userRes = await userService.getCurrentUser();
+      dispatch(login(userRes.user));
+    } catch (error: any) {
+      toast.error(error.message || "Failed to set password");
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
   if (!userData) return null;
 
   return (
@@ -230,55 +280,126 @@ export const Account = () => {
 
         <div className="space-y-8">
           <div className="bg-card p-6 rounded-xl border border-border shadow-sm">
-            <h2 className="text-xl font-semibold mb-6">Change Password</h2>
-            
-            <Form {...passwordForm}>
-              <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
-                <FormField
-                  control={passwordForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Current Password</FormLabel>
-                      <FormControl>
-                        <PasswordInput placeholder="Enter current password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={passwordForm.control}
-                  name="newPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>New Password</FormLabel>
-                      <FormControl>
-                        <PasswordInput placeholder="Enter new password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={passwordForm.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm New Password</FormLabel>
-                      <FormControl>
-                        <PasswordInput placeholder="Confirm new password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" variant="secondary" disabled={passwordLoading} className="w-full">
-                  {passwordLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
-                  Update Password
-                </Button>
-              </form>
-            </Form>
+            {userData.hasPassword ? (
+              <>
+                <h2 className="text-xl font-semibold mb-6">Change Password</h2>
+                <Form {...passwordForm}>
+                  <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
+                    <FormField
+                      control={passwordForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Current Password</FormLabel>
+                          <FormControl>
+                            <PasswordInput placeholder="Enter current password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={passwordForm.control}
+                      name="newPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>New Password</FormLabel>
+                          <FormControl>
+                            <PasswordInput placeholder="Enter new password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={passwordForm.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Confirm New Password</FormLabel>
+                          <FormControl>
+                            <PasswordInput placeholder="Confirm new password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" variant="secondary" disabled={passwordLoading} className="w-full">
+                      {passwordLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+                      Update Password
+                    </Button>
+                  </form>
+                </Form>
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-semibold mb-6">Set Password</h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  You haven't set a password yet. Set one now to login without Google.
+                </p>
+                {!isOtpSent ? (
+                  <Button 
+                    onClick={handleRequestOtp} 
+                    disabled={requestOtpLoading} 
+                    className="w-full"
+                  >
+                    {requestOtpLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+                    Request OTP to Email
+                  </Button>
+                ) : (
+                  <Form {...setPasswordForm}>
+                    <form onSubmit={setPasswordForm.handleSubmit(onSetPasswordSubmit)} className="space-y-4">
+                      <FormField
+                        control={setPasswordForm.control}
+                        name="otp"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Verification Code (OTP)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Enter 6-digit OTP" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={setPasswordForm.control}
+                        name="newPassword"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>New Password</FormLabel>
+                            <FormControl>
+                              <PasswordInput placeholder="Enter new password" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={setPasswordForm.control}
+                        name="confirmPassword"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Confirm New Password</FormLabel>
+                            <FormControl>
+                              <PasswordInput placeholder="Confirm new password" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button type="submit" variant="secondary" disabled={passwordLoading} className="w-full">
+                        {passwordLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+                        Set Password
+                      </Button>
+                      <Button type="button" variant="ghost" onClick={() => setIsOtpSent(false)} className="w-full mt-2">
+                        Cancel
+                      </Button>
+                    </form>
+                  </Form>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
