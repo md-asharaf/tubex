@@ -113,8 +113,8 @@ class PostController {
       throw new ApiError(400, "Invalid post type")
     }
 
-    const updatedPost = await postModels[type].findByIdAndUpdate(
-      postId,
+    const updatedPost = await postModels[type].findOneAndUpdate(
+      { _id: new mongoose.Types.ObjectId(postId), userId: req.user._id },
       updateData,
       { new: true, runValidators: true }
     );
@@ -133,7 +133,10 @@ class PostController {
     if (!postModels[type]) {
       throw new ApiError(400, "Invalid post type")
     }
-    const deletedPost = await postModels[type].findByIdAndDelete(postId);
+    const deletedPost = await postModels[type].findOneAndDelete({
+      _id: new mongoose.Types.ObjectId(postId),
+      userId: req.user._id
+    });
 
     if (!deletedPost) {
       throw new ApiError(404, "Post not found")

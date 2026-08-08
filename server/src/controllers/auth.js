@@ -3,19 +3,25 @@ import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/handler.js";
 import jwt from "jsonwebtoken";
+import { verifyIdToken } from "../lib/firebase-admin.js";
 class AuthController {
   googleSignIn = asyncHandler(async (req, res) => {
     const { email, fullname, avatar, idToken } = req.body;
     if (!email || !idToken) {
       throw new ApiError(400, "Email and idToken is required")
     }
-    let user;
-    user = await User.findOne({ email })
-    if (user) {
-      user.idToken = idToken;
-      await user.save({ validateBeforeSave: false });
+    // Verify the Google ID Token to ensure it's valid and grab the email
+    const decodedToken = await verifyIdToken(idToken);
+    const verifiedEmail = decodedToken.email;
+    
+    // Safety check to ensure the email matches what Google verified
+    if (email !== verifiedEmail) {
+      throw new ApiError(400, "Email mismatch with Google Token");
     }
-    else {
+
+    let user = await User.findOne({ email });
+    
+    if (!user) {
       if (!fullname || !avatar) {
         throw new ApiError(400, "Fullname and avatar is required");
       }
@@ -23,19 +29,27 @@ class AuthController {
         email,
         fullname,
         username: email.split("@")[0],
-        avatar,
-        idToken
+        avatar
       })
     }
+    
+    const accessToken = await user.generateAccessToken();
     const refreshToken = await user.generateRefreshToken();
+    
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
+    
     const options = {
       httpOnly: true,
       secure: true,
       sameSite: "none"
     }
-    return res.status(200).cookie("idToken", idToken, options).cookie("refreshToken", refreshToken, options).json(new ApiResponse(200, { user }, "User logged in successfully"))
+    
+    // We only set our own accessToken and refreshToken. We discard the idToken.
+    return res.status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json(new ApiResponse(200, { user }, "User logged in successfully"))
   })
   registerUser = asyncHandler(async (req, res) => {
     const { username, email, password, fullname } = req.body;

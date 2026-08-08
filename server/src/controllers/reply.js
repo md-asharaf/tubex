@@ -58,7 +58,11 @@ class ReplyController {
       throw new ApiError(400, "Both Reply ID and Content are required");
     }
 
-    const reply = await Reply.findByIdAndUpdate(replyId, { content }, { new: true });
+    const reply = await Reply.findOneAndUpdate(
+      { _id: new ObjectId(replyId), userId: req.user._id },
+      { content },
+      { new: true }
+    );
     if (!reply) {
       throw new ApiError(404, "Reply not found");
     }
@@ -72,7 +76,10 @@ class ReplyController {
       throw new ApiError(400, "Reply ID is required to delete a reply");
     }
 
-    const reply = await Reply.findByIdAndDelete(replyId);
+    const reply = await Reply.findOneAndDelete({
+      _id: new ObjectId(replyId),
+      userId: req.user._id
+    });
     if (!reply) {
       throw new ApiError(404, "Reply not found");
     }

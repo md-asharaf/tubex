@@ -165,7 +165,6 @@ class UserController {
       throw new ApiError(400, "Reset Token is invalid or has expired");
     }
 
-    // Hash the new password and invalidate sessions
     const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
     user.refreshToken = undefined;
