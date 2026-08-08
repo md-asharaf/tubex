@@ -19,7 +19,7 @@ import { AvatarImg } from "./avatar-image";
 
 const accountDetailsSchema = z.object({
   fullname: z.string().min(2, "Fullname is too short"),
-  email: z.string().email("Invalid email address"),
+  username: z.string().min(2, "Username is too short"),
 });
 
 const passwordSchema = z.object({
@@ -58,7 +58,7 @@ export const Account = () => {
     resolver: zodResolver(accountDetailsSchema),
     defaultValues: {
       fullname: userData?.fullname || "",
-      email: userData?.email || "",
+      username: userData?.username || "",
     },
   });
 
@@ -84,7 +84,7 @@ export const Account = () => {
     if (userData) {
       detailsForm.reset({
         fullname: userData.fullname,
-        email: userData.email,
+        username: userData.username,
       });
       setAvatarPreview(userData.avatar);
       setCoverPreview(userData.coverImage);
@@ -258,17 +258,24 @@ export const Account = () => {
                 />
                 <FormField
                   control={detailsForm.control}
-                  name="email"
+                  name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email Address</FormLabel>
+                      <FormLabel>Username</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="Enter your email" {...field} />
+                        <Input placeholder="Enter your username" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                <FormItem>
+                  <FormLabel>Email Address</FormLabel>
+                  <FormControl>
+                    <Input value={userData?.email || ""} disabled className="bg-muted cursor-not-allowed text-muted-foreground" />
+                  </FormControl>
+                  <p className="text-[0.8rem] text-muted-foreground mt-1">Email cannot be changed.</p>
+                </FormItem>
                 <Button type="submit" disabled={detailsLoading} className="w-full">
                   {detailsLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
                   Save Details
