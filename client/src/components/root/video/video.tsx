@@ -10,6 +10,7 @@ import { subService } from "@/services/subscription";
 import { likeService } from "@/services/like";
 import { useQuery, useMutation, useInfiniteQuery } from "@tanstack/react-query";
 import { PlyrPlayer } from "@/components/root/video-player";
+import { commentService } from "@/services/comment";
 import { Bookmark, Share2, ThumbsUp, MessageSquare } from "lucide-react";
 import { userService } from "@/services/user";
 import { ThreeDots } from "@/components/root/three-dots";
@@ -94,6 +95,16 @@ export const Video = () => {
     },
     enabled: !!video && !!userId,
   });
+
+  const { data: topCommentData } = useQuery({
+    queryKey: ["comments", videoId, "All"],
+    queryFn: async () => {
+      const data = await commentService.getComments(videoId as string, 1, "video", "All");
+      return data;
+    },
+    enabled: !!videoId && isMobile,
+  });
+  const topComment = topCommentData?.docs?.[0];
 
   const { data: subscribersCount } = useQuery({
     queryKey: ["subscribers-count", video?.creator?._id],
@@ -477,12 +488,24 @@ export const Video = () => {
                 className="mt-2 w-full p-3 rounded-xl bg-[#F2F2F2] dark:bg-[#28292A] cursor-pointer"
                 onClick={() => setIsMobileCommentsOpen(true)}
               >
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center mb-1">
                   <div className="flex items-center space-x-2 font-bold">
                     <span>Comments</span>
+                    <span className="text-muted-foreground font-normal text-sm">{topCommentData?.totalDocs}</span>
                   </div>
-                  <MessageSquare size={18} className="text-muted-foreground" />
                 </div>
+                {topComment && (
+                  <div className="flex items-start gap-x-2 mt-1">
+                    <AvatarImg
+                      className="w-6 h-6 shrink-0 mt-0.5"
+                      fullname={topComment.creator.fullname}
+                      avatar={topComment.creator.avatar}
+                    />
+                    <div className="text-sm line-clamp-2 text-foreground">
+                      {topComment.content}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

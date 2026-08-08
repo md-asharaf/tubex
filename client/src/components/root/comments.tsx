@@ -404,11 +404,7 @@ export const Comments: React.FC<CommentProps> = ({
                             className="h-8 w-8 rounded-full p-0 flex items-center justify-center ml-2"
                             variant="ghost"
                             onClick={() => {
-                              if (isMobile) {
-                                setRepliesDrawerComment(comment);
-                              } else {
-                                setReplyingToCommentId(comment._id);
-                              }
+                              setReplyingToCommentId(comment._id);
                             }}
                           >
                             <MessageSquare size={16} className="text-muted-foreground" />
@@ -474,8 +470,8 @@ export const Comments: React.FC<CommentProps> = ({
                     )}
                   </div>
                   <div className="relative z-10">
-                    {(!isMobile && replyingToCommentId === comment._id) && (
-                      <div className="pl-11">
+                    {replyingToCommentId === comment._id && (
+                      <div className="pl-11 mt-2">
                         <TextArea
                           fullname={userData?.fullname}
                           userAvatar={userData?.avatar}
@@ -592,8 +588,8 @@ export const Comments: React.FC<CommentProps> = ({
             nested={true}
           >
             <div className="flex flex-col h-full">
-              <div className="flex-1 pb-20">
-                <div>
+              <div className="flex-1 pb-20 px-2 sm:px-0">
+                <div className="bg-gray-100 dark:bg-[#282828] rounded-xl px-3 pt-3 pb-1 mb-3">
                   <ThreadTrunk
                     className="max-w-full z-0"
                     topClassName="top-[36px] sm:top-[44px]"
