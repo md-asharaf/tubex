@@ -423,6 +423,11 @@ export const Short = () => {
             creatorId={short.creator._id}
           />
         )}
+
+        {/* Description Drawer */}
+        {openedCard === "description" && (
+          <DescriptionCard short={short} likes={likesCount} />
+        )}
       </div>
     );
   }

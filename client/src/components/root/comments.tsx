@@ -21,6 +21,7 @@ import {
   Trash,
   ArrowLeft,
   X,
+  Share2,
 } from "lucide-react";
 import { RootState } from "@/store/store";
 import { toast } from "sonner";
@@ -40,7 +41,7 @@ import { ThreadTrunk, ThreadBranch, ThreadLine } from "./thread-line";
 import { queryClient } from "@/main";
 import { useIntersection } from "@mantine/hooks";
 import { processText } from "@/lib";
-import { setAlertDialogData } from "@/store/reducers/ui";
+import { setAlertDialogData, setShareModalData } from "@/store/reducers/ui";
 import { TextArea } from "./text-area";
 import { AvatarImg } from "./avatar-image";
 import { Button } from "../ui/button";
@@ -411,6 +412,21 @@ export const Comments: React.FC<CommentProps> = ({
                             }}
                           >
                             <MessageSquare size={16} className="text-muted-foreground" />
+                          </Button>
+                          <Button
+                            className="h-8 w-8 rounded-full p-0 flex items-center justify-center ml-1"
+                            variant="ghost"
+                            onClick={() => {
+                              dispatch(setShareModalData({
+                                open: true,
+                                id: comment._id,
+                                type: "comment",
+                                parentId: id,
+                                parentType: type
+                              }));
+                            }}
+                          >
+                            <Share2 size={16} className="text-muted-foreground" />
                           </Button>
                         </div>
                       </div>

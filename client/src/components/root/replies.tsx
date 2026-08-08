@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useInfiniteQuery } from "@tanstack/react-query";
 import { replyService } from "@/services/reply";
 import { Button } from "@/components/ui/button";
-import { Edit, EllipsisVertical, Loader2, ThumbsUp, Trash, MessageSquare, X } from "lucide-react";
+import { Edit, EllipsisVertical, Loader2, ThumbsUp, Trash, MessageSquare, X, Share2 } from "lucide-react";
 import { useIntersection } from "@mantine/hooks";
-import { formatDistanceToNowStrict } from "date-fns";
 import { getRelativeShortTime } from "@/lib/time";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
+import { setShareModalData } from "@/store/reducers/ui";
 import { likeService } from "@/services/like";
 import {
   DropdownMenu,
@@ -35,6 +35,7 @@ const Replies = ({
   const theme = useSelector((state: RootState) => state.theme.mode);
   const userData = useSelector((state: RootState) => state.auth?.userData);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const isMobile = useIsMobile();
   const lastReplyRef = useRef(null);
   const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
@@ -318,6 +319,21 @@ const Replies = ({
                             }}
                           >
                             <MessageSquare size={16} className="text-muted-foreground" />
+                          </Button>
+                          <Button
+                            className="h-8 w-8 rounded-full p-0 flex items-center justify-center ml-1"
+                            variant="ghost"
+                            onClick={() => {
+                              dispatch(setShareModalData({
+                                open: true,
+                                id: reply._id,
+                                type: "reply",
+                                parentId: commentId,
+                                parentType: "comment"
+                              }));
+                            }}
+                          >
+                            <Share2 size={16} className="text-muted-foreground" />
                           </Button>
                         </div>
                       </div>
