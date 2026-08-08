@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { GoHome, GoHomeFill } from "react-icons/go";
 import { SiYoutubeshorts } from "react-icons/si";
@@ -8,6 +8,7 @@ import {
 } from "react-icons/md";
 import { RootState } from "@/store/store";
 import { AvatarImg } from "./avatar-image";
+import { User } from "lucide-react";
 import { CreateDropdown } from "./modals/create-dropdown";
 
 export const BottomBar = () => {
@@ -53,7 +54,7 @@ export const BottomBar = () => {
           </div>
         )}
       </NavLink>
-      {userData?.username && (
+      {userData?.username ? (
         <NavLink to={`/library?u=${userData.username}`} className="w-16">
           {({ isActive }) => (
             <div className="flex flex-col items-center gap-1">
@@ -68,6 +69,17 @@ export const BottomBar = () => {
             </div>
           )}
         </NavLink>
+      ) : (
+        <Link to="/login" className="w-16">
+          <div className="flex flex-col items-center gap-1">
+            <div className="rounded-full p-[1px] border-[1.5px] border-transparent">
+              <div className="h-[22px] w-[22px] rounded-full bg-muted flex items-center justify-center">
+                <User size={14} />
+              </div>
+            </div>
+            <span>You</span>
+          </div>
+        </Link>
       )}
     </div>
   );
