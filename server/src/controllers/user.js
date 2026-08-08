@@ -92,6 +92,7 @@ class UserController {
     user.password = newPassword;
     user.otp = undefined;
     user.otpExpiry = undefined;
+    user.refreshToken = undefined;
     await user.save({ validateBeforeSave: false });
 
     const options = {
@@ -124,6 +125,7 @@ class UserController {
       throw new ApiError(400, "Invalid current password")
     }
     user.password = newPassword;
+    user.refreshToken = undefined;
     await user.save({ validateBeforeSave: false });
 
     const options = {

@@ -82,6 +82,8 @@ class AuthController {
     }
     const accessToken = await existedUser.generateAccessToken();
     const refreshToken = await existedUser.generateRefreshToken();
+    existedUser.refreshToken = refreshToken;
+    await existedUser.save({ validateBeforeSave: false });
     const loggedInUser = await User.findById(existedUser._id).select("-refreshToken");
     const options = {
       httpOnly: true,
