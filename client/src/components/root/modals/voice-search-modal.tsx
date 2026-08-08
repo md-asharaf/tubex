@@ -54,7 +54,6 @@ export const VoiceSearchModal = () => {
         const currentTranscript = finalTranscript || interimTranscript;
         setTranscript(currentTranscript);
 
-        // If we have a final transcript, navigate and close
         if (finalTranscript) {
           setTimeout(() => {
             handleClose();
@@ -91,7 +90,6 @@ export const VoiceSearchModal = () => {
       try {
         recognition.start();
       } catch (e) {
-        // Recognition already started
       }
     }
   }, [recognition, isListening]);
@@ -122,12 +120,12 @@ export const VoiceSearchModal = () => {
         <DialogDescription className="sr-only">Search using your voice</DialogDescription>
 
         <div className="relative p-6 pt-12 pb-16 flex flex-col items-center min-h-[300px]">
-          <button
+          {/* <button
             onClick={handleClose}
             className="absolute top-4 right-4 p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
           >
             <X size={24} className="text-gray-500 dark:text-gray-400" />
-          </button>
+          </button> */}
 
           <div className="flex-1 w-full flex flex-col justify-center items-center">
             {error ? (
