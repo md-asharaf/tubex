@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/root/password-input";
 import { toast } from "sonner";
 import { userService } from "@/services/user";
-import { login } from "@/store/reducers/auth";
+import { login, logout } from "@/store/reducers/auth";
 import { Loader2, Camera } from "lucide-react";
 import { uploadService } from "@/services/upload";
 import { uploadToPresignedUrl } from "@/lib/upload";
@@ -158,8 +158,9 @@ export const Account = () => {
     setPasswordLoading(true);
     try {
       await userService.changePassword(values);
-      toast.success("Password changed successfully");
+      toast.success("Password changed successfully. Please login again.");
       passwordForm.reset();
+      dispatch(logout());
     } catch (error: any) {
       toast.error(error.message || "Failed to change password");
     } finally {
@@ -184,12 +185,10 @@ export const Account = () => {
     setPasswordLoading(true);
     try {
       await userService.setPasswordWithOtp(values);
-      toast.success("Password set successfully");
+      toast.success("Password set successfully. Please login again.");
       setPasswordForm.reset();
       setIsOtpSent(false);
-      // Fetch user again to update hasPassword state
-      const userRes = await userService.getCurrentUser();
-      dispatch(login(userRes.user));
+      dispatch(logout());
     } catch (error: any) {
       toast.error(error.message || "Failed to set password");
     } finally {
