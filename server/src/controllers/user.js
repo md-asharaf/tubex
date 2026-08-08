@@ -148,20 +148,40 @@ class UserController {
     if (!resetToken || !password) {
       throw new ApiError(400, "Reset Token and password are required")
     }
-    const { _id } = jwt.verify(resetToken, process.env.PASSWORD_RESET_TOKEN_SECRET);
-    if (!_id) {
-      throw new ApiError(400, "Reset Token is invalid")
+    const decoded = jwt.decode(resetToken);
+    if (!decoded || !decoded._id) {
+      throw new ApiError(400, "Reset Token is invalid or malformed");
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.findByIdAndUpdate(_id, {
-      $set: {
-        password: hashedPassword
-      }
-    })
+
+    const user = await User.findById(decoded._id);
     if (!user) {
-      throw new ApiError(400, "User not found")
+      throw new ApiError(400, "User not found");
     }
-    return res.status(200).json(new ApiResponse(200, null, 'password reset successfully'))
+
+    const secret = process.env.PASSWORD_RESET_TOKEN_SECRET + user.password;
+    try {
+      jwt.verify(resetToken, secret);
+    } catch (error) {
+      throw new ApiError(400, "Reset Token is invalid or has expired");
+    }
+
+    // Hash the new password and invalidate sessions
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    user.refreshToken = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    const options = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none"
+    };
+
+    return res.status(200)
+      .clearCookie("idToken", options)
+      .clearCookie("accessToken", options)
+      .clearCookie("refreshToken", options)
+      .json(new ApiResponse(200, null, 'Password reset successfully'));
   })
   updateAccountDetails = asyncHandler(async (req, res) => {
     const userId = req.user?._id;
