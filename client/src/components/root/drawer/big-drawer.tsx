@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { MdOutlineSubscriptions } from "react-icons/md";
 import { SiYoutubeshorts } from "react-icons/si";
 import { useDispatch, useSelector } from "react-redux";
@@ -158,6 +159,16 @@ export const BigDrawer = () => {
     );
     const isSmallScreen = windowWidth < 1315;
     const isVideoPage = location.pathname.startsWith("/video");
+
+    useEffect(() => {
+        if (isSmallScreen || isVideoPage) {
+            document.body.classList.add("overflow-hidden");
+            return () => {
+                document.body.classList.remove("overflow-hidden");
+            };
+        }
+    }, [isSmallScreen, isVideoPage]);
+
     return (
         <div
             className={`${(isSmallScreen || isVideoPage) &&
