@@ -64,7 +64,7 @@ export const ContentShorts = () => {
             const data = await studioService.getUserShorts(username as string, pageParam, searchQuery);
             return data.shorts;
         },
-        initialPageParam: 1,
+        initialPageParam: page,
         getNextPageParam: (lastPage, pages) => {
             return lastPage.hasNextPage ? pages.length + 1 : undefined;
         },

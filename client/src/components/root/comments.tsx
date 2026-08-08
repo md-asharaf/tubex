@@ -12,7 +12,6 @@ import { GoDot } from "react-icons/go";
 import { replyService } from "@/services/reply";
 import {
   ChevronDown,
-  ChevronUp,
   Edit,
   EllipsisVertical,
   Loader2,
@@ -22,6 +21,7 @@ import {
   ArrowLeft,
   X,
   Share2,
+  ChevronRight,
 } from "lucide-react";
 import { RootState } from "@/store/store";
 import { toast } from "sonner";
@@ -299,7 +299,7 @@ export const Comments: React.FC<CommentProps> = ({
               <>
                 <ThreadTrunk
                   className="w-full max-w-full z-0"
-                  topClassName="top-[36px] sm:top-[44px]"
+                  topClassName="top-[30px]"
                   showLine={comment.repliesCount > 0}
                 >
                   <div className="flex justify-between group relative z-10">
@@ -502,12 +502,13 @@ export const Comments: React.FC<CommentProps> = ({
                 {comment.repliesCount > 0 && (
                   isMobile ? (
                     <div
-                      className="relative pl-11 py-2 flex items-center cursor-pointer"
+                      className="relative pl-12 py-1.5 flex items-center cursor-pointer"
                       onClick={() => setRepliesDrawerComment(comment)}
                     >
                       <ThreadBranch />
-                      <div className="flex items-center space-x-2 text-blue-600 dark:text-[#3EA6FF] font-bold text-[14px]">
+                      <div className="flex items-center space-x-1.5 font-bold text-[14px]">
                         <span>{comment.repliesCount} {comment.repliesCount == 1 ? "reply" : "replies"}</span>
+                        <ChevronRight size={14} />
                       </div>
                     </div>
                   ) : (
@@ -524,27 +525,27 @@ export const Comments: React.FC<CommentProps> = ({
                       }}
                     >
                       <CollapsibleTrigger asChild>
-                        <div className="relative pl-8 py-1 cursor-pointer w-fit">
+                        <div className="relative pl-8 pb-2 cursor-pointer w-fit">
                           {isRepliesOpen[index] ? (
                             <ThreadLine />
                           ) : (
                             <ThreadBranch />
                           )}
                           <Button
-                            className="rounded-full flex space-x-1 text-indigo-500 hover:bg-indigo-500/30 h-8 px-3"
+                            className="rounded-full flex space-x-1 h-8 px-3"
                             variant="ghost"
                           >
-                            {isRepliesOpen[index] ? (
-                              <ChevronUp />
-                            ) : (
-                              <ChevronDown />
-                            )}
                             <span>{`${comment.repliesCount
                               } ${comment.repliesCount ==
                                 1
                                 ? "reply"
                                 : "replies"
                               }`}</span>
+                            {isRepliesOpen[index] ? (
+                              <ChevronDown />
+                            ) : (
+                              <ChevronRight />
+                            )}
                           </Button>
                         </div>
                       </CollapsibleTrigger>
@@ -597,11 +598,11 @@ export const Comments: React.FC<CommentProps> = ({
             nested={true}
           >
             <div className="flex flex-col h-full">
-              <div className="flex-1 pb-20 px-2 sm:px-0">
-                <div className="bg-gray-100 dark:bg-[#282828] rounded-xl px-3 pt-3 pb-1 mb-3">
+              <div className="flex-1 pb-20 sm:px-0">
+                <div className="bg-gray-100 dark:bg-[#282828] rounded-xl pb-1 mb-3">
                   <ThreadTrunk
                     className="max-w-full z-0"
-                    topClassName="top-[36px] sm:top-[44px]"
+                    topClassName="top-[30px] sm:top-[44px]"
                     showLine={repliesDrawerComment.repliesCount > 0}
                   >
                     <div className="flex justify-between group pb-3">

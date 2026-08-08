@@ -68,7 +68,7 @@ export const ContentPlaylists = () => {
       const data = await studioService.getUserPlaylists(username, pageParam);
       return data.playlists;
     },
-    initialPageParam: 1,
+    initialPageParam: page,
     getNextPageParam: (lastPage, pages) => {
       return lastPage.hasNextPage ? pages.length + 1 : undefined;
     },

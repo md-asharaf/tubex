@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-const SPINE_CLASS = "left-4 sm:left-5";
+const SPINE_CLASS = "left-3";
 const LINE_COLOR = "bg-gray-400 dark:bg-[#717171]";
 const BORDER_COLOR = "border-gray-400 dark:border-[#717171]";
 

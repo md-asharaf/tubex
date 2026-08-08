@@ -59,13 +59,13 @@ export const ContentVideos = () => {
 
   const { data: videosPages } = useInfiniteQuery({
     queryKey: ["videos", username, page, searchQuery],
-    queryFn: async (): Promise<{ docs: IStudioVideo[], totalPages: number, hasNextPage: boolean }> => {
-      const data = await studioService.getUserVideos(username as string, page, searchQuery);
+    queryFn: async ({ pageParam }): Promise<{ docs: IStudioVideo[], totalPages: number, hasNextPage: boolean }> => {
+      const data = await studioService.getUserVideos(username as string, pageParam, searchQuery);
       return data.videos;
     },
     initialPageParam: page,
-    getNextPageParam: (lastPage) => {
-      return lastPage.hasNextPage ? page + 1 : undefined;
+    getNextPageParam: (lastPage, pages) => {
+      return lastPage.hasNextPage ? pages.length + 1 : undefined;
     },
   });
   const videos = videosPages?.pages.flatMap((p) => p.docs) || [];

@@ -88,8 +88,8 @@ export const TextArea: React.FC<TextAreaProps> = ({
         {!hideAvatar && (
           <AvatarImg
             className={`mt-0.5 ${submitLabel == "Comment"
-              ? "h-[32px] w-[32px] sm:h-[40px] sm:w-[40px]"
-              : "h-[24px] w-[24px] sm:h-[32px] sm:w-[32px]"
+              ? "h-[32px] w-[32px]"
+              : "h-[24px] w-[24px]"
               }`}
             fullname={fullname}
             avatar={userAvatar}

@@ -95,10 +95,10 @@ export const Video = () => {
   });
 
   const { data: topCommentData } = useQuery({
-    queryKey: ["comments", videoId, "All"],
+    queryKey: ["top-comment", videoId],
     queryFn: async () => {
       const data = await commentService.getComments(videoId as string, 1, "video", "All");
-      return data;
+      return data.comments;
     },
     enabled: !!videoId && isMobile,
   });
@@ -279,32 +279,32 @@ export const Video = () => {
         <div className="flex flex-col space-y-2 sm:px-2">
           <div onClickCapture={handleVideoClick}>
             <PlyrPlayer
-            key={video._id}
-            thumbnail={video.thumbnail}
-            thumbnailPreviews={video.thumbnailPreviews}
-            source={video.source}
-            subtitle={video.subtitle}
-            controls={[
-              "play",
-              "progress",
-              "current-time",
-              "mute",
-              "volume",
-              "settings",
-              "fullscreen",
-            ]}
-            playerRef={playerRef}
-            onViewTracked={onViewTracked}
-            onEnded={handleVideoEnd}
-            minWatchTime={
-              parseInt(video.duration) < 15
-                ? parseInt(video.duration)
-                : 15
-            }
-            className="aspect-video"
-            trackProgressId={video._id}
-            userId={userId}
-          />
+              key={video._id}
+              thumbnail={video.thumbnail}
+              thumbnailPreviews={video.thumbnailPreviews}
+              source={video.source}
+              subtitle={video.subtitle}
+              controls={[
+                "play",
+                "progress",
+                "current-time",
+                "mute",
+                "volume",
+                "settings",
+                "fullscreen",
+              ]}
+              playerRef={playerRef}
+              onViewTracked={onViewTracked}
+              onEnded={handleVideoEnd}
+              minWatchTime={
+                parseInt(video.duration) < 15
+                  ? parseInt(video.duration)
+                  : 15
+              }
+              className="aspect-video"
+              trackProgressId={video._id}
+              userId={userId}
+            />
           </div>
           <div className="px-3 sm:px-0 flex flex-col space-y-2">
             <h1 className="font-bold text-xl">{video.title}</h1>

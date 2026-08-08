@@ -12,7 +12,7 @@ import { ResponsiveModal } from "./responsive-modal";
 
 export const CreatePlaylist = () => {
     const dispatch = useDispatch();
-    const userId = useSelector((state: RootState) => state.auth.userData?._id);
+    const username = useSelector((state: RootState) => state.auth.userData?.username);
     const [playlistName, setPlaylistName] = useState<string>("");
     const open = useSelector(
         (state: RootState) => state.ui?.isCreatePlaylistDialogOpen
@@ -23,7 +23,7 @@ export const CreatePlaylist = () => {
         },
         onSuccess: () => {
             toast.success(`${playlistName} created`);
-            queryClient.invalidateQueries({ queryKey: ["playlists", userId] });
+            queryClient.invalidateQueries({ queryKey: ["playlists", username] });
             setPlaylistName("");
         },
         onError: (error) => {

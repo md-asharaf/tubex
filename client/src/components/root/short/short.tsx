@@ -81,7 +81,7 @@ export const Short = () => {
     queryKey: ["top-comment", shortId],
     queryFn: async (): Promise<IComment | null> => {
       const data = await commentService.getComments(shortId as string, 1, "short", "All", userId);
-      return data?.comments?.length > 0 ? data.comments[0] : null;
+      return data?.comments?.docs?.length > 0 ? data.comments.docs[0] : null;
     },
     enabled: !!shortId,
   });
@@ -295,7 +295,7 @@ export const Short = () => {
     if (isDownSwipe && short.prev) {
       navigate(`/short/${short.prev}`, { replace: true });
     }
-    
+
     touchStartRef.current = null;
     touchEndRef.current = null;
   };
@@ -341,14 +341,14 @@ export const Short = () => {
         <div className="absolute top-0 left-0 w-full z-20 flex flex-col p-4">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center space-x-3">
-              <button 
-                onClick={() => navigate(-1)} 
-                className="p-1 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
+              <button
+                onClick={() => navigate(-1)}
+                className="p-1 rounded-full"
                 aria-label="Go back"
               >
                 <ArrowLeft size={24} className="text-white" />
               </button>
-              <h1 className="text-2xl font-bold">Shorts</h1>
+              {!isPlaying && (<h1 className="text-xl font-bold">Shorts</h1>)}
             </div>
             <div className="flex items-center space-x-5">
               {!isPlaying && (
@@ -418,7 +418,7 @@ export const Short = () => {
           </div>
 
           {/* Title */}
-          {!isPlaying && <p className="text-sm font-medium line-clamp-2 w-full pr-4">{short.title}</p>}
+          <p className="text-sm font-medium line-clamp-2 w-full pr-4">{short.title}</p>
         </div>
 
         {/* Comments Drawer */}
@@ -468,9 +468,8 @@ export const Short = () => {
                   <Play size={20} className="text-white" />
                 )}
               </button>
-              {!isPlaying && (
-                <button
-                  className="flex space-x-2 p-3 hover:bg-opacity-50 bg-opacity-60 bg-[#676D72] text-white rounded-full transition items-center"
+              <button
+                className="flex space-x-2 p-3 hover:bg-opacity-50 bg-opacity-60 bg-[#676D72] text-white rounded-full transition items-center"
                 onMouseEnter={() => setIsVolumeHovered(true)}
                 onMouseLeave={() => setIsVolumeHovered(false)}
                 onClick={(e) => {
@@ -514,7 +513,6 @@ export const Short = () => {
                   </div>
                 )}
               </button>
-              )}
             </div>
             {isMobile ? (
               <Popover open={open} onOpenChange={setOpen} key={2}>
@@ -564,7 +562,7 @@ export const Short = () => {
                 {isSubscribed ? "Subscribed" : "Subscribe"}
               </button>}
             </div>
-            {!isPlaying && <div className="font-semibold">{short.title}</div>}
+            <div className="font-semibold">{short.title}</div>
           </div>
         </div>
         <div className="absolute md:bottom-0 md:-right-14 bottom-16 right-2 flex flex-col sm:space-y-4 space-y-2 items-center">

@@ -9,7 +9,6 @@ import { Separator } from "@/components/ui/separator";
 import { Filter } from "@/components/root/filter";
 import { TextArea } from "../text-area";
 import { RootState } from "@/store/store";
-import { toast } from "sonner";
 import { queryClient } from "@/main";
 import { Comments } from "../comments";
 import { ResponsiveModal } from "@/components/root/modals/responsive-modal";
@@ -136,7 +135,7 @@ export const ShortComments = ({
         />
       </CardTitle>
       <Separator className="mb-2" />
-      <CardContent className="flex-1 overflow-y-auto pb-16 px-2">
+      <CardContent className="flex-1 overflow-y-auto pb-16 px-3">
         <Comments
           key={shortId}
           playerRef={playerRef}

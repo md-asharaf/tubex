@@ -38,7 +38,7 @@ export const ContentPosts = () => {
     onSuccess: () => {
       toast.success("Post deleted successfully");
       queryClient.invalidateQueries({
-        queryKey: ["posts", username],
+        queryKey: ["studio-posts", username],
       });
     },
     onError: () => {
@@ -57,7 +57,7 @@ export const ContentPosts = () => {
   };
 
   const { data: postsPages } = useInfiniteQuery({
-    queryKey: ["posts", username],
+    queryKey: ["studio-posts", username, page],
     queryFn: async ({
       pageParam,
     }): Promise<{
@@ -68,7 +68,7 @@ export const ContentPosts = () => {
       const data = await studioService.getUserPosts(username, pageParam);
       return data.posts;
     },
-    initialPageParam: 1,
+    initialPageParam: page,
     getNextPageParam: (lastPage, pages) => {
       return lastPage.hasNextPage ? pages.length + 1 : undefined;
     },

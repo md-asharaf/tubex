@@ -43,12 +43,12 @@ export const PlaylistNhistory = () => {
   const navigate = useNavigate();
 
   const { data: playlists, isLoading: loadingPlaylists } = useQuery({
-    queryKey: ["playlists", userData?._id],
+    queryKey: ["playlists", userData?.username],
     queryFn: async (): Promise<Playlist[]> => {
       const data = await playlistService.getAllPlaylists(userData?.username);
       return data.playlists;
     },
-    enabled: !!userData?._id,
+    enabled: !!userData?.username,
   });
 
   const { data: watchLater, isLoading: loadingWatchLater } = useQuery({

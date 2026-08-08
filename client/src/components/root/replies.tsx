@@ -320,47 +320,49 @@ const Replies = ({
                           >
                             <MessageSquare size={16} className="text-muted-foreground" />
                           </Button>
-                          <Button
-                            className="h-8 w-8 rounded-full p-0 flex items-center justify-center ml-1"
-                            variant="ghost"
-                            onClick={() => {
-                              dispatch(setShareModalData({
-                                open: true,
-                                id: reply._id,
-                                type: "reply",
-                                parentId: commentId,
-                                parentType: "comment"
-                              }));
-                            }}
-                          >
-                            <Share2 size={16} className="text-muted-foreground" />
-                          </Button>
                         </div>
                       </div>
                     </div>
-                    {userData?._id === reply.creator._id && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild className="focus:outline-none">
-                          <EllipsisVertical className="cursor-pointer h-5 w-5 mt-1 shrink-0 text-muted-foreground" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-white dark:bg-[#212121] p-0 py-2">
-                          <DropdownMenuItem
-                            className="rounded-none dark:hover:bg-[#535353] hover:bg-[#E5E5E5] px-4 py-3"
-                            onClick={() => setEditingReplyId(reply._id)}
-                          >
-                            <Edit className="h-5 w-5 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="rounded-none dark:hover:bg-[#535353] hover:bg-[#E5E5E5] px-4 py-3"
-                            onClick={() => deleteReply(reply._id)}
-                          >
-                            <Trash className="h-5 w-5 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild className="focus:outline-none">
+                        <EllipsisVertical className="cursor-pointer h-5 w-5 mt-1 shrink-0 text-muted-foreground" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="bg-white dark:bg-[#212121] p-0 py-2">
+                        {userData?._id === reply.creator._id && (
+                          <>
+                            <DropdownMenuItem
+                              className="rounded-none dark:hover:bg-[#535353] hover:bg-[#E5E5E5] px-4 py-3"
+                              onClick={() => setEditingReplyId(reply._id)}
+                            >
+                              <Edit className="h-5 w-5 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="rounded-none dark:hover:bg-[#535353] hover:bg-[#E5E5E5] px-4 py-3"
+                              onClick={() => deleteReply(reply._id)}
+                            >
+                              <Trash className="h-5 w-5 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        <DropdownMenuItem
+                          className="rounded-none dark:hover:bg-[#535353] hover:bg-[#E5E5E5] px-4 py-3"
+                          onClick={() => {
+                            dispatch(setShareModalData({
+                              open: true,
+                              id: reply._id,
+                              type: "reply",
+                              parentId: commentId,
+                              parentType: "comment"
+                            }));
+                          }}
+                        >
+                          <Share2 size={16} className="mr-2" />
+                          Share
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                   <div>
                     {replyingToReplyId === reply._id && !isMobile && (
