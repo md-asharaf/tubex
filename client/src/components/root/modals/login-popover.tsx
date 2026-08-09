@@ -33,11 +33,11 @@ export const LoginPopover: React.FC = () => {
       title={message || "Sign In Required"}
       className="sm:max-w-[360px] w-full"
     >
-      <div className="flex flex-col w-full text-center gap-5 py-6 sm:py-8 px-1">
-        <p className="text-[15px] text-muted-foreground leading-relaxed max-w-[260px]">
+      <div className="flex flex-col w-full text-center gap-4 pt-4 sm:py-6 px-2">
+        <p className="text-[15px] text-muted-foreground leading-relaxed max-w-[260px] mx-auto">
           Sign in to perform this action.
         </p>
-        <div className="w-full sm:w-auto flex items-center justify-between gap-3 mt-2">
+        <div className="w-full sm:w-auto flex items-center justify-between gap-3">
           <Button
             onClick={() => onOpenChange(false)}
             variant={"secondary"}
