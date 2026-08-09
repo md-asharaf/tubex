@@ -37,7 +37,7 @@ export const LoginPopover: React.FC = () => {
         <p className="text-[15px] text-muted-foreground leading-relaxed max-w-[260px] mx-auto">
           Sign in to perform this action.
         </p>
-        <div className="w-full sm:w-auto flex items-center justify-between gap-3">
+        <div className="w-full sm:w-auto flex items-center justify-end gap-3">
           <Button
             onClick={() => onOpenChange(false)}
             variant={"secondary"}
