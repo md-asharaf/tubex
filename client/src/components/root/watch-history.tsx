@@ -11,7 +11,7 @@ import { ThreeDots } from "@/components/root/three-dots";
 import { toast } from "sonner";
 import { RootState } from "@/store/store";
 import { setAlertDialogData } from "@/store/reducers/ui";
-import { queryClient } from "@/main";
+import { queryClient } from "@/lib/query-client";
 
 export const WatchHistory = () => {
   const dispatch = useDispatch();

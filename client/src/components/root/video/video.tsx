@@ -25,7 +25,7 @@ import {
 } from "@/store/reducers/ui";
 import { AvatarImg } from "@/components/root/avatar-image";
 import { VideoComments } from "@/components/root/video/video-comments";
-import { queryClient } from "@/main";
+import { queryClient } from "@/lib/query-client";
 export const Video = () => {
   const theme = useSelector((state: RootState) => state.theme.mode);
   const dispatch = useDispatch();

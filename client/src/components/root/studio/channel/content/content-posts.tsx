@@ -19,7 +19,7 @@ import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { setAlertDialogData } from "@/store/reducers/ui";
 import { toast } from "sonner";
-import { queryClient } from "@/main";
+import { queryClient } from "@/lib/query-client";
 import { ThreeDots } from "@/components/root/three-dots";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";

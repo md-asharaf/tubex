@@ -22,7 +22,7 @@ import { ThreeDots } from "@/components/root/three-dots";
 import { useDispatch } from "react-redux";
 import { setAlertDialogData } from "@/store/reducers/ui";
 import { toast } from "sonner";
-import { queryClient } from "@/main";
+import { queryClient } from "@/lib/query-client";
 import { IStudioVideo } from "@/interfaces";
 export const ContentVideos = () => {
   const { username } = useParams();

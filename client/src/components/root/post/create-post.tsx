@@ -20,7 +20,7 @@ import { VideoPost } from "./video-post";
 import { TextPost } from "./text-post";                                                    
 import { postService } from "@/services/post";
 import { toast } from "sonner";
-import { queryClient } from "@/main";
+import { queryClient } from "@/lib/query-client";
 import { uploadService } from "@/services/upload";
 import { uploadToPresignedUrl } from "@/lib/upload";
 

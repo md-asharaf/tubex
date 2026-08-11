@@ -12,7 +12,7 @@ import { AvatarImg } from "@/components/root/avatar-image";
 import NavigationMenu from "@/components/root/nav-menu";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { queryClient } from "@/main";
+import { queryClient } from "@/lib/query-client";
 
 export const Channel = () => {
     const userData = useSelector((state: RootState) => state.auth.userData);

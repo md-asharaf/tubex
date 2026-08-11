@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
-import { queryClient } from "@/main";
+import { queryClient } from "@/lib/query-client";
 import { RootState } from "@/store/store";
 import { userService } from "@/services/user";
 import {

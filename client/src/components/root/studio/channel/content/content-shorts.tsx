@@ -21,7 +21,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setAlertDialogData } from "@/store/reducers/ui";
 import { toast } from "sonner";
-import { queryClient } from "@/main";
+import { queryClient } from "@/lib/query-client";
 import { ThreeDots } from "@/components/root/three-dots";
 import { IStudioShort } from "@/interfaces";
 export const ContentShorts = () => {

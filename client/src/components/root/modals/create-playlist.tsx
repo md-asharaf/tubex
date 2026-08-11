@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
-import { queryClient } from "@/main";
+import { queryClient } from "@/lib/query-client";
 import { RootState } from "@/store/store";
 import { setCreatePlaylistDialog } from "@/store/reducers/ui";
 import { ResponsiveModal } from "./responsive-modal";

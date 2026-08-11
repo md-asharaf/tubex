@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/collapsible";
 import Replies from "./replies";
 import { ThreadTrunk, ThreadBranch, ThreadLine } from "./thread-line";
-import { queryClient } from "@/main";
+import { queryClient } from "@/lib/query-client";
 import { useIntersection } from "@mantine/hooks";
 import { processText } from "@/lib";
 import { setAlertDialogData, setShareModalData } from "@/store/reducers/ui";

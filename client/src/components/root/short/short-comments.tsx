@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Filter } from "@/components/root/filter";
 import { TextArea } from "../text-area";
 import { RootState } from "@/store/store";
-import { queryClient } from "@/main";
+import { queryClient } from "@/lib/query-client";
 import { Comments } from "../comments";
 import { ResponsiveModal } from "@/components/root/modals/responsive-modal";
 import { useIsMobile } from "@/hooks/use-mobile";

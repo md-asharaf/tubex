@@ -7,7 +7,7 @@ import { RootState } from "@/store/store";
 import { toast } from "sonner";
 import { TextArea } from "@/components/root/text-area";
 import { Filter } from "@/components/root/filter";
-import { queryClient } from "@/main";
+import { queryClient } from "@/lib/query-client";
 import { Comments } from "../comments";
 import { ResponsiveModal } from "@/components/root/modals/responsive-modal";
 export const VideoComments = ({ videoId, playerRef, creatorId, isDrawer = false, open = false, onOpenChange = (open: boolean) => { } }) => {
