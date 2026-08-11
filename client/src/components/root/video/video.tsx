@@ -11,7 +11,7 @@ import { likeService } from "@/services/like";
 import { useQuery, useMutation, useInfiniteQuery } from "@tanstack/react-query";
 import { PlyrPlayer } from "@/components/root/video-player";
 import { commentService } from "@/services/comment";
-import { Bookmark, Share2, ThumbsUp } from "lucide-react";
+import { Bookmark, Share2, ThumbsUp, ThumbsDown, Sparkles, MoreHorizontal, Bell, ChevronDown } from "lucide-react";
 import { userService } from "@/services/user";
 import { ThreeDots } from "@/components/root/three-dots";
 import { Loader2 } from "lucide-react";
@@ -33,6 +33,7 @@ export const Video = () => {
   const [isMobileCommentsOpen, setIsMobileCommentsOpen] = useState(false);
   const { id: videoId } = useParams();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [activeCommentIndex, setActiveCommentIndex] = useState(0);
   const userId = useSelector((state: RootState) => state.auth.userData?._id);
   const isMobile = useIsMobile();
   const [searchParams] = useSearchParams();
@@ -42,6 +43,15 @@ export const Video = () => {
   const shuffle = searchParams.get("shuffle") === "true";
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const handleCommentScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const scrollLeft = e.currentTarget.scrollLeft;
+    const width = e.currentTarget.clientWidth;
+    const newIndex = Math.round(scrollLeft / width);
+    if (newIndex !== activeCommentIndex) {
+      setActiveCommentIndex(newIndex);
+    }
   };
 
   const {
@@ -97,12 +107,11 @@ export const Video = () => {
   const { data: topCommentData } = useQuery({
     queryKey: ["top-comment", videoId],
     queryFn: async () => {
-      const data = await commentService.getComments(videoId as string, 1, "video", "All");
+      const data = await commentService.getComments(videoId as string, 1, "video", "All", undefined, 2);
       return data.comments;
     },
     enabled: !!videoId && isMobile,
   });
-  const topComment = topCommentData?.docs?.[0];
 
   const { data: subscribersCount } = useQuery({
     queryKey: ["subscribers-count", video?.creator?._id],
@@ -313,206 +322,155 @@ export const Video = () => {
               userId={userId}
             />
           </div>
-          <div className="px-3 sm:px-0 flex flex-col space-y-2">
-            <h1 className="font-bold text-xl">{video.title}</h1>
-            <div className="flex justify-between flex-col sm:flex-row gap-y-2 sm:gap-0">
-              <div className="flex gap-x-4 items-center justify-between sm:justify-normal">
+          <div className="px-3 sm:px-0 flex flex-col mt-2 sm:mt-3">
+            <h1 className="font-bold text-[18px] sm:text-xl line-clamp-2 order-1 leading-snug">{video.title}</h1>
+
+            {/* Description Box / Inline Text (Order 2 on Mobile, Order 3 on Desktop) */}
+            <div
+              className={`order-2 sm:order-3 w-full cursor-pointer transition-colors mt-1 sm:mt-3 ${isExpanded
+                  ? "p-3 rounded-xl bg-black/5 dark:bg-[#28292A] sm:bg-black/5 sm:dark:bg-white/10"
+                  : "p-0 rounded-none bg-transparent sm:p-3 sm:rounded-xl sm:bg-black/5 sm:dark:bg-white/10 sm:hover:bg-black/10 sm:dark:hover:bg-white/20"
+                }`}
+              onClick={!isExpanded ? toggleExpanded : undefined}
+            >
+              <div className="flex items-center flex-wrap gap-x-1 sm:gap-x-2 text-[12px] sm:text-[14px] font-normal sm:font-bold text-muted-foreground sm:text-foreground">
+                <span className="sm:hidden">@{video.creator.username}</span>
+                <span className="sm:hidden">{likesCount} likes</span>
+                <span className="sm:font-semibold">{formatViews(video.views)}</span>
+                <span className="hidden sm:inline">{formatDistanceToNowStrict(new Date(video.createdAt), { addSuffix: true })}</span>
+                <span className="sm:hidden">{formatDistanceToNowStrict(new Date(video.createdAt))}</span>
+                {!isExpanded && (
+                  <span className="font-bold text-foreground mt-0.5 ml-1">...more</span>
+                )}
+              </div>
+              {isExpanded && (
+                <div className="mt-2 text-[13px] sm:text-[14px]">
+                  <p className="whitespace-pre-wrap">{video.description}</p>
+                  <Button
+                    variant="ghost"
+                    className="h-auto p-0 mt-4 font-bold hover:bg-transparent"
+                    onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
+                  >
+                    Show less
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Channel and Actions Row (Order 3 on Mobile, Order 2 on Desktop) */}
+            <div className="order-3 sm:order-2 flex flex-row justify-between items-center w-full mt-3 sm:mt-3">
+              <div className="flex items-center">
                 <Link
                   to={`/channel/${video.creator.username}`}
-                  className="flex gap-x-4 items-center"
+                  className="flex gap-x-3 items-center shrink-0"
                 >
                   <AvatarImg
-                    className="h-12 w-12"
+                    className="h-9 w-9 sm:h-11 sm:w-11"
                     fullname={video.creator.fullname}
                     avatar={video.creator.avatar}
                   />
-                  <div className="flex flex-col gap-y-1 items-start">
-                    <div className="font-bold">
+                  <div className="hidden sm:flex flex-col items-start justify-center">
+                    <div className="font-bold text-[15px] sm:text-[16px] leading-tight">
                       {video.creator.fullname}
                     </div>
-                    <div className="text-gray-500 text-sm">
+                    <div className="text-muted-foreground text-[12px] sm:text-[13px]">
                       {`${subscribersCount} subscribers`}
                     </div>
                   </div>
                 </Link>
-
-                <Button
-                  variant={isSubscribed ? "secondary" : "default"}
-                  className="rounded-full"
-                  onClick={() => toggleSubscription()}
-                >
-                  {isSubscribed ? "Subscribed" : "Subscribe"}
-                </Button>
+                <div className="ml-2 sm:ml-4 flex items-center">
+                  <Button
+                    variant={isSubscribed ? "secondary" : "default"}
+                    className={`rounded-full font-semibold px-3 sm:px-4 h-8 sm:h-9 ${!isSubscribed ? 'bg-black text-white dark:bg-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90' : 'bg-black/5 dark:bg-white/10'}`}
+                    onClick={() => toggleSubscription()}
+                  >
+                    <span className="hidden sm:inline">{isSubscribed ? "Subscribed" : "Subscribe"}</span>
+                    <span className="sm:hidden flex items-center gap-x-1">
+                      {isSubscribed ? <Bell size={16} /> : null}
+                      <span className="text-[13px]">{isSubscribed ? null : "Subscribe"}</span>
+                      {isSubscribed ? <ChevronDown size={14} /> : null}
+                    </span>
+                  </Button>
+                </div>
               </div>
-              {!isMobile && (
-                <div className="flex sm:items-center justify-end gap-4 sm:gap-2">
-                  <Button
-                    variant="secondary"
-                    onClick={() => toggleVideoLike()}
-                    className="rounded-full"
-                  >
-                    <ThumbsUp
-                      fill={
-                        isLiked
-                          ? theme == "dark"
-                            ? "white"
-                            : "black"
-                          : theme == "dark"
-                            ? "black"
-                            : "white"
-                      }
-                    />
-                    {likesCount}
-                  </Button>
-                  <Button
-                    className="rounded-full"
-                    variant="secondary"
-                    onClick={() =>
-                      dispatch(
-                        setShareModalData({
-                          open: true,
-                          id: videoId,
-                          type: "video",
-                        })
-                      )
-                    }
-                  >
-                    <Share2 />
-                  </Button>
-                  <div
-                    onClick={() =>
-                      dispatch(
-                        setSaveToPlaylistDialog({
-                          id: videoId,
-                          open: true,
-                        })
-                      )
-                    }
-                  >
-                    <Button
-                      variant="secondary"
-                      className="rounded-full"
-                    >
-                      <Bookmark /> Save
-                    </Button>
-                  </div>
-                </div>
-              )}
-              {isMobile && (
-                <div className="w-full mt-2">
-                  <div className="flex flex-col gap-y-3">
-                    {/* Action Buttons Row */}
-                    <div className="flex items-center justify-between overflow-x-auto no-scrollbar pb-1">
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="secondary"
-                          onClick={() => toggleVideoLike()}
-                          className="rounded-full h-9 px-4 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium"
-                        >
-                          <ThumbsUp
-                            size={18}
-                            className="mr-2"
-                            fill={isLiked ? (theme == "dark" ? "white" : "black") : "transparent"}
-                          />
-                          {likesCount}
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          className="rounded-full h-9 px-4 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium"
-                          onClick={() => dispatch(setShareModalData({ open: true, id: videoId, type: "video" }))}
-                        >
-                          <Share2 size={18} className="mr-2" /> Share
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          className="rounded-full h-9 px-4 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium"
-                          onClick={() => dispatch(setSaveToPlaylistDialog({ id: videoId, open: true }))}
-                        >
-                          <Bookmark size={18} className="mr-2" /> Save
-                        </Button>
-                      </div>
-                    </div>
 
-                    {/* Description Box */}
-                    <div
-                      className="w-full p-3 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 cursor-pointer transition-colors"
-                      onClick={!isExpanded ? toggleExpanded : undefined}
-                    >
-                      <div className="flex items-center flex-wrap gap-x-2 text-sm font-bold text-foreground">
-                        <span>{formatViews(video.views)}</span>
-                        <span>{formatDistanceToNowStrict(new Date(video.createdAt), { addSuffix: true })}</span>
-                        {!isExpanded && (
-                          <span className="font-semibold text-foreground mt-0.5">...more</span>
-                        )}
-                      </div>
-                      {isExpanded && (
-                        <div className="mt-2 text-sm">
-                          <p className="whitespace-pre-wrap">{video.description}</p>
-                          <Button
-                            variant="ghost"
-                            className="h-auto p-0 mt-2 font-bold hover:bg-transparent"
-                            onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
-                          >
-                            Show less
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-            {!isMobile && (
-              <div className="px-4 py-2 shadow-md rounded-xl bg-[#F2F2F2] dark:bg-[#272727]">
-                <div className="flex space-x-2 font-bold">
-                  <div>{formatViews(video.views)}</div>
-                  <div>
-                    {formatDistanceToNowStrict(
-                      new Date(video.createdAt),
-                      { addSuffix: true }
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <p
-                    className={`whitespace-pre-wrap ${!isExpanded ? "line-clamp-2" : ""
-                      }`}
-                  >
-                    {video.description}
-                  </p>
+              <div className="flex items-center justify-end overflow-x-auto no-scrollbar shrink-0 ml-2">
+                <div className="flex items-center space-x-0.5 sm:space-x-2">
                   <Button
                     variant="ghost"
-                    onClick={toggleExpanded}
-                    className="h-auto p-0 font-semibold hover:bg-transparent"
+                    onClick={() => toggleVideoLike()}
+                    className="rounded-full h-10 w-10 p-0 sm:h-9 sm:w-auto sm:px-4 sm:bg-black/5 sm:dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium whitespace-nowrap shrink-0"
                   >
-                    {isExpanded ? "Show less" : "Show more"}
+                    <ThumbsUp
+                      size={20}
+                      className="sm:mr-2"
+                      fill={isLiked ? (theme == "dark" ? "white" : "black") : "transparent"}
+                    />
+                    <span className="hidden sm:inline">{likesCount}</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="rounded-full h-10 w-10 p-0 sm:h-9 sm:w-auto sm:px-4 sm:bg-black/5 sm:dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium whitespace-nowrap shrink-0"
+                    onClick={() => dispatch(setShareModalData({ open: true, id: videoId, type: "video" }))}
+                  >
+                    <Share2 size={20} className="sm:mr-2" /> <span className="hidden sm:inline">Share</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="rounded-full h-10 w-10 p-0 sm:h-9 sm:w-auto sm:px-4 sm:bg-black/5 sm:dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium whitespace-nowrap shrink-0"
+                    onClick={() => dispatch(setSaveToPlaylistDialog({ id: videoId, open: true }))}
+                  >
+                    <Bookmark size={20} className="sm:mr-2" /> <span className="hidden sm:inline">Save</span>
                   </Button>
                 </div>
               </div>
-            )}
+            </div>
             {isMobile && (
               <div
-                className="mt-2 w-full p-3 rounded-xl bg-[#F2F2F2] dark:bg-[#28292A] cursor-pointer"
+                className="order-4 mt-4 w-full p-3 rounded-xl bg-black/5 dark:bg-[#28292A] cursor-pointer"
                 onClick={() => setIsMobileCommentsOpen(true)}
               >
-                <div className="flex justify-between items-center mb-1">
-                  <div className="flex items-center space-x-2 font-bold">
+                <div className="flex justify-between items-center mb-2">
+                  <div className="flex items-center space-x-2 font-bold text-[14px]">
                     <span>Comments</span>
-                    <span className="text-muted-foreground font-normal text-sm">{topCommentData?.totalDocs}</span>
+                    <span className="text-muted-foreground font-normal text-[12px]">{topCommentData?.totalDocs || 0}</span>
                   </div>
-                </div>
-                {topComment && (
-                  <div className="flex items-start gap-x-2 mt-1">
-                    <AvatarImg
-                      className="w-6 h-6 shrink-0 mt-0.5"
-                      fullname={topComment.creator.fullname}
-                      avatar={topComment.creator.avatar}
-                    />
-                    <div className="text-sm line-clamp-2 text-foreground">
-                      {topComment.content}
+                  {/* Indicators */}
+                  {(topCommentData?.docs?.length || 0) > 1 && (
+                    <div className="flex gap-x-1">
+                      {topCommentData?.docs?.slice(0, 2).map((_: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className={`h-1.5 w-1.5 rounded-full transition-colors ${idx === activeCommentIndex
+                              ? "bg-foreground"
+                              : "bg-muted-foreground/50"
+                            }`}
+                        />
+                      ))}
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
+                {/* Carousel Container */}
+                <div
+                  className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar"
+                  onScroll={handleCommentScroll}
+                >
+                  {topCommentData?.docs?.slice(0, 2).map((comment: any, idx: number) => (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-x-2 shrink-0 w-full snap-center"
+                    >
+                      <AvatarImg
+                        className="w-6 h-6 shrink-0 mt-0.5"
+                        fullname={comment.creator.fullname}
+                        avatar={comment.creator.avatar}
+                      />
+                      <div className="text-[13px] line-clamp-2 text-foreground leading-snug w-[calc(100%-2rem)]">
+                        {comment.content}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -525,47 +483,47 @@ export const Video = () => {
           />
         </div>
       </div>
-      <div className="w-full xl:w-1/3 2xl:w-[30%] flex flex-col gap-y-4 sm:block">
+      <div className="w-full xl:w-1/3 2xl:w-[30%] flex flex-col gap-y-3 sm:gap-y-2 mt-4 xl:mt-0 xl:pl-4">
         {recommendedVideos?.map((video) => (
           <Link
             to={`/video/${video._id}`}
             key={video._id}
-            className="flex flex-col sm:flex-row justify-between mb-2 sm:mb-4 sm:mr-4"
+            className="flex flex-col sm:flex-row gap-2 w-full group cursor-pointer"
           >
-            <div className="flex flex-col sm:flex-row gap-4 px-0 sm:px-4 lg:min-w-[300px] lg:max-w-[500px] w-full">
+            <div className="relative shrink-0">
               <img
                 src={video.thumbnail}
-                className="w-full sm:w-44 sm:h-24 object-cover sm:rounded-lg aspect-video"
+                className="w-full sm:w-40 sm:h-[90px] object-cover sm:rounded-xl aspect-video"
                 loading="lazy"
               />
-              <div className="flex gap-x-3 px-3 sm:px-0 pb-4 sm:pb-0">
-                <div className="sm:hidden mt-0.5 shrink-0">
-                  <AvatarImg
-                    className="w-9 h-9"
-                    avatar={video.creator?.avatar}
-                    fullname={video.creator?.fullname}
-                  />
-                </div>
-                <div className="flex flex-col overflow-hidden">
-                  <p className="font-bold line-clamp-2 overflow-hidden text-ellipsis sm:text-sm">
-                    {video.title}
-                  </p>
-                  <div className="text-muted-foreground text-sm sm:text-xs mt-1">
-                    {video.creator?.fullname} {isMobile ? "•" : ""} {isMobile && formatViews(video.views)} {isMobile ? "•" : ""} {isMobile && formatDistanceToNowStrict(new Date(video.createdAt), { addSuffix: true })}
-                  </div>
-                  {!isMobile && (
-                    <div className="text-muted-foreground text-xs mt-1">
-                      {`${formatViews(video.views)} • ${formatDistanceToNowStrict(
-                        new Date(video.createdAt),
-                        { addSuffix: true }
-                      )}`}
-                    </div>
+            </div>
+            <div className="flex gap-x-3 px-3 sm:px-0 pb-3 sm:pb-0 pt-1 sm:pt-0 w-full overflow-hidden">
+              <div className="sm:hidden mt-0.5 shrink-0">
+                <AvatarImg
+                  className="w-9 h-9"
+                  avatar={video.creator?.avatar}
+                  fullname={video.creator?.fullname}
+                />
+              </div>
+              <div className="flex flex-col flex-1 overflow-hidden pr-2 sm:pr-6">
+                <p className="font-semibold leading-tight text-[15px] sm:text-[14px] line-clamp-2 text-foreground transition-colors">
+                  {video.title}
+                </p>
+                <div className="flex flex-wrap items-center mt-1 sm:mt-0.5 text-[13px] sm:text-[12px] text-muted-foreground leading-snug">
+                  {video.creator && (
+                    <>
+                      <span className="truncate hover:text-foreground">{video.creator.fullname}</span>
+                      <span className="mx-1.5">•</span>
+                    </>
                   )}
+                  <span className="truncate">
+                    {`${formatViews(video.views)} • ${formatDistanceToNowStrict(new Date(video.createdAt), { addSuffix: true })}`}
+                  </span>
                 </div>
               </div>
-            </div>
-            <div className="hidden sm:block">
-              <ThreeDots videoId={video._id} />
+              <div className="shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                <ThreeDots videoId={video._id} />
+              </div>
             </div>
           </Link>
         ))}

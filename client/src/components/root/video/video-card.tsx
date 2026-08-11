@@ -208,36 +208,32 @@ export const VideoCard: React.FC<Props> = ({
           >
             {video.title}
           </h3>
-          <div className="flex flex-col mt-1">
+          <div className="flex flex-wrap items-center mt-1 text-[13px] sm:text-[14px] text-muted-foreground leading-snug">
             {video.creator && (
-              <span
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  navigate(`/channel/${video.creator.username}`);
-                }}
-                className="font-normal text-[14px] text-muted-foreground hover:text-foreground truncate cursor-pointer"
-              >
-                {video.creator.fullname}
-              </span>
+              <>
+                <span
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    navigate(`/channel/${video.creator.username}`);
+                  }}
+                  className="font-normal hover:text-foreground truncate cursor-pointer"
+                >
+                  {video.creator.fullname}
+                </span>
+                <span className="mx-1.5">•</span>
+              </>
             )}
-            <p className="text-[14px] text-muted-foreground truncate">
+            <span className="truncate">
               {`${formatViews(
                 video.views
-              )} • ${formatDistanceToNowStrict(video.createdAt, {
+              )} • ${formatDistanceToNowStrict(new Date(video.createdAt), {
                 addSuffix: true,
               })}`}
-            </p>
+            </span>
           </div>
         </div>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-        >
-          <ThreeDots videoId={video._id} />
-        </button>
+        <ThreeDots videoId={video._id} />
       </div>
     </div>
   );
