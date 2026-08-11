@@ -87,6 +87,7 @@ export const PlyrPlayer = ({
       const defaultOptions: Plyr.Options = {
         hideControls: true,
         controls,
+        clickToPlay: false,
         settings: ["quality", "captions", "speed"],
         previewThumbnails: {
           enabled: !!thumbnailPreviews,

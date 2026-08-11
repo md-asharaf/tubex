@@ -260,8 +260,16 @@ export const Video = () => {
   const handleVideoClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
 
-    if (target.closest('.plyr__controls')) {
+    if (target.closest('.plyr__controls') || target.closest('button, a')) {
       return;
+    }
+
+    const plyrContainer = target.closest('.plyr');
+    if (plyrContainer) {
+      const isControlsHidden = plyrContainer.classList.contains('plyr--hide-controls');
+      if (isControlsHidden) {
+        return;
+      }
     }
 
     if (playerRef.current) {
