@@ -400,6 +400,7 @@ export const Short = () => {
               controls={[]}
               className="w-full h-full object-contain"
               subtitle={short.subtitle}
+              loop={true}
             />
           </div>
 

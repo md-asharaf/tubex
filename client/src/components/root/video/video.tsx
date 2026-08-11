@@ -264,18 +264,17 @@ export const Video = () => {
       return;
     }
 
-    const plyrContainer = target.closest('.plyr');
-    if (plyrContainer) {
-      const isControlsHidden = plyrContainer.classList.contains('plyr--hide-controls');
-      if (isControlsHidden) {
-        return;
-      }
-    }
-
     if (playerRef.current) {
       if (playerRef.current.paused) {
         playerRef.current.play();
       } else {
+        const plyrContainer = target.closest('.plyr');
+        if (plyrContainer) {
+          const isControlsHidden = plyrContainer.classList.contains('plyr--hide-controls');
+          if (isControlsHidden) {
+            return;
+          }
+        }
         playerRef.current.pause();
       }
     }

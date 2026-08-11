@@ -17,6 +17,12 @@ export const PlyrPlayer = ({
   onEnded = () => { },
   trackProgressId = null,
   userId = null,
+  muted = undefined,
+  volume = undefined,
+  captions = undefined,
+  loop = false,
+  autoplay = true,
+  disableStorage = false,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
@@ -30,6 +36,14 @@ export const PlyrPlayer = ({
     "2500000": 720,
     "5000000": 1080,
   };
+
+  const applyInitialState = (player: any) => {
+    if (muted !== undefined) player.muted = muted;
+    if (volume !== undefined) player.volume = volume;
+    if (captions !== undefined) player.captions.active = captions;
+    player.loop = loop;
+  };
+
   useEffect(() => {
     let isMounted = true;
 
@@ -87,7 +101,9 @@ export const PlyrPlayer = ({
       const defaultOptions: Plyr.Options = {
         hideControls: true,
         controls,
+        autoplay,
         clickToPlay: false,
+        storage: { enabled: !disableStorage, key: 'plyr' },
         settings: ["quality", "captions", "speed"],
         previewThumbnails: {
           enabled: !!thumbnailPreviews,
@@ -105,7 +121,20 @@ export const PlyrPlayer = ({
       if (!isHls || !Hls.isSupported()) {
         video.src = source;
         playerRef.current = new Plyr(video, defaultOptions);
+        applyInitialState(playerRef.current);
         setupProgressTracking(playerRef.current);
+
+        if (autoplay) {
+          const playPromise = playerRef.current.play();
+          if (playPromise !== undefined) {
+            playPromise.catch((error: any) => {
+              if (error.name === 'NotAllowedError' && playerRef.current) {
+                playerRef.current.muted = true;
+                playerRef.current.play().catch(() => {});
+              }
+            });
+          }
+        }
       } else {
         const hls = new Hls();
         hlsRef.current = hls;
@@ -147,8 +176,19 @@ export const PlyrPlayer = ({
 
           playerRef.current.on("ready", () => {
             if (playerRef.current) {
-              playerRef.current.muted = true;
-              playerRef.current.captions.active = false;
+              applyInitialState(playerRef.current);
+              
+              if (autoplay) {
+                const playPromise = playerRef.current.play();
+                if (playPromise !== undefined) {
+                  playPromise.catch((error: any) => {
+                    if (error.name === 'NotAllowedError' && playerRef.current) {
+                      playerRef.current.muted = true;
+                      playerRef.current.play().catch(() => {});
+                    }
+                  });
+                }
+              }
             }
           });
         });
@@ -163,10 +203,18 @@ export const PlyrPlayer = ({
     return () => {
       isMounted = false;
       if (hlsRef.current) {
-        hlsRef.current.destroy();
+        try {
+          hlsRef.current.stopLoad();
+          hlsRef.current.detachMedia();
+          hlsRef.current.destroy();
+        } catch (e) {}
+        hlsRef.current = null;
       }
       if (playerRef && playerRef.current) {
-        playerRef.current.destroy();
+        try {
+          playerRef.current.destroy();
+        } catch (e) {}
+        playerRef.current = null;
       }
     };
   }, [source, trackProgressId, userId]);

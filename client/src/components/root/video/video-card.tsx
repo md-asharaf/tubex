@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { formatDuration, formatViews } from "@/lib/utils";
 import { PlyrPlayer } from "../video-player";
 import { Volume2, VolumeX, Subtitles } from "lucide-react";
@@ -36,15 +36,46 @@ export const VideoCard: React.FC<Props> = ({
     threshold: 0,
   });
 
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const startHover = () => {
+    window.dispatchEvent(new CustomEvent('preview-started', { detail: { id: video._id } }));
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovered(true);
+    }, 1000);
+  };
+
+  const stopHover = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setIsHovered(false);
+  };
+
   useEffect(() => {
     if (isMobile) {
       if (entry?.isIntersecting) {
-        setIsHovered(true);
+        startHover();
       } else {
-        setIsHovered(false);
+        stopHover();
       }
     }
   }, [entry?.isIntersecting, isMobile]);
+
+  useEffect(() => {
+    const handlePreviewStarted = (e: any) => {
+      if (e.detail.id !== video._id) {
+        stopHover();
+      }
+    };
+    window.addEventListener('preview-started', handlePreviewStarted);
+    return () => window.removeEventListener('preview-started', handlePreviewStarted);
+  }, [video._id]);
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    };
+  }, []);
 
   const userId = useSelector((state: RootState) => state.auth.userData?._id);
   const [progress, setProgress] = useState(0);
@@ -56,7 +87,7 @@ export const VideoCard: React.FC<Props> = ({
       if (savedProgress[video._id] && video.duration) {
         setProgress((savedProgress[video._id] / parseFloat(video.duration)) * 100);
       }
-    } catch (e) {}
+    } catch (e) { }
   }, [video._id, video.duration, userId]);
 
   const toggleMute = () => {
@@ -75,8 +106,8 @@ export const VideoCard: React.FC<Props> = ({
   };
   return (
     <div
-      onMouseEnter={() => { if (!isMobile) setIsHovered(true) }}
-      onMouseLeave={() => { if (!isMobile) setIsHovered(false) }}
+      onMouseEnter={() => { if (!isMobile) startHover() }}
+      onMouseLeave={() => { if (!isMobile) stopHover() }}
       className="relative group flex flex-col gap-2 rounded-lg p-2"
       ref={ref}
     >
@@ -95,15 +126,15 @@ export const VideoCard: React.FC<Props> = ({
               </p>
               {progress > 0 && (
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/30 rounded-b-xl overflow-hidden z-0">
-                  <div 
-                    className="h-full bg-red-600" 
-                    style={{ width: `${Math.min(Math.max(progress, 0), 100)}%` }} 
+                  <div
+                    className="h-full bg-red-600"
+                    style={{ width: `${Math.min(Math.max(progress, 0), 100)}%` }}
                   />
                 </div>
               )}
             </div>
           ) : (
-            <div 
+            <div
               className="relative w-full h-full"
               onClick={(e) => {
                 const target = e.target as HTMLElement;
@@ -120,6 +151,8 @@ export const VideoCard: React.FC<Props> = ({
                 subtitle={video.subtitle}
                 playerRef={playerRef}
                 controls={["progress"]}
+                muted={true}
+                disableStorage={true}
               />
               <p className="absolute right-2 bottom-2 bg-black/80 text-white text-xs font-medium px-1.5 py-0.5 rounded">
                 {formatDuration(video.duration)}
@@ -142,8 +175,8 @@ export const VideoCard: React.FC<Props> = ({
                   </button>
                   <button
                     className={`bg-black bg-opacity-50 p-2 rounded-full hover:bg-opacity-75 transition ${isCCEnabled
-                        ? "text-blue-500"
-                        : "text-white"
+                      ? "text-blue-500"
+                      : "text-white"
                       }`}
                     onClick={(e) => {
                       e.preventDefault();
