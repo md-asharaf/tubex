@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useParams, useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { IVideoData } from "@/interfaces";
-import { formatDistanceToNowStrict } from "date-fns";
+import { getRelativeShortTime } from "@/lib/time";
 import { videoService } from "@/services/video";
 import { playlistService } from "@/services/playlist";
 import { subService } from "@/services/subscription";
@@ -337,8 +337,7 @@ export const Video = () => {
                 <span className="sm:hidden">@{video.creator.username}</span>
                 <span className="sm:hidden">{likesCount} likes</span>
                 <span className="sm:font-semibold">{formatViews(video.views)}</span>
-                <span className="hidden sm:inline">{formatDistanceToNowStrict(new Date(video.createdAt), { addSuffix: true })}</span>
-                <span className="sm:hidden">{formatDistanceToNowStrict(new Date(video.createdAt))}</span>
+                <span>{getRelativeShortTime(new Date(video.createdAt))}</span>
                 {!isExpanded && (
                   <span className="font-bold text-foreground mt-0.5 ml-1">...more</span>
                 )}
@@ -517,7 +516,7 @@ export const Video = () => {
                     </>
                   )}
                   <span className="truncate">
-                    {`${formatViews(video.views)} • ${formatDistanceToNowStrict(new Date(video.createdAt), { addSuffix: true })}`}
+                    {`${formatViews(video.views)} • ${getRelativeShortTime(new Date(video.createdAt))}`}
                   </span>
                 </div>
               </div>

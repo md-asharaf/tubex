@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { PasswordInput } from "@/components/root/password-input";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 export const SignUp = () => {
   const [loading, setLoading] = useState(false);
@@ -44,7 +44,10 @@ export const SignUp = () => {
   };
 
   return (
-    <div className="flex w-full min-h-screen items-center justify-center p-4 text-black dark:text-white bg-[#F9F9F9] dark:bg-[#0F0F0F]">
+    <div className="flex w-full min-h-[100dvh] items-center justify-center p-4 text-black dark:text-white bg-[#F9F9F9] dark:bg-[#0F0F0F]">
+      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+        <ArrowLeft className="w-6 h-6" />
+      </button>
       <div className="bg-white dark:bg-[#212121] p-8 md:p-10 rounded-2xl md:shadow-lg w-full max-w-[450px] border border-gray-200 dark:border-white/10 md:border-transparent">
         <div className="text-center mb-8">
           <div className="flex justify-center items-center mb-4">

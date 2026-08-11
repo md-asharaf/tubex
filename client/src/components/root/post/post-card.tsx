@@ -7,7 +7,7 @@ import {
   ThumbsUpIcon,
   ThumbsDownIcon,
 } from "lucide-react";
-import { formatDistanceToNowStrict } from "date-fns";
+import { getRelativeShortTime } from "@/lib/time";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -156,7 +156,7 @@ export const PostCard = ({ post }: { post: IPostData }) => {
               <span className="text-xs text-muted-foreground">•</span>
               <Link to={`/post/${post._id}`}>
                 <span className="text-[12px] text-muted-foreground hover:underline cursor-pointer">
-                  {formatDistanceToNowStrict(new Date(post.updatedAt)).replace("about ", "") + " ago"}
+                  {getRelativeShortTime(new Date(post.updatedAt))}
                 </span>
               </Link>
             </div>

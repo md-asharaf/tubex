@@ -73,7 +73,7 @@ export const Subscriptions = () => {
   if (!channelsLoading && (!channels || channels.length === 0)) {
     return (
       <div className="flex flex-col items-center justify-center h-[70vh] px-4 text-center">
-        <img src="/logo.png" alt="TubeX" className="w-16 h-16 opacity-50 mb-4 grayscale" />
+        <img src="./src/assets/images/logo.png" alt="TubeX" className="w-16 h-16 opacity-50 mb-4 grayscale" />
         <h2 className="text-xl font-bold mb-2">Don't miss new videos</h2>
         <p className="text-muted-foreground max-w-sm mb-6">Sign in to see updates from your favorite YouTube channels</p>
         <Link to="/" className="bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700 transition-colors">

@@ -5,7 +5,7 @@ import { Volume2, VolumeX, Subtitles } from "lucide-react";
 import { IVideoData } from "@/interfaces";
 import { AvatarImg } from "@/components/root/avatar-image";
 import { useNavigate } from "react-router-dom";
-import { formatDistanceToNowStrict } from "date-fns";
+import { getRelativeShortTime } from "@/lib/time";
 import { ThreeDots } from "@/components/root/three-dots";
 import { useIntersection } from "@mantine/hooks";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -227,9 +227,7 @@ export const VideoCard: React.FC<Props> = ({
             <span className="truncate">
               {`${formatViews(
                 video.views
-              )} • ${formatDistanceToNowStrict(new Date(video.createdAt), {
-                addSuffix: true,
-              })}`}
+              )} • ${getRelativeShortTime(new Date(video.createdAt))}`}
             </span>
           </div>
         </div>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-import { formatDistanceToNowStrict } from "date-fns";
+import { getRelativeShortTime } from "@/lib/time";
 import { IVideoData, IShortData, Playlist, IUser } from "@/interfaces";
 import { videoService } from "@/services/video";
 import { shortService } from "@/services/short";
@@ -89,7 +89,7 @@ export const SearchedVideos = () => {
                   {video.title}
                 </h2>
                 <p className="text-[14px] text-muted-foreground mt-1">
-                  {`${formatViews(video.views)} • ${formatDistanceToNowStrict(new Date(video.createdAt || Date.now())).replace("about", "")} ago`}
+                  {`${formatViews(video.views)} • ${getRelativeShortTime(new Date(video.createdAt || Date.now()))}`}
                 </p>
               </div>
               <div className="flex items-center gap-2 sm:mt-2">
@@ -175,7 +175,7 @@ export const SearchedVideos = () => {
   const noResults = !videos?.length && !shorts?.length && !channels?.length && !playlists?.length;
 
   return (
-    <div className="flex flex-col w-full min-h-screen">
+    <div className="flex flex-col w-full min-h-[100dvh]">
       <div className="flex gap-3 px-4 md:px-8 xl:px-40 py-3 overflow-x-auto scrollbar-hide w-full max-w-full">
         {FILTER_TABS.map((tab) => (
           <button
@@ -191,7 +191,7 @@ export const SearchedVideos = () => {
         ))}
       </div>
 
-      <div className="px-4 md:px-8 xl:px-40 pt-6 pb-20 w-full max-w-full">
+      <div className="px-4 md:px-8 xl:px-40 pt-6 pb-4 w-full max-w-full">
         {noResults ? (
           <div className="flex items-center text-lg sm:text-2xl justify-center mt-20 w-full text-center text-muted-foreground">
             No results found for "{query}"

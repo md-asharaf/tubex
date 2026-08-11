@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { IShortData, IVideoData } from "@/interfaces";
-import { formatDistanceToNowStrict } from "date-fns";
+import { getRelativeShortTime } from "@/lib/time";
 import { Button } from "@/components/ui/button";
 import { formatDuration, formatViews } from "@/lib/utils";
 import React, { useEffect, useState } from "react";
@@ -107,9 +107,9 @@ export const PlaylistComp: React.FC<Props> = ({ playlist }) => {
     };
 
     return (
-        <div className="flex flex-col lg:flex-row w-full min-h-[calc(100vh-64px)] relative dark:text-white">
+        <div className="flex flex-col lg:flex-row w-full min-h-[calc(100dvh-64px)] relative dark:text-white">
             {/* Desktop Sticky Panel / Mobile Header */}
-            <div className="relative w-full lg:w-[360px] xl:w-[400px] shrink-0 lg:sticky lg:top-16 lg:h-[calc(100vh-64px)] overflow-hidden lg:rounded-xl">
+            <div className="relative w-full lg:w-[360px] xl:w-[400px] shrink-0 lg:sticky lg:top-16 lg:h-[calc(100dvh-64px)] overflow-hidden lg:rounded-xl">
                 <div 
                     className="absolute inset-0 z-0"
                     style={{
@@ -210,7 +210,7 @@ export const PlaylistComp: React.FC<Props> = ({ playlist }) => {
                                         <span>{video.creator.fullname}</span>
                                         <span className="hidden sm:inline mx-1.5">•</span>
                                         <span>
-                                            {formatViews(video.views)} • {formatDistanceToNowStrict(new Date(video.createdAt)).replace("about", "")} ago
+                                            {formatViews(video.views)} • {getRelativeShortTime(new Date(video.createdAt))}
                                         </span>
                                     </div>
                                 </div>

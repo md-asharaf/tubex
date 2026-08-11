@@ -8,7 +8,7 @@ import {
   setNotifications,
   resetNotificationCount,
 } from "@/store/reducers/notification";
-import { formatDistanceToNowStrict } from "date-fns";
+import { getRelativeShortTime } from "@/lib/time";
 import { ArrowLeft, Search, EllipsisVertical, Loader2, CheckCheck, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useIntersection } from "@mantine/hooks";
@@ -125,7 +125,7 @@ export const MobileNotifications = () => {
 
   const renderNotificationItem = (notification: any, index: number, isLast: boolean) => {
     const message = notification.message;
-    const timeAgo = formatDistanceToNowStrict(new Date(notification.createdAt), { addSuffix: true });
+    const timeAgo = getRelativeShortTime(new Date(notification.createdAt));
 
     return (
       <div

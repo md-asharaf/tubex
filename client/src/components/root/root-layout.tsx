@@ -20,7 +20,7 @@ export const RootLayout = () => {
       <div className={`${hideNavbarOnMobile ? 'mt-0 sm:mt-16' : 'mt-12 sm:mt-16'} flex flex-1 w-full overflow-hidden sm:space-x-4`}>
         <Drawer />
         <div
-          className="w-full flex-1 overflow-y-auto overflow-x-hidden pb-24 sm:pb-4"
+          className="w-full flex-1 overflow-y-auto overflow-x-hidden pb-14 sm:pb-4"
           style={{
             WebkitOverflowScrolling: "touch",
           }}

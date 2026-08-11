@@ -108,7 +108,13 @@ export const NavBar = () => {
                   <Search size={22} />
                 </button>
               </div>
-              <Link to={"/login"}>
+              <div className="flex sm:hidden items-center">
+                <DarkModeSwitch
+                  checked={theme === "dark"}
+                  onChange={() => dispatch(toggleTheme())}
+                />
+              </div>
+              <Link to={"/login"} className="hidden sm:block">
                 <Button
                   className="h-8 rounded-full bg-blue-500 px-3 py-0 text-white hover:bg-blue-600 sm:h-10 sm:px-4"
                 >

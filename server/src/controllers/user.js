@@ -267,6 +267,9 @@ class UserController {
             },
             {
               username: { $regex: search, $options: "i" }
+            },
+            {
+              fullname: { $regex: search, $options: "i" }
             }
           ]
         }
@@ -276,6 +279,7 @@ class UserController {
           _id: 1,
           email: 1,
           fullname: 1,
+          username: 1,
           avatar: 1,
         }
       }

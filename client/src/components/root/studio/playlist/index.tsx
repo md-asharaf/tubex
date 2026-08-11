@@ -17,7 +17,7 @@ export const StudioPlaylist = () => {
     });
     if (isLoading) return null;
     return (
-        <div className="flex min-h-screen pt-[4rem]">
+        <div className="flex min-h-[100dvh] pt-[4rem]">
             <SidebarLayout>
                 <PlaylistSection
                     title={playlist.name}

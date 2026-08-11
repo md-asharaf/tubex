@@ -16,7 +16,7 @@ import {
   resetNotificationCount,
 } from "@/store/reducers/notification";
 import { IoNotificationsOutline } from "react-icons/io5";
-import { formatDistanceToNowStrict } from "date-fns";
+import { getRelativeShortTime } from "@/lib/time";
 import { CheckCheck, EllipsisVertical, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useIntersection } from "@mantine/hooks";
@@ -246,11 +246,8 @@ export const Notifications = () => {
                           )}
                         </div>
                         <div className="text-muted-foreground text-xs">
-                          {formatDistanceToNowStrict(
-                            new Date(
-                              notification.createdAt
-                            ),
-                            { addSuffix: true }
+                          {getRelativeShortTime(
+                            new Date(notification.createdAt)
                           )}
                         </div>
                       </div>

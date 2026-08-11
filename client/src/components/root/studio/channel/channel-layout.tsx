@@ -3,7 +3,7 @@ import { SidebarLayout } from "../sidebar/sidebar-layout";
 import { ChannelSection } from "./channel-section";
 export const ChannelLayout = () => {
     return (
-        <div className="flex h-screen pt-[4rem]">
+        <div className="flex h-[100dvh] pt-[4rem]">
             <SidebarLayout>
                 <ChannelSection />
             </SidebarLayout>

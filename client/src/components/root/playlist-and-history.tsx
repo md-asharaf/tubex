@@ -152,7 +152,7 @@ export const PlaylistNhistory = () => {
         </div>
       </div>
 
-      <div className="pb-24 sm:pb-10 pt-4 sm:pt-6">
+      <div className="pb-4 sm:pb-10 pt-4 sm:pt-6">
         {/* Desktop Sections */}
         <div className="hidden sm:block space-y-10">
           {watchHistory?.videos.length > 0 && (
