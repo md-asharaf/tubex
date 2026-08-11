@@ -153,6 +153,7 @@ export const VideoCard: React.FC<Props> = ({
                 controls={["progress"]}
                 muted={true}
                 disableStorage={true}
+                className="w-full h-full"
               />
               <p className="absolute right-2 bottom-2 bg-black/80 text-white text-xs font-medium px-1.5 py-0.5 rounded">
                 {formatDuration(video.duration)}

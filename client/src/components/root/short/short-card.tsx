@@ -45,7 +45,7 @@ export const ShortCard = ({ short, playerRef }) => {
 
   return (
     <div
-      className="group flex flex-col gap-2 p-2 rounded-lg relative group"
+      className="relative group w-full aspect-[9/16] rounded-xl overflow-hidden cursor-pointer bg-black"
       onMouseEnter={startHover}
       onMouseLeave={stopHover}
     >
@@ -53,24 +53,30 @@ export const ShortCard = ({ short, playerRef }) => {
         <img
           src={short.thumbnail}
           alt=""
-          className="w-full h-full aspect-[9/16] object-cover rounded-xl"
+          className="absolute inset-0 w-full h-full object-cover"
         />
       ) : (
-        <PlyrPlayer
-          thumbnail={short.thumbnail}
-          source={short.source}
-          subtitle={short.subtitle}
-          onViewTracked={() => increaseViews(short._id)}
-          className="w-full h-full aspect-[9/16]"
-          playerRef={playerRef}
-          controls={[]}
-          muted={true}
-          disableStorage={true}
-        />
+        <div className="absolute inset-0 w-full h-full">
+          <PlyrPlayer
+            thumbnail={short.thumbnail}
+            source={short.source}
+            subtitle={short.subtitle}
+            onViewTracked={() => increaseViews(short._id)}
+            className="w-full h-full"
+            playerRef={playerRef}
+            controls={[]}
+            muted={true}
+            disableStorage={true}
+          />
+        </div>
       )}
-      <div className="space-y-1">
-        <p className="font-semibold text-[16px] leading-snug line-clamp-2">{short.title}</p>
-        <div className="text-[14px] text-muted-foreground">{`${short.views} views`}</div>
+      <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none flex flex-col justify-end">
+        <p className="font-semibold text-[15px] text-white leading-snug line-clamp-2 drop-shadow-md">
+          {short.title}
+        </p>
+        <div className="text-[13px] text-gray-200 mt-1 drop-shadow-md">
+          {`${short.views} views`}
+        </div>
       </div>
     </div>
   );

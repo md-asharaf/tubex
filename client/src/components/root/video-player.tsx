@@ -248,7 +248,7 @@ export const PlyrPlayer = ({
   }, [watchTime, hasWatched, lastUpdateTime]);
 
   return (
-    <div className="sm:rounded-xl object-cover overflow-hidden">
+    <div className="w-full h-full sm:rounded-xl object-cover overflow-hidden">
       <video
         ref={videoRef}
         className={`plyr-react plyr ${className}`}
