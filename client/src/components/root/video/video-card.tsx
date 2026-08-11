@@ -94,7 +94,7 @@ export const VideoCard: React.FC<Props> = ({
                 {formatDuration(video.duration)}
               </p>
               {progress > 0 && (
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/30 rounded-b-xl overflow-hidden z-20">
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/30 rounded-b-xl overflow-hidden z-0">
                   <div 
                     className="h-full bg-red-600" 
                     style={{ width: `${Math.min(Math.max(progress, 0), 100)}%` }} 
