@@ -37,26 +37,13 @@ axiosInstance.interceptors.response.use(
     }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
-      const isLoggedIn = !!store.getState().auth.userData;
-
-      if (!isLoggedIn) {
-        if (originalRequest.method?.toLowerCase() === "get") {
-          return Promise.reject(error.response?.data as ApiResponse);
-        } else {
-          store.dispatch(
-            setLoginPopoverData({
-              message: "Sign In Required",
-              open: true,
-            })
-          );
-          return Promise.reject(error.response?.data as ApiResponse);
-        }
-      }
-
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
-        }).then(() => axiosInstance(originalRequest));
+        }).then(() => {
+          originalRequest._retry = true;
+          return axiosInstance(originalRequest);
+        });
       }
 
       originalRequest._retry = true;
@@ -69,7 +56,7 @@ axiosInstance.interceptors.response.use(
         processQueue(null);
 
         return axiosInstance(originalRequest);
-      } catch (refreshError) {
+      } catch (refreshError: any) {
         if (
           refreshError?.response?.status === 401
         ) {

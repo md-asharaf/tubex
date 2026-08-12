@@ -11,7 +11,7 @@ const root = createRoot(rootElement);
 root.render(
   <Provider store={store}>
     <QueryClientProvider client={queryClient}>
-      <Toaster position="top-right" richColors expand />
+      <Toaster position="bottom-right" richColors expand />
       <App />
     </QueryClientProvider>
   </Provider>

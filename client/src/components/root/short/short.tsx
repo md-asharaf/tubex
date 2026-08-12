@@ -34,7 +34,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { useState, useRef, useEffect } from "react";
 import { likeService } from "@/services/like";
-import { setShareModalData } from "@/store/reducers/ui";
+import { setShareModalData, setLoginPopoverData } from "@/store/reducers/ui";
 import { Popover, PopoverContent } from "@/components/ui/popover";
 import { PopoverTrigger } from "@radix-ui/react-popover";
 import { ShortPopoverContent } from "@/components/root/short/short-popover-content";
@@ -447,7 +447,13 @@ export const Short = () => {
 
           {/* Right Action Bar */}
           <div className="absolute bottom-8 right-2 z-20 flex flex-col items-center space-y-6">
-            <button className="flex flex-col items-center" onClick={() => toggleLike()}>
+            <button className="flex flex-col items-center" onClick={() => {
+              if (!userId) {
+                dispatch(setLoginPopoverData({ open: true, message: "Sign in to like." }));
+                return;
+              }
+              toggleLike();
+            }}>
               <ThumbsUp size={30} fill={isLiked ? "white" : "transparent"} strokeWidth={1.5} />
               <span className="text-xs mt-1 font-medium">{likesCount || 0}</span>
             </button>
@@ -482,7 +488,13 @@ export const Short = () => {
               {userId !== short.creator._id && (
                 <button
                   className="bg-white text-black px-4 py-1.5 rounded-full text-xs font-bold"
-                  onClick={() => toggleSubscription()}
+                  onClick={() => {
+                    if (!userId) {
+                      dispatch(setLoginPopoverData({ open: true, message: "Sign in to subscribe." }));
+                      return;
+                    }
+                    toggleSubscription();
+                  }}
                 >
                   {isSubscribed ? "Subscribed" : "Subscribe"}
                 </button>
@@ -639,7 +651,13 @@ export const Short = () => {
 
               {userId !== short.creator._id && <button
                 className="rounded-full font-semibold bg-white text-black px-2 py-1"
-                onClick={() => toggleSubscription()}
+                onClick={() => {
+                  if (!userId) {
+                    dispatch(setLoginPopoverData({ open: true, message: "Sign in to subscribe." }));
+                    return;
+                  }
+                  toggleSubscription();
+                }}
               >
                 {isSubscribed ? "Subscribed" : "Subscribe"}
               </button>}
@@ -650,7 +668,13 @@ export const Short = () => {
         <div className="absolute md:bottom-0 md:-right-14 bottom-16 right-2 flex flex-col sm:space-y-4 space-y-2 items-center">
           <div
             className="p-3 bg-muted hover:bg-muted/80 rounded-full"
-            onClick={() => toggleLike()}
+            onClick={() => {
+              if (!userId) {
+                dispatch(setLoginPopoverData({ open: true, message: "Sign in to like." }));
+                return;
+              }
+              toggleLike();
+            }}
           >
             <ThumbsUp
               size={20}

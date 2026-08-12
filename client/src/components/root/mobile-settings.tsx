@@ -18,7 +18,7 @@ export const MobileSettings = () => {
     try {
       await logoutFromGoogle();
       await authService.logout();
-      toast.info("Logged out!!");
+      toast.success("Logged out.");
       dispatch(logout());
       navigate("/");
     } catch (error: any) {

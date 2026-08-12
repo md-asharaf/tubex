@@ -22,6 +22,7 @@ import {
   setSaveToPlaylistDialog,
   setShareModalData,
   toggleMenu,
+  setLoginPopoverData,
 } from "@/store/reducers/ui";
 import { AvatarImg } from "@/components/root/avatar-image";
 import { VideoComments } from "@/components/root/video/video-comments";
@@ -328,8 +329,8 @@ export const Video = () => {
             {/* Description Box / Inline Text (Order 2 on Mobile, Order 3 on Desktop) */}
             <div
               className={`order-2 sm:order-3 w-full cursor-pointer transition-colors mt-1 sm:mt-3 ${isExpanded
-                  ? "p-3 rounded-xl bg-black/5 dark:bg-[#28292A] sm:bg-black/5 sm:dark:bg-white/10"
-                  : "p-0 rounded-none bg-transparent sm:p-3 sm:rounded-xl sm:bg-black/5 sm:dark:bg-white/10 sm:hover:bg-black/10 sm:dark:hover:bg-white/20"
+                ? "p-3 rounded-xl bg-black/5 dark:bg-[#28292A] sm:bg-black/5 sm:dark:bg-white/10"
+                : "p-0 rounded-none bg-transparent sm:p-3 sm:rounded-xl sm:bg-black/5 sm:dark:bg-white/10 sm:hover:bg-black/10 sm:dark:hover:bg-white/20"
                 }`}
               onClick={!isExpanded ? toggleExpanded : undefined}
             >
@@ -381,7 +382,13 @@ export const Video = () => {
                   <Button
                     variant={isSubscribed ? "secondary" : "default"}
                     className={`rounded-full font-semibold px-3 sm:px-4 h-8 sm:h-9 ${!isSubscribed ? 'bg-black text-white dark:bg-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90' : 'bg-black/5 dark:bg-white/10'}`}
-                    onClick={() => toggleSubscription()}
+                    onClick={() => {
+                      if (!userId) {
+                        dispatch(setLoginPopoverData({ open: true, message: "Sign in to subscribe." }));
+                        return;
+                      }
+                      toggleSubscription();
+                    }}
                   >
                     <span className="hidden sm:inline">{isSubscribed ? "Subscribed" : "Subscribe"}</span>
                     <span className="sm:hidden flex items-center gap-x-1">
@@ -397,7 +404,13 @@ export const Video = () => {
                 <div className="flex items-center space-x-0.5 sm:space-x-2">
                   <Button
                     variant="ghost"
-                    onClick={() => toggleVideoLike()}
+                    onClick={() => {
+                      if (!userId) {
+                        dispatch(setLoginPopoverData({ open: true, message: "Sign in to like." }));
+                        return;
+                      }
+                      toggleVideoLike();
+                    }}
                     className="rounded-full h-10 w-10 p-0 sm:h-9 sm:w-auto sm:px-4 sm:bg-black/5 sm:dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium whitespace-nowrap shrink-0"
                   >
                     <ThumbsUp
@@ -417,7 +430,13 @@ export const Video = () => {
                   <Button
                     variant="ghost"
                     className="rounded-full h-10 w-10 p-0 sm:h-9 sm:w-auto sm:px-4 sm:bg-black/5 sm:dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-medium whitespace-nowrap shrink-0"
-                    onClick={() => dispatch(setSaveToPlaylistDialog({ id: videoId, open: true }))}
+                    onClick={() => {
+                      if (!userId) {
+                        dispatch(setLoginPopoverData({ open: true, message: "Sign in to save." }));
+                        return;
+                      }
+                      dispatch(setSaveToPlaylistDialog({ id: videoId, open: true }));
+                    }}
                   >
                     <Bookmark size={20} className="sm:mr-2" /> <span className="hidden sm:inline">Save</span>
                   </Button>
@@ -441,8 +460,8 @@ export const Video = () => {
                         <div
                           key={idx}
                           className={`h-1.5 w-1.5 rounded-full transition-colors ${idx === activeCommentIndex
-                              ? "bg-foreground"
-                              : "bg-muted-foreground/50"
+                            ? "bg-foreground"
+                            : "bg-muted-foreground/50"
                             }`}
                         />
                       ))}

@@ -8,7 +8,7 @@ import { getRelativeShortTime } from "@/lib/time";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
-import { setShareModalData } from "@/store/reducers/ui";
+import { setShareModalData, setLoginPopoverData } from "@/store/reducers/ui";
 import { likeService } from "@/services/like";
 import {
   DropdownMenu,
@@ -291,7 +291,13 @@ const Replies = ({
                         </div>
                         <div className="flex items-center mt-1 -ml-2">
                           <Button
-                            onClick={() => toggleReplyLike({ replyId: reply._id, index })}
+                            onClick={() => {
+                              if (!userData) {
+                                dispatch(setLoginPopoverData({ open: true, message: "Sign in to like." }));
+                                return;
+                              }
+                              toggleReplyLike({ replyId: reply._id, index })
+                            }}
                             variant="ghost"
                             className="rounded-full h-8 px-2 text-xs"
                           >

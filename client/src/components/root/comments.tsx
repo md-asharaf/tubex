@@ -41,7 +41,7 @@ import { ThreadTrunk, ThreadBranch, ThreadLine } from "./thread-line";
 import { queryClient } from "@/lib/query-client";
 import { useIntersection } from "@mantine/hooks";
 import { processText } from "@/lib";
-import { setAlertDialogData, setShareModalData } from "@/store/reducers/ui";
+import { setAlertDialogData, setShareModalData, setLoginPopoverData } from "@/store/reducers/ui";
 import { TextArea } from "./text-area";
 import { AvatarImg } from "./avatar-image";
 import { Button } from "../ui/button";
@@ -366,13 +366,16 @@ export const Comments: React.FC<CommentProps> = ({
 
                         <div className="flex items-center mt-1 -ml-2">
                           <Button
-                            onClick={() =>
+                            onClick={() => {
+                              if (!userData) {
+                                dispatch(setLoginPopoverData({ open: true, message: "Sign in to like." }));
+                                return;
+                              }
                               toggleCommentLike({
-                                commentId:
-                                  comment._id,
-                                index,
+                                commentId: comment._id,
+                                index: index,
                               })
-                            }
+                            }}
                             variant="ghost"
                             className="rounded-full h-8 px-2 text-xs"
                           >
@@ -647,6 +650,10 @@ export const Comments: React.FC<CommentProps> = ({
                           <div className="flex items-center mt-1 -ml-2">
                             <Button
                               onClick={() => {
+                                if (!userData) {
+                                  dispatch(setLoginPopoverData({ open: true, message: "Sign in to like." }));
+                                  return;
+                                }
                                 if (drawerCommentIndex !== undefined && drawerCommentIndex !== -1) {
                                   toggleCommentLike({ commentId: repliesDrawerComment._id, index: drawerCommentIndex });
                                 }

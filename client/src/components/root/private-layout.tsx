@@ -1,11 +1,22 @@
 import { RootState } from "@/store/store";
-import React from "react";
-import { useSelector } from "react-redux";
-import { Navigate, Outlet } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Outlet } from "react-router-dom";
+import { setLoginPopoverData } from "@/store/reducers/ui";
 
 export const PrivateLayout: React.FC = () => {
-    const userData = useSelector((state: RootState) => state.auth.userData);
-    if (!userData) return <Navigate to="/" replace />;
+  const userData = useSelector((state: RootState) => state.auth.userData);
+  const dispatch = useDispatch();
 
-    return <Outlet />;
+  useEffect(() => {
+    if (!userData) {
+      dispatch(setLoginPopoverData({ open: true, message: "Sign In Required" }));
+    }
+  }, [userData, dispatch]);
+
+  if (!userData) {
+    return <div className="w-full min-h-[100dvh]" />;
+  }
+
+  return <Outlet />;
 };

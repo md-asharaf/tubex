@@ -14,7 +14,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { likeService } from "@/services/like";
 import { commentService } from "@/services/comment";
 import { useDispatch, useSelector } from "react-redux";
-import { setShareModalData } from "@/store/reducers/ui";
+import { setShareModalData, setLoginPopoverData } from "@/store/reducers/ui";
 import { RootState } from "@/store/store";
 import { videoService } from "@/services/video";
 import { Loader2, Play } from "lucide-react";
@@ -79,6 +79,7 @@ export const PostCard = ({ post }: { post: IPostData }) => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const theme = useSelector((state: RootState) => state.theme.mode);
+  const userId = useSelector((state: RootState) => state.auth.userData?._id);
 
   // Likes
   const { data: isLiked } = useQuery({
@@ -241,6 +242,10 @@ export const PostCard = ({ post }: { post: IPostData }) => {
             className="rounded-l-full rounded-r-none px-3 h-9 text-muted-foreground hover:text-foreground hover:bg-black/10 dark:hover:bg-white/20"
             onClick={(e) => {
               e.preventDefault();
+              if (!userId) {
+                dispatch(setLoginPopoverData({ open: true, message: "Sign in to like." }));
+                return;
+              }
               toggleLikeMutation.mutate();
             }}
           >
