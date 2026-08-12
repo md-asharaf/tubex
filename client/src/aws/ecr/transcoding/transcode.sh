@@ -4,6 +4,8 @@
 echo "main.sh execution starting...."
 set -e
 
+trap 'if [ $? -ne 0 ]; then echo "Error occurred, notifying webhook..."; curl -X PATCH "$WEBHOOK_URL" -H "Content-Type: application/json" -d "{\"id\": \"$ID\", \"status\": \"FAILED\"}"; fi' EXIT
+
 # Ensure required environment variables are set
 if [ -z "$FILE_KEY" ] || [ -z "$INPUT_BUCKET" ] || [ -z "$OUTPUT_BUCKET" ] || [ -z "$HEIGHT" ] || [ -z "$WIDTH" ] || [ -z "$BANDWIDTH" ] || [ -z "$WEBHOOK_URL" ] || [ -z "$ID" ]; then
   echo "Error: FILE_KEY, INPUT_BUCKET, OUTPUT_BUCKET, HEIGHT, WIDTH, BANDWIDTH, WEBHOOK_URL, and ID must be set."

@@ -149,6 +149,7 @@ export const VideoCard: React.FC<Props> = ({
                 key={video._id}
                 source={video.source}
                 subtitle={video.subtitle}
+                thumbnailPreviews={video.thumbnailPreviews}
                 playerRef={playerRef}
                 controls={["progress"]}
                 muted={true}

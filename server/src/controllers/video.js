@@ -121,7 +121,7 @@ class VideoController {
     const user = req.user;
     if (!videoId) throw new ApiError(400, "videoId is required")
     const { playlists, ...rest } = req.body;
-    const video = await Video.findByIdAndUpdate({ _id: new ObjectId(videoId), userId: user._id }, {
+    const video = await Video.findOneAndUpdate({ _id: new ObjectId(videoId), userId: user._id }, {
       $set: {
         ...rest
       }
@@ -129,20 +129,20 @@ class VideoController {
     if (!video) {
       throw new ApiError(500, "Invalid videoId")
     }
-    if (playlists.length) {
+    if (playlists && playlists.length) {
       const allPlaylists = await Playlist.find({ userId: user._id });
       const playlistsToRemove = allPlaylists
-        .filter(playlist => playlist.shorts.includes(short._id) && !playlists.includes(playlist._id))
+        .filter(playlist => playlist.videos.includes(video._id) && !playlists.includes(playlist._id.toString()))
         .map(playlist => playlist._id);
       const playlistsToAdd = allPlaylists
-        .filter(playlist => !playlist.shorts.includes(short._id) && playlists.includes(playlist._id))
+        .filter(playlist => !playlist.videos.includes(video._id) && playlists.includes(playlist._id.toString()))
         .map(playlist => playlist._id);
       const updatePromises = [];
       if (playlistsToRemove.length) {
         updatePromises.push(
           Playlist.updateMany(
             { _id: { $in: playlistsToRemove } },
-            { $pull: { shorts: short._id } }
+            { $pull: { videos: video._id } }
           )
         );
       }
@@ -150,7 +150,7 @@ class VideoController {
         updatePromises.push(
           Playlist.updateMany(
             { _id: { $in: playlistsToAdd } },
-            { $push: { shorts: short._id } }
+            { $push: { videos: video._id } }
           )
         );
       }

@@ -6,7 +6,17 @@ import { logger } from "../utils/logger.js";
 class WebhookController {
   updateTranscodingStatus = async (req, res) => {
     try {
-      const { resolution, id } = req.body;
+      const { resolution, id, status } = req.body;
+      
+      if (status === "FAILED") {
+        const document = await Video.findById(id) || await Short.findById(id);
+        if (document) {
+          document.sourceStatus = "FAILED";
+          await document.save();
+        }
+        return res.status(200).json({ success: true, message: `Transcoding failed` });
+      }
+
       let cache = await getCache(id);
 
       if (!cache) {
@@ -28,9 +38,11 @@ class WebhookController {
       //all true
       await removeCache(id);
       const document = await Video.findById(id) || await Short.findById(id);
-      document.sourceStatus = "READY";
-      await document.save();
-      return res.status(200).json({ success: true, message: "Transcription updated successfully" });
+      if (document) {
+        document.sourceStatus = "READY";
+        await document.save();
+      }
+      return res.status(200).json({ success: true, message: "Transcoding updated successfully" });
     } catch (error) {
       logger.error(`Error in updateTranscodingStatus: ${error.message}`, error);
       return res.status(500).json({ success: false, message: error.message });
