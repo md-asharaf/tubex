@@ -11,6 +11,7 @@ import { userService } from "@/services/user";
 import { formatDuration, formatViews } from "@/lib/utils";
 import { AvatarImg } from "@/components/root/avatar-image";
 import { Button } from "@/components/ui/button";
+import { VideoCard } from "./video-card";
 
 const FILTER_TABS = ["All", "Channels", "Videos", "Shorts", "Playlists"] as const;
 type FilterTab = typeof FILTER_TABS[number];
@@ -71,9 +72,17 @@ export const SearchedVideos = () => {
   const renderVideos = (items: IVideoData[]) => (
     <div className="flex flex-col gap-y-4 sm:gap-y-6">
       {items?.map((video) => (
-        <Link to={`/video/${video._id}`} key={video._id}>
-          <div className="flex flex-col sm:flex-row gap-y-2 sm:gap-x-4 rounded-lg">
-            <div className="relative flex-shrink-0 w-full sm:w-[320px] md:w-[360px] aspect-video">
+        <div key={video._id}>
+          {/* Mobile Layout */}
+          <div className="block sm:hidden">
+            <Link to={`/video/${video._id}`}>
+              <VideoCard video={video} isAvatar={true} />
+            </Link>
+          </div>
+
+          {/* Desktop Layout */}
+          <Link to={`/video/${video._id}`} className="hidden sm:flex flex-row gap-x-4 rounded-lg">
+            <div className="relative flex-shrink-0 w-[320px] md:w-[360px] aspect-video">
               <img
                 src={video.thumbnail}
                 className="w-full h-full rounded-xl object-cover"
@@ -83,41 +92,40 @@ export const SearchedVideos = () => {
                 {formatDuration(video.duration)}
               </span>
             </div>
-            <div className="flex flex-col flex-1 overflow-hidden mt-1 sm:mt-0 text-sm sm:text-base lg:text-lg">
-              <div className="flex flex-col sm:gap-1">
-                <h2 className="font-normal text-[16px] sm:text-[18px] leading-snug line-clamp-2">
+            <div className="flex flex-col flex-1 overflow-hidden text-base lg:text-lg">
+              <div className="flex flex-col gap-1">
+                <h2 className="font-normal text-[18px] leading-snug line-clamp-2">
                   {video.title}
                 </h2>
-                <p className="text-[12px] sm:text-[14px] text-muted-foreground mt-1">
+                <p className="text-[14px] text-muted-foreground mt-1">
                   {`${formatViews(video.views)} • ${getRelativeShortTime(new Date(video.createdAt || Date.now()))}`}
                 </p>
               </div>
-              <div className="flex items-center gap-2 mt-2 sm:mt-4">
+              <div className="flex items-center gap-2 mt-4">
                 <AvatarImg
-                  className="w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover"
+                  className="w-8 h-8 rounded-full object-cover"
                   avatar={video.creator?.avatar}
                   fullname={video.creator?.fullname || "Unknown"}
                 />
-                <p className="text-[12px] sm:text-[14px] text-muted-foreground hover:text-foreground">
+                <p className="text-[14px] text-muted-foreground hover:text-foreground">
                   {video.creator?.fullname || "Unknown"}
                 </p>
               </div>
-              <p className="text-[12px] sm:text-[14px] text-muted-foreground mt-2 sm:mt-3 line-clamp-1 sm:line-clamp-2" title={video.description}>
+              <p className="text-[14px] text-muted-foreground mt-3 line-clamp-2" title={video.description}>
                 {video.description}
               </p>
             </div>
-          </div>
-        </Link>
+          </Link>
+        </div>
       ))}
     </div>
   );
 
   const renderShorts = (items: IShortData[]) => (
     <div className="w-full">
-      <h3 className="font-semibold text-[18px] sm:text-xl mb-4">Shorts</h3>
-      <div className="flex gap-4 overflow-x-auto pb-4 snap-x scrollbar-hide">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-4 sm:overflow-x-auto pb-4 sm:snap-x sm:scrollbar-hide">
         {items?.map((short) => (
-          <Link to={`/short/${short._id}`} key={short._id} className="w-[140px] sm:w-[180px] md:w-[200px] snap-start flex-shrink-0">
+          <Link to={`/short/${short._id}`} key={short._id} className="w-full sm:w-[180px] md:w-[200px] sm:snap-start flex-shrink-0">
             <div className="relative aspect-[9/16] rounded-xl overflow-hidden mb-2">
               <img src={short.thumbnail} className="w-full h-full object-cover" loading="lazy" />
               <div className="absolute bottom-2 right-2 text-white bg-black/80 px-1.5 py-0.5 text-xs rounded">
@@ -151,24 +159,55 @@ export const SearchedVideos = () => {
   const renderPlaylists = (items: Playlist[]) => (
     <div className="flex flex-col gap-y-4 sm:gap-y-6">
       {items?.map((playlist) => (
-        <Link to={`/playlist/${playlist._id}`} key={playlist._id}>
-          <div className="flex flex-col sm:flex-row gap-y-2 sm:gap-x-4 rounded-lg">
-            <div className="relative flex-shrink-0 w-full sm:w-[320px] md:w-[360px] aspect-video">
+        <div key={playlist._id}>
+          {/* Mobile Layout */}
+          <Link to={`/playlist/${playlist._id}`} className="block sm:hidden">
+            <div className="flex flex-col rounded-lg">
+              <div className="relative w-full aspect-video">
+                <img src={playlist.thumbnail || playlist.creator?.avatar} className="w-full h-full rounded-xl object-cover" loading="lazy" />
+                <div className="absolute bottom-2 right-2 bg-black/80 flex items-center gap-1 rounded py-1 px-2">
+                  <ListVideo className="w-[14px] h-[14px] text-white" />
+                  <span className="text-white font-medium text-[12px]">
+                    {(playlist.videos?.length || 0) + (playlist.shorts?.length || 0)} videos
+                  </span>
+                </div>
+              </div>
+              <div className="flex gap-3 items-start mt-3">
+                <AvatarImg
+                  className="w-10 h-10 rounded-full object-cover"
+                  avatar={playlist.creator?.avatar}
+                  fullname={playlist.creator?.fullname || "Unknown"}
+                />
+                <div className="flex flex-col flex-1 overflow-hidden">
+                  <h2 className="font-semibold text-[16px] leading-snug line-clamp-2">{playlist.name}</h2>
+                  <p className="text-[13px] text-muted-foreground mt-0.5">
+                    {playlist.creator?.fullname || "Unknown"} • Playlist {playlist.updatedAt && `• Updated ${getRelativeShortTime(new Date(playlist.updatedAt))}`}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {/* Desktop Layout */}
+          <Link to={`/playlist/${playlist._id}`} className="hidden sm:flex flex-row gap-x-4 rounded-lg">
+            <div className="relative flex-shrink-0 w-[320px] md:w-[360px] aspect-video">
               <img src={playlist.thumbnail || playlist.creator?.avatar} className="w-full h-full rounded-xl object-cover" loading="lazy" />
-              <div className="absolute inset-y-0 right-0 w-1/3 bg-black/80 flex flex-col gap-1 items-center justify-center rounded-r-xl">
-                <ListVideo className="w-5 h-5 text-white" />
-                <span className="text-white font-medium text-xs sm:text-sm text-center">
-                  {(playlist.videos?.length || 0) + (playlist.shorts?.length || 0)} <br className="hidden sm:block" /> videos
+              <div className="absolute bottom-2 right-2 bg-black/80 flex items-center gap-1.5 rounded py-1 px-2">
+                <ListVideo className="w-[14px] h-[14px] text-white" />
+                <span className="text-white font-medium text-[12px]">
+                  {(playlist.videos?.length || 0) + (playlist.shorts?.length || 0)} videos
                 </span>
               </div>
             </div>
-            <div className="flex flex-col flex-1 overflow-hidden mt-1 sm:mt-0">
-              <h2 className="font-normal text-[16px] sm:text-[18px] line-clamp-2 leading-snug">{playlist.name}</h2>
-              <p className="text-[12px] sm:text-[14px] text-muted-foreground mt-1">{playlist.creator?.fullname || "Unknown"}</p>
-              <p className="text-[10px] sm:text-[12px] font-medium bg-muted w-max px-2 py-1 rounded text-muted-foreground mt-2">Playlist</p>
+            <div className="flex flex-col flex-1 overflow-hidden mt-0">
+              <h2 className="font-normal text-[18px] line-clamp-2 leading-snug">{playlist.name}</h2>
+              <p className="text-[13px] text-muted-foreground mt-1">
+                {playlist.creator?.fullname || "Unknown"} • Playlist {playlist.updatedAt && `• Updated ${getRelativeShortTime(new Date(playlist.updatedAt))}`}
+              </p>
+              <p className="text-[13px] font-medium text-muted-foreground mt-3 hover:text-foreground transition-colors">View full playlist</p>
             </div>
-          </div>
-        </Link>
+          </Link>
+        </div>
       ))}
     </div>
   );

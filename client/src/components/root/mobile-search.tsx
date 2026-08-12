@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Search, X, Mic } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useDispatch } from "react-redux";
@@ -7,8 +7,9 @@ import { setVoiceSearchModal } from "@/store/reducers/ui";
 
 export const MobileSearch = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
-  const [input, setInput] = useState<string>("");
+  const [input, setInput] = useState<string>(searchParams.get("q") || "");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {

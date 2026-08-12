@@ -37,7 +37,10 @@ export const NavBar = () => {
             </button>
             <div
               className="flex-1 flex items-center bg-[#F0F0F0] dark:bg-[#272727] rounded-full px-4 h-9 cursor-text overflow-hidden"
-              onClick={() => navigate("/search")}
+              onClick={() => {
+                const q = new URLSearchParams(location.search).get("q");
+                navigate(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
+              }}
             >
               <span className="text-sm truncate w-full text-left">
                 {new URLSearchParams(location.search).get("q") || "Search TubeX"}
@@ -86,7 +89,10 @@ export const NavBar = () => {
               <Notifications />
               <div className="flex sm:hidden">
                 <button
-                  onClick={() => navigate('/search')}
+                  onClick={() => {
+                    const q = new URLSearchParams(location.search).get("q");
+                    navigate(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
+                  }}
                   className="p-2 rounded-full hover:bg-muted text-xl"
                   aria-label="Toggle search"
                 >
@@ -101,7 +107,10 @@ export const NavBar = () => {
             <>
               <div className="flex sm:hidden">
                 <button
-                  onClick={() => navigate('/search')}
+                  onClick={() => {
+                    const q = new URLSearchParams(location.search).get("q");
+                    navigate(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
+                  }}
                   className="p-2 rounded-full hover:bg-muted text-xl"
                   aria-label="Toggle search"
                 >
