@@ -9,8 +9,9 @@ interface IThreeDots {
         handler: () => void;
     };
     videoId: string;
+    isStudio?: boolean;
 }
-export const ThreeDots = ({ videoId, task = null }: IThreeDots) => {
+export const ThreeDots = ({ videoId, task = null, isStudio = false }: IThreeDots) => {
     const [open,setOpen] = useState(false);
     return (
         <div
@@ -30,7 +31,7 @@ export const ThreeDots = ({ videoId, task = null }: IThreeDots) => {
                     className="py-2 px-0 w-full rounded-xl shadow-lg bg-white dark:bg-[#212121] border-none text-sm"
                     onClick={()=>setOpen(false)}
                 >
-                    <ThreeDotContent videoId={videoId} task={task} />
+                    <ThreeDotContent videoId={videoId} task={task} isStudio={isStudio} />
                 </PopoverContent>
             </Popover>
         </div>

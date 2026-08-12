@@ -24,6 +24,7 @@ import { setAlertDialogData } from "@/store/reducers/ui";
 import { toast } from "sonner";
 import { queryClient } from "@/lib/query-client";
 import { IStudioVideo } from "@/interfaces";
+import { Loader2 } from "lucide-react";
 export const ContentVideos = () => {
   const { username } = useParams();
   const [page, setPage] = useState(1);
@@ -60,7 +61,7 @@ export const ContentVideos = () => {
     );
   };
 
-  const { data: videosPages } = useInfiniteQuery({
+  const { data: videosPages, isLoading } = useInfiniteQuery({
     queryKey: ["videos", username, page, searchQuery],
     queryFn: async ({ pageParam }): Promise<{ docs: IStudioVideo[], totalPages: number, hasNextPage: boolean }> => {
       const data = await studioService.getUserVideos(username as string, pageParam, searchQuery);
@@ -73,6 +74,14 @@ export const ContentVideos = () => {
   });
   const videos = videosPages?.pages.flatMap((p) => p.docs) || [];
   const totalPages = videosPages?.pages[0]?.totalPages || 0;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center w-full h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -125,6 +134,7 @@ export const ContentVideos = () => {
               <TableCell>
                 <ThreeDots
                   videoId={video._id}
+                  isStudio={true}
                   task={{
                     title: "Delete Forever",
                     handler: () => handleDelete(video._id),

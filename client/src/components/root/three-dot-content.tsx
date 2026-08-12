@@ -9,7 +9,7 @@ import {
   setShareModalData,
   setLoginPopoverData,
 } from "@/store/reducers/ui";
-export const ThreeDotContent = ({ videoId, task }) => {
+export const ThreeDotContent = ({ videoId, task, isStudio }) => {
   const dispatch = useDispatch();
   const userId = useSelector((state: RootState) => state.auth.userData?._id);
   const { data: isSavedToWatchLater, refetch } = useQuery({
@@ -65,59 +65,67 @@ export const ThreeDotContent = ({ videoId, task }) => {
             <span>{task.title}</span>
           </li>
         )}
-        <li
-          className="flex items-center space-x-2 cursor-pointer py-2 px-4 dark:hover:bg-[#535353] hover:bg-[#E5E5E5]"
-          onClick={() => {
-            if (!userId) {
-              dispatch(setLoginPopoverData({ open: true, message: "Sign in to save." }));
-              return;
-            }
-            if (isSavedToWatchLater) {
-              removeFromWatchLater();
-            } else {
-              saveToWatchLater();
-            }
-          }}
-        >
-          {isSavedToWatchLater ? (
-            <Check className="w-5 h-5" />
-          ) : (
-            <Clock4 className="h-5 w-5" />
-          )}
-          <span>
-            {isSavedToWatchLater
-              ? "Saved to Watch Later"
-              : "Save to Watch Later"}
-          </span>
-        </li>
-        <li
-          className="cursor-pointer dark:hover:bg-[#535353] hover:bg-[#E5E5E5]"
-          onClick={() => {
-            if (!userId) {
-              dispatch(setLoginPopoverData({ open: true, message: "Sign in to save." }));
-              return;
-            }
-            dispatch(setSaveToPlaylistDialog({ open: true, id: videoId }));
-          }}
-        >
-          <div className="flex items-center space-x-2 py-2 px-4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+        {!isStudio && (
+          <>
+            <li
+              className="flex items-center space-x-2 cursor-pointer py-2 px-4 dark:hover:bg-[#535353] hover:bg-[#E5E5E5]"
+              onClick={() => {
+                if (!userId) {
+                  dispatch(setLoginPopoverData({ open: true, message: "Sign in to save." }));
+                  return;
+                }
+                if (isSavedToWatchLater) {
+                  removeFromWatchLater();
+                } else {
+                  saveToWatchLater();
+                }
+              }}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 3v16l7-3 7 3V3H5z"
-              />
-            </svg>
-            <span>Save to playlist</span>
-          </div>
-        </li>
+              {isSavedToWatchLater ? (
+                <Check className="w-5 h-5" />
+              ) : (
+                <Clock4 className="h-5 w-5" />
+              )}
+              <span>
+                {isSavedToWatchLater
+                  ? "Saved to Watch Later"
+                  : "Save to Watch Later"}
+              </span>
+            </li>
+            <li
+              className="cursor-pointer dark:hover:bg-[#535353] hover:bg-[#E5E5E5]"
+              onClick={() => {
+                if (!userId) {
+                  dispatch(setLoginPopoverData({ open: true, message: "Sign in to save." }));
+                  return;
+                }
+                dispatch(setSaveToPlaylistDialog({ open: true, id: videoId }));
+              }}
+            >
+              <div className="flex items-center space-x-2 py-2 px-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-list-plus"
+                >
+                  <path d="M11 12H3" />
+                  <path d="M16 6H3" />
+                  <path d="M16 18H3" />
+                  <path d="M18 9v6" />
+                  <path d="M21 12h-6" />
+                </svg>
+                <span>Save to Playlist</span>
+              </div>
+            </li>
+          </>
+        )}
         <li
           className="flex items-center space-x-2 cursor-pointer py-2 px-4 dark:hover:bg-[#535353] hover:bg-[#E5E5E5]"
           onClick={() =>

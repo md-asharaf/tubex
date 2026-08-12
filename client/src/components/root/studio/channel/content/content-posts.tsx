@@ -24,6 +24,7 @@ import { ThreeDots } from "@/components/root/three-dots";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { IStudioPost } from "@/interfaces";
+import { Loader2 } from "lucide-react";
 
 export const ContentPosts = () => {
   const { username } = useParams();
@@ -56,16 +57,10 @@ export const ContentPosts = () => {
     );
   };
 
-  const { data: postsPages } = useInfiniteQuery({
-    queryKey: ["studio-posts", username, page],
-    queryFn: async ({
-      pageParam,
-    }): Promise<{
-      docs: IStudioPost[];
-      totalPages: number;
-      hasNextPage: boolean;
-    }> => {
-      const data = await studioService.getUserPosts(username, pageParam);
+  const { data: postsPages, isLoading } = useInfiniteQuery({
+    queryKey: ["posts", username, page],
+    queryFn: async ({ pageParam }): Promise<{ docs: IStudioPost[], totalPages: number, hasNextPage: boolean }> => {
+      const data = await studioService.getUserPosts(username as string, pageParam);
       return data.posts;
     },
     initialPageParam: page,
@@ -75,6 +70,15 @@ export const ContentPosts = () => {
   });
   const posts = postsPages?.pages.flatMap((p) => p.docs) || [];
   const totalPages = postsPages?.pages[0]?.totalPages || 0;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center w-full h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+      </div>
+    );
+  }
+
   return (
     <div>
       <Table>
@@ -126,6 +130,7 @@ export const ContentPosts = () => {
               <TableCell>
                 <ThreeDots
                   videoId={post._id}
+                  isStudio={true}
                   task={{
                     title: "Delete Forever",
                     handler: () => handleDelete(post._id),

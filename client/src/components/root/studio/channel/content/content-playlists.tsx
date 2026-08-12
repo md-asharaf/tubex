@@ -21,7 +21,7 @@ import { setAlertDialogData } from "@/store/reducers/ui";
 import { toast } from "sonner";
 import { queryClient } from "@/lib/query-client";
 import { ThreeDots } from "@/components/root/three-dots";
-import { AlignJustifyIcon } from "lucide-react";
+import { AlignJustifyIcon, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { IStudioPlaylist } from "@/interfaces";
@@ -56,7 +56,7 @@ export const ContentPlaylists = () => {
     );
   };
 
-  const { data: playlistsPages } = useInfiniteQuery({
+  const { data: playlistsPages, isLoading } = useInfiniteQuery({
     queryKey: ["playlists", username, page],
     queryFn: async ({
       pageParam,
@@ -75,6 +75,15 @@ export const ContentPlaylists = () => {
   });
   const playlists = playlistsPages?.pages.flatMap((p) => p.docs) || [];
   const totalPages = playlistsPages?.pages[0]?.totalPages || 0;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center w-full h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+      </div>
+    );
+  }
+
   return (
     <div>
       <Table>
@@ -129,6 +138,7 @@ export const ContentPlaylists = () => {
               <TableCell>
                 <ThreeDots
                   videoId={playlist._id}
+                  isStudio={true}
                   task={{
                     title: "Delete Forever",
                     handler: () => handleDelete(playlist._id),
